@@ -208,16 +208,16 @@ export default function HomePage() {
                 <Image src="/partners/repsol.png" alt="Partner 2" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.1}>
-                <Image src="/partners/tony.webp" alt="Partner 3" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/logo1.png" alt="Partner 3" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.15}>
-                <Image src="/partners/tony.webp" alt="Partner 4" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/logo2.jpg" alt="Partner 4" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.2}>
-                <Image src="/partners/tony.webp" alt="Partner 5" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/logo3.jpg" alt="Partner 5" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.25}>
-                <Image src="/partners/tony.webp" alt="Partner 6" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/logo4.png" alt="Partner 6" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
             </div>
           </div>
