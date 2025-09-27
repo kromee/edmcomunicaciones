@@ -202,22 +202,22 @@ export default function HomePage() {
             <p className="mt-2 text-center text-gray-600">Empresas que confían en nuestras soluciones</p>
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 sm:gap-8 items-center">
               <Reveal>
-                <Image src="/partners/tony.webp" alt="Partner 1" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/netra.png" alt="Partner 1" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.05}>
-                <Image src="/partners/repsol.png" alt="Partner 2" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/novaprint.png" alt="Partner 2" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.1}>
-                <Image src="/partners/logo1.png" alt="Partner 3" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/silicatos.png" alt="Partner 3" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.15}>
-                <Image src="/partners/logo2.jpg" alt="Partner 4" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/kenworth.png" alt="Partner 4" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.2}>
-                <Image src="/partners/logo3.jpg" alt="Partner 5" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/logo2.jpg" alt="Partner 5" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
               <Reveal delay={0.25}>
-                <Image src="/partners/logo4.png" alt="Partner 6" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
+                <Image src="/partners/logo2.jpg" alt="Partner 6" width={140} height={48} className="mx-auto h-10 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300 ease-out hover:scale-[1.03]" />
               </Reveal>
             </div>
           </div>
