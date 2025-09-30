@@ -1,0 +1,12 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradCable" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c4a6e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0369a1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#gradCable)"/>
+  <path d="M 100 300 Q 250 150, 400 300 T 700 300" stroke="white" stroke-width="8" fill="none" opacity="0.4"/>
+  <text x="400" y="400" font-family="Arial, sans-serif" font-size="28" fill="white" text-anchor="middle" font-weight="bold">Cableado Estructurado</text>
+  <text x="400" y="440" font-family="Arial, sans-serif" font-size="16" fill="rgba(255,255,255,0.8)" text-anchor="middle">Cat 6A/7 | Fibra Óptica | Certificado</text>
+</svg>

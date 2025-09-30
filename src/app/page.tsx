@@ -24,7 +24,7 @@ export default function HomePage() {
                 </Reveal>
                 <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <a
-                    href="https://wa.me/525530358478?text=Hola%20EDM%20Comunicaciones,%20quisiera%20solicitar%20una%20cotizaci%C3%B3n%20para%20..."
+                    href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quisiera%20solicitar%20una%20cotizaci%C3%B3n%20para%20..."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-3 text-center text-white shadow-md transition hover:shadow-lg hover:from-sky-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400/50 active:scale-95"
@@ -33,11 +33,11 @@ export default function HomePage() {
                     Solicita una cotización
                   </a>
                   <a
-                    href="mailto:ventas@edmcomunicaciones.com?subject=Contacto&body=Hola%20EDM%20Comunicaciones,%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios."
+                    href="mailto:edm_comunicaciones@hotmail.com?subject=Contacto&body=Hola%20EDM%20Comunicaciones,%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios."
                     className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-center text-[#0f1e48] shadow-md transition hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
                   >
                     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                    Escribenos
+                    Escríbenos
                   </a>
                 </div>
               </div>
@@ -229,5 +229,3 @@ export default function HomePage() {
     </>
   );
 }
-
-
