@@ -1,0 +1,5 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#3730a3"/>
+  <path d="M 150 300 L 650 300 M 400 100 L 400 500" stroke="white" stroke-width="8" opacity="0.3"/>
+  <text x="400" y="320" font-family="Arial, sans-serif" font-size="20" fill="white" text-anchor="middle">Validación vs. Factura</text>
+</svg>

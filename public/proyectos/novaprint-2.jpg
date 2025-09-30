@@ -1,0 +1,5 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#047857"/>
+  <circle cx="400" cy="300" r="100" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="4"/>
+  <text x="400" y="310" font-family="Arial, sans-serif" font-size="20" fill="white" text-anchor="middle">Huella + Facial</text>
+</svg>

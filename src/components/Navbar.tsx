@@ -14,7 +14,6 @@ export function Navbar() {
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <Link href="/servicios" className="hover:text-brand">Servicios</Link>
           <Link href="/proyectos" className="hover:text-brand">Proyectos</Link>
-          <Link href="/blog" className="hover:text-brand">Blog</Link>
           <Link href="/nosotros" className="hover:text-brand">Nosotros</Link>
           <Link href="/galeria" className="hover:text-brand">Galería</Link>
           <Link href="/contacto" className="hover:text-brand">Contacto</Link>
@@ -39,7 +38,6 @@ export function Navbar() {
           <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 grid gap-4 text-sm">
             <Link href="/servicios" onClick={() => setOpen(false)} className="hover:text-brand">Servicios</Link>
             <Link href="/proyectos" onClick={() => setOpen(false)} className="hover:text-brand">Proyectos</Link>
-            <Link href="/blog" onClick={() => setOpen(false)} className="hover:text-brand">Blog</Link>
             <Link href="/nosotros" onClick={() => setOpen(false)} className="hover:text-brand">Nosotros</Link>
             <Link href="/galeria" onClick={() => setOpen(false)} className="hover:text-brand">Galería</Link>
             <Link href="/contacto" onClick={() => setOpen(false)} className="hover:text-brand">Contacto</Link>
