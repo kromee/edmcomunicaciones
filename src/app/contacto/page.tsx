@@ -53,6 +53,18 @@ export default function ContactoPage() {
       );
 
       if (result.status === 200) {
+        // Guardar contacto en Supabase
+        try {
+          await fetch('/api/contacts/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          });
+        } catch (dbError) {
+          console.error('Error saving to database:', dbError);
+          // No falla el envío si la BD falla
+        }
+
         setSubmitStatus('success');
         setFormData({
           name: '',
