@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Reveal } from '@/components/Reveal';
 
@@ -42,7 +42,7 @@ type QuoteFormData = {
   notes: string;
 };
 
-export default function CotizadorPage() {
+function CotizadorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -730,5 +730,20 @@ export default function CotizadorPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function CotizadorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando cotizador...</p>
+        </div>
+      </div>
+    }>
+      <CotizadorContent />
+    </Suspense>
   );
 }
