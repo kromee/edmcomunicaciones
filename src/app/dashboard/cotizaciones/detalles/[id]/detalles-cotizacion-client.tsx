@@ -39,19 +39,26 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
     try {
       // Convertir quote_items a items para el generador de PDF
       const quoteForPDF = {
-        ...quote,
+        quote_number: quote.quote_number,
+        client_name: quote.client_name,
+        client_email: quote.client_email,
         client_phone: quote.client_phone || '',
         client_company: quote.client_company || '',
+        service_type: quote.service_type,
         description: quote.description || '',
         valid_until: quote.valid_until,
         items: quote.quote_items.map(item => ({
           item_name: item.item_name,
           description: item.description || '',
           quantity: item.quantity,
-          unit: item.unit,
+          unit: item.unit as 'PZA' | 'SERV',
           unit_price: item.unit_price,
           total: item.total
-        }))
+        })),
+        subtotal: quote.total_amount,
+        tax: 0,
+        total_amount: quote.total_amount,
+        created_at: quote.created_at
       };
       
       const pdf = await generateQuotePDF(quoteForPDF);

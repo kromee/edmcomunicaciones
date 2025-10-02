@@ -3,42 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useModal } from '@/hooks/useModal';
 import { Modal } from '@/components/Modal';
-
-type QuoteItem = {
-  id: string;
-  item_name: string;
-  description: string;
-  quantity: number;
-  unit: 'PZA' | 'SERV';
-  unit_price: number;
-  total: number;
-};
-
-type QuoteData = {
-  id: string;
-  quote_number: string;
-  client_name: string;
-  client_email: string;
-  client_phone: string | null;
-  client_company: string | null;
-  service_type: string;
-  description: string;
-  valid_until: string;
-  notes: string | null;
-  status: string;
-  total_amount: number;
-  created_at: string;
-  updated_at: string;
-  quote_items: QuoteItem[];
-};
-
-type QuoteFormData = {
-  service_type: string;
-  description: string;
-  valid_until: string;
-  notes: string;
-  status: string;
-};
+import { QuoteData, QuoteFormData, QuoteItem } from '@/types/quote.types';
 
 export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) {
   const router = useRouter();

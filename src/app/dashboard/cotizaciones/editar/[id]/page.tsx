@@ -1,32 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import EditarCotizacionClient from './editar-cotizacion-client';
-
-type QuoteData = {
-  id: string;
-  quote_number: string;
-  client_name: string;
-  client_email: string;
-  client_phone: string | null;
-  client_company: string | null;
-  service_type: string;
-  description: string;
-  valid_until: string;
-  notes: string | null;
-  status: string;
-  total_amount: number;
-  created_at: string;
-  updated_at: string;
-  quote_items: Array<{
-    id: string;
-    item_name: string;
-    description: string;
-    quantity: number;
-    unit: string;
-    unit_price: number;
-    total: number;
-  }>;
-};
+import { QuoteData } from '@/types/quote.types';
 
 export default async function EditarCotizacionPage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
