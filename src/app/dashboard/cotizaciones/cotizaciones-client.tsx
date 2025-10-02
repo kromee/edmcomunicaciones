@@ -80,7 +80,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
     router.refresh();
   };
 
-  const downloadPDF = (quote: Quote) => {
+  const downloadPDF = async (quote: Quote) => {
     try {
       // Validar que la cotización tenga la estructura necesaria
       if (!quote.quote_items || !Array.isArray(quote.quote_items)) {
@@ -106,7 +106,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
         }))
       };
       
-      const pdf = generateQuotePDF(quoteForPDF);
+      const pdf = await generateQuotePDF(quoteForPDF);
       pdf.save(`${quote.quote_number}.pdf`);
       showSuccess('PDF Generado', 'El PDF se ha descargado exitosamente');
     } catch (error) {

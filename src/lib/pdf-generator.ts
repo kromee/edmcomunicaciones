@@ -1,8 +1,26 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// Logo EDM en base64 (se debe reemplazar con el logo real convertido a base64)
-const LOGO_BASE64 = 'data:image/png;base64,'; // Placeholder - se llenará con el logo real
+// Función para cargar el logo como base64 desde URL pública
+async function loadLogoAsBase64(): Promise<string> {
+  try {
+    const response = await fetch('/logo.png');
+    const blob = await response.blob();
+    
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Error loading logo:', error);
+    return '';
+  }
+}
 
 type QuoteData = {
   quote_number: string;
@@ -27,7 +45,7 @@ type QuoteData = {
   created_at: string;
 };
 
-export function generateQuotePDF(quote: QuoteData): jsPDF {
+export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   const doc = new jsPDF();
   
   // Configuración de colores EDM
@@ -40,37 +58,39 @@ export function generateQuotePDF(quote: QuoteData): jsPDF {
   doc.rect(0, 0, 210, 40, 'F');
   
   // Logo de la empresa
-  // Intentar cargar el logo, si falla usar texto
-  if (LOGO_BASE64 && LOGO_BASE64.length > 30) {
+  const logo = await loadLogoAsBase64();
+  if (logo) {
     try {
-      // Logo EDM - ajustar tamaño y posición (2rem = ~16px)
-      doc.addImage(LOGO_BASE64, 'PNG', 20, 12, 16, 16); // x, y, width, height
+      // Agregar logo (8mm de altura, ancho más amplio)
+      doc.addImage(logo, 'PNG', 20, 12, 35, 16);
       
       // Texto "Comunicaciones" al lado del logo
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Comunicaciones', 38, 23);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Comunicaciones', 55, 22);
     } catch (error) {
-      console.error('Error al cargar logo en PDF:', error);
-      // Fallback: usar texto
+      console.error('Error adding logo to PDF:', error);
+      // Fallback si falla agregar el logo
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(28);
       doc.setFont('helvetica', 'bold');
-      doc.text('EDM', 20, 23);
+      doc.text('EDM', 20, 20);
+      
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      doc.text('Comunicaciones', 20, 31);
+      doc.text('Comunicaciones', 20, 28);
     }
   } else {
-    // Fallback: usar texto si no hay logo
+    // Fallback si no se puede cargar el logo
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
-    doc.text('EDM', 20, 23);
+    doc.text('EDM', 20, 20);
+    
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('Comunicaciones', 20, 31);
+    doc.text('Comunicaciones', 20, 28);
   }
 
   // Número de cotización

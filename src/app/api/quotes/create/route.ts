@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generar PDF
-    const pdf = generateQuotePDF({
+    const pdf = await generateQuotePDF({
       ...quote,
       items
     });

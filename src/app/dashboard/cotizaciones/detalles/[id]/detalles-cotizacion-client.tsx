@@ -35,7 +35,7 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
   const router = useRouter();
   const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     try {
       // Convertir quote_items a items para el generador de PDF
       const quoteForPDF = {
@@ -54,7 +54,7 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
         }))
       };
       
-      const pdf = generateQuotePDF(quoteForPDF);
+      const pdf = await generateQuotePDF(quoteForPDF);
       pdf.save(`${quote.quote_number}.pdf`);
       showSuccess('PDF Generado', 'El PDF se ha descargado exitosamente');
     } catch (error) {

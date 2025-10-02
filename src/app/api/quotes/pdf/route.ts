@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Generar PDF
-    const pdfDoc = generateQuotePDF(quoteForPDF);
+    const pdfDoc = await generateQuotePDF(quoteForPDF);
     const pdfArrayBuffer = pdfDoc.output('arraybuffer');
 
     return new NextResponse(pdfArrayBuffer, {
