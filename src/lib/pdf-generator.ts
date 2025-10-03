@@ -37,6 +37,7 @@ type QuoteData = {
     quantity: number;
     unit: 'PZA' | 'SERV';
     unit_price: number;
+    percentage: number;
     total: number;
   }>;
   subtotal: number;
@@ -168,14 +169,17 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
     body: (quote.items || []).map((item, index) => {
       const quantity = item.quantity || 0;
       const unitPrice = item.unit_price || 0;
-      const total = quantity * unitPrice;
+      const percentage = item.percentage || 0;
+      // Aplicar porcentaje al precio unitario
+      const priceWithPercentage = unitPrice * (1 + percentage / 100);
+      const total = quantity * priceWithPercentage;
       
       return [
         index + 1,
         quantity,
         item.unit || 'PZA',
         item.description || '-',
-        `$${unitPrice.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
+        `$${priceWithPercentage.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
         `$${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
       ];
     }),
@@ -194,8 +198,8 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
       0: { cellWidth: 10, halign: 'center' },  // #
       1: { cellWidth: 17, halign: 'center' },  // Cantidad (más pequeña)
       2: { cellWidth: 17, halign: 'center' },  // Unidad (más pequeña)
-      3: { cellWidth: 90 },                     // Descripción (más ancha)
-      4: { cellWidth: 25, halign: 'right' },   // P. Unitario
+      3: { cellWidth: 80 },                     // Descripción (más ancha)
+      4: { cellWidth: 25, halign: 'right' },    // P. Unitario
       5: { cellWidth: 25, halign: 'right' }     // Total(MN)
     },
     margin: { left: 20, right: 20 }
@@ -212,11 +216,11 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   doc.setFont('helvetica', 'bold');
   doc.setDrawColor(...primaryColor);
   doc.setLineWidth(0.5);
-  doc.line(165, finalY + 6, 203, finalY + 6);
+  doc.line(165, finalY + 6, 194, finalY + 6);
   
   doc.text('SUBTOTAL:', 165, finalY + 12, { align: 'right' });
   doc.setTextColor(...primaryColor);
-  doc.text(`$${(quote.total_amount || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`, 203, finalY + 12, { align: 'right' });
+  doc.text(`$${(quote.total_amount || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`, 194, finalY + 12, { align: 'right' });
 
   // Términos y condiciones
   doc.setTextColor(...darkColor);

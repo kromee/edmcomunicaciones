@@ -27,6 +27,7 @@ type QuoteData = {
     quantity: number;
     unit: string;
     unit_price: number;
+    percentage: number;
     total: number;
   }>;
 };
@@ -53,6 +54,7 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
           quantity: item.quantity,
           unit: item.unit as 'PZA' | 'SERV',
           unit_price: item.unit_price,
+          percentage: item.percentage || 0,
           total: item.total
         })),
         subtotal: quote.total_amount,
@@ -216,7 +218,7 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm">
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">Cantidad</label>
                     <p className="text-gray-900 font-medium">{item.quantity}</p>
@@ -226,13 +228,22 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
                     <p className="text-gray-900 font-medium">{item.unit}</p>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Precio Unitario</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Precio Base</label>
                     <p className="text-gray-900 font-medium">
                       ${item.unit_price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Subtotal</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Porcentaje</label>
+                    <p className="text-gray-900 font-medium">
+                      {item.percentage || 0}%
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Precio final: ${(item.unit_price * (1 + (item.percentage || 0) / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Total</label>
                     <p className="text-gray-900 font-medium">
                       ${item.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                     </p>

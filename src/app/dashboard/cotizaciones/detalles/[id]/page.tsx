@@ -24,6 +24,7 @@ type QuoteData = {
     quantity: number;
     unit: string;
     unit_price: number;
+    percentage: number;
     total: number;
   }>;
 };

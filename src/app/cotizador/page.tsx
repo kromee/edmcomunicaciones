@@ -9,6 +9,7 @@ type QuoteItem = {
   quantity: number;
   unit: 'PZA' | 'SERV';
   unit_price: number;
+  percentage: number;
   total: number;
 };
 
@@ -77,6 +78,7 @@ function CotizadorContent() {
       quantity: 1,
       unit: 'PZA',
       unit_price: 0,
+      percentage: 0,
       total: 0
     }
   ]);
@@ -173,8 +175,10 @@ function CotizadorContent() {
       if (item.id === id) {
         const updatedItem = { ...item, [field]: value };
         // Recalcular total del item
-        if (field === 'quantity' || field === 'unit_price') {
-          updatedItem.total = updatedItem.quantity * updatedItem.unit_price;
+        if (field === 'quantity' || field === 'unit_price' || field === 'percentage') {
+          // Aplicar porcentaje al precio unitario
+          const priceWithPercentage = updatedItem.unit_price * (1 + updatedItem.percentage / 100);
+          updatedItem.total = updatedItem.quantity * priceWithPercentage;
         }
         return updatedItem;
       }
@@ -189,9 +193,18 @@ function CotizadorContent() {
       quantity: 1,
       unit: 'PZA',
       unit_price: 0,
+      percentage: 0,
       total: 0
     };
     setItems([...items, newItem]);
+    
+    // Enfocar el campo de descripción del nuevo item después de que se renderice
+    setTimeout(() => {
+      const newItemElement = document.querySelector(`input[name="description-${newItem.id}"]`) as HTMLInputElement;
+      if (newItemElement) {
+        newItemElement.focus();
+      }
+    }, 100);
   };
 
   const removeItem = (id: string) => {
@@ -556,19 +569,9 @@ function CotizadorContent() {
           {selectedClient && (
           <Reveal delay={0.1}>
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-gray-900">Items de la Cotización</h2>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
-                  Agregar Item
-                </button>
-              </div>
+            <div className="mb-6">
+              <h2 className="text-lg font-bold text-gray-900">Items de la Cotización</h2>
+            </div>
 
               <div className="space-y-4">
                 {items.map((item, index) => (
@@ -593,6 +596,7 @@ function CotizadorContent() {
                         </label>
                         <input
                           type="text"
+                          name={`description-${item.id}`}
                           value={item.description}
                           onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
                           required
@@ -627,6 +631,24 @@ function CotizadorContent() {
                           <option value="SERV">SERV</option>
                         </select>
                       </div>
+                      <div className="sm:col-span-1">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          % *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            value={item.percentage}
+                            onChange={(e) => handleItemChange(item.id, 'percentage', parseFloat(e.target.value) || 0)}
+                            required
+                            min="0"
+                            step="0.01"
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="0"
+                          />
+                          <span className="absolute right-3 top-2 text-gray-500 text-sm">%</span>
+                        </div>
+                      </div>
                       <div className="sm:col-span-2">
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                           Precio Unit. *
@@ -645,7 +667,13 @@ function CotizadorContent() {
                         </div>
                       </div>
                     </div>
-                    <div className="mt-3 flex justify-end">
+                    <div className="mt-3 flex justify-between items-center">
+                      <div className="text-sm text-gray-600">
+                        <span>Precio con %: </span>
+                        <span className="font-semibold text-gray-900">
+                          ${(item.unit_price * (1 + item.percentage / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
                       <div className="bg-gray-50 px-4 py-2 rounded-lg">
                         <span className="text-xs text-gray-600">Total: </span>
                         <span className="text-base font-bold text-gray-900">
@@ -655,6 +683,20 @@ function CotizadorContent() {
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              {/* Botón para agregar artículo */}
+              <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end">
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  Agregar Artículo
+                </button>
               </div>
             </div>
           </Reveal>
