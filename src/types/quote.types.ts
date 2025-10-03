@@ -5,6 +5,7 @@ export type QuoteItem = {
   quantity: number;
   unit: 'PZA' | 'SERV';
   unit_price: number;
+  percentage: number;
   total: number;
 };
 

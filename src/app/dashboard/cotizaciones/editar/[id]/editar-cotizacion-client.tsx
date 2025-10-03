@@ -40,17 +40,28 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
       quantity: 1,
       unit: 'PZA',
       unit_price: 0,
+      percentage: 0,
       total: 0
     };
     setItems(prev => [...prev, newItem]);
+    
+    // Enfocar el campo de descripción del nuevo item después de que se renderice
+    setTimeout(() => {
+      const newItemElement = document.querySelector(`input[name="description-${newItem.id}"]`) as HTMLInputElement;
+      if (newItemElement) {
+        newItemElement.focus();
+      }
+    }, 100);
   };
 
   const updateItem = (id: string, field: keyof QuoteItem, value: any) => {
     setItems(prev => prev.map(item => {
       if (item.id === id) {
         const updatedItem = { ...item, [field]: value };
-        if (field === 'quantity' || field === 'unit_price') {
-          updatedItem.total = updatedItem.quantity * updatedItem.unit_price;
+        if (field === 'quantity' || field === 'unit_price' || field === 'percentage') {
+          // Aplicar porcentaje al precio unitario
+          const priceWithPercentage = updatedItem.unit_price * (1 + updatedItem.percentage / 100);
+          updatedItem.total = updatedItem.quantity * priceWithPercentage;
         }
         return updatedItem;
       }
@@ -233,18 +244,8 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
 
         {/* Items de Cotización */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6">
             <h2 className="text-lg font-bold text-gray-900">Items de la Cotización</h2>
-            <button
-              type="button"
-              onClick={addItem}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Agregar Item
-            </button>
           </div>
 
           <div className="space-y-4">
@@ -293,6 +294,7 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
                     </label>
                     <input
                       type="text"
+                      name={`description-${item.id}`}
                       value={item.description}
                       onChange={(e) => updateItem(item.id, 'description', e.target.value)}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -316,8 +318,16 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
                 </div>
 
                 <div className="mt-3 flex items-center justify-between">
-                  <div className="text-sm font-semibold text-blue-600">
-                    Total: ${item.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                  <div className="flex items-center gap-4">
+                    <div className="text-sm text-gray-600">
+                      <span>Precio con %: </span>
+                      <span className="font-semibold text-gray-900">
+                        ${(item.unit_price * (1 + item.percentage / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="text-sm font-semibold text-blue-600">
+                      Total: ${item.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </div>
                   </div>
                   {items.length > 1 && (
                     <button
@@ -331,6 +341,20 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
                 </div>
               </div>
             ))}
+          </div>
+          
+          {/* Botón para agregar artículo */}
+          <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end">
+            <button
+              type="button"
+              onClick={addItem}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              + Artículo
+            </button>
           </div>
 
           {/* Totales */}

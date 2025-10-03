@@ -118,6 +118,7 @@ export async function POST(request: NextRequest) {
       quantity: parseInt(item.quantity) || 0,
       unit: item.unit,
       unit_price: parseFloat(item.unit_price) || 0,
+      percentage: parseFloat(item.percentage) || 0,
       total: parseFloat(item.total) || 0
     }));
 

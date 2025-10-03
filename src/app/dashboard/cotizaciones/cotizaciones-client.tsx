@@ -29,6 +29,7 @@ type Quote = {
     quantity: number;
     unit: 'PZA' | 'SERV';
     unit_price: number;
+    percentage: number;
     total: number;
   }>;
 };
@@ -102,6 +103,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
           quantity: item.quantity,
           unit: item.unit,
           unit_price: item.unit_price,
+          percentage: item.percentage || 0,
           total: item.total
         }))
       };
