@@ -13,6 +13,7 @@ type QuoteData = {
   description: string;
   valid_until: string;
   notes: string | null;
+  custom_commercial_terms: string | null;
   status: string;
   total_amount: number;
   created_at: string;
