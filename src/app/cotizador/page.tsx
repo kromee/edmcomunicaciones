@@ -41,6 +41,7 @@ type QuoteFormData = {
   description: string;
   valid_until: string;
   notes: string;
+  custom_commercial_terms: string;
 };
 
 function CotizadorContent() {
@@ -68,8 +69,11 @@ function CotizadorContent() {
     service_type: '',
     description: 'A continuación presento la propuesta económica solicitada por concepto de ',
     valid_until: getDefaultValidUntil(),
-    notes: ''
+    notes: '',
+    custom_commercial_terms: ''
   });
+
+  const [useCustomTerms, setUseCustomTerms] = useState(false);
 
   const [items, setItems] = useState<QuoteItem[]>([
     {
@@ -732,6 +736,59 @@ function CotizadorContent() {
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 placeholder="Notas adicionales, comentarios internos, descuentos especiales, etc."
               />
+            </div>
+          </Reveal>
+          )}
+
+          {/* Condiciones Comerciales Personalizadas */}
+          {selectedClient && (
+          <Reveal delay={0.35}>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Condiciones Comerciales</h2>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useCustomTerms}
+                    onChange={(e) => {
+                      setUseCustomTerms(e.target.checked);
+                      if (!e.target.checked) {
+                        setFormData({ ...formData, custom_commercial_terms: '' });
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Usar condiciones personalizadas</span>
+                </label>
+              </div>
+              
+              {useCustomTerms ? (
+                <div>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Ingrese las condiciones comerciales específicas para este cliente. Este texto reemplazará las condiciones por defecto en el PDF.
+                  </p>
+                  <textarea
+                    name="custom_commercial_terms"
+                    value={formData.custom_commercial_terms}
+                    onChange={handleFormChange}
+                    rows={6}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
+                    placeholder="• Esta cotización tiene validez hasta el [fecha].&#10;• Los precios están expresados en pesos mexicanos (MXN) y no incluyen IVA.&#10;• Forma de pago: [especificar].&#10;• [Otras condiciones específicas del cliente]"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    💡 Tip: Use viñetas (•) para listar las condiciones. Se mostrará tal como lo escriba en el PDF.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Condiciones por defecto:</p>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Esta cotización tiene validez hasta la fecha especificada.</li>
+                    <li>• Los precios están expresados en pesos mexicanos (MXN) y no incluyen IVA.</li>
+                    <li>• Forma de pago: 50% anticipo, 50% al finalizar la instalación.</li>
+                  </ul>
+                </div>
+              )}
             </div>
           </Reveal>
           )}

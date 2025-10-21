@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       description,
       valid_until,
       notes,
+      custom_commercial_terms,
       items,
       subtotal,
       tax,
@@ -94,6 +95,7 @@ export async function POST(request: NextRequest) {
         total_amount: Number(total_amount),
         valid_until: valid_until || null,
         notes: notes || null,
+        custom_commercial_terms: custom_commercial_terms || null,
         status: 'pending',
         created_by: session.id
       })

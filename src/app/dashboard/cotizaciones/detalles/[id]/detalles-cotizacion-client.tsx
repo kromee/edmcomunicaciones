@@ -16,6 +16,7 @@ type QuoteData = {
   description: string;
   valid_until: string;
   notes: string | null;
+  custom_commercial_terms: string | null;
   status: string;
   total_amount: number;
   created_at: string;
@@ -48,6 +49,7 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
         service_type: quote.service_type,
         description: quote.description || '',
         valid_until: quote.valid_until,
+        custom_commercial_terms: quote.custom_commercial_terms,
         items: quote.quote_items.map(item => ({
           item_name: item.item_name,
           description: item.description || '',

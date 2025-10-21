@@ -31,6 +31,7 @@ type QuoteData = {
   service_type: string;
   description: string;
   valid_until: string;
+  custom_commercial_terms?: string | null;
   items: Array<{
     item_name: string;
     description: string;
@@ -230,21 +231,41 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
-  const terms = [
-    `• Esta cotización tiene validez hasta el ${new Date(quote.valid_until).toLocaleDateString('es-MX', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    })}.`,
-    '• Los precios están expresados en pesos mexicanos (MXN) y no incluyen IVA.',
-    '• Forma de pago: 50% anticipo, 50% al finalizar la instalación.',
-  ];
   
   let termsY = finalY + 30;
-  terms.forEach(term => {
-    doc.text(term, 20, termsY);
-    termsY += 4;
-  });
+  
+  // Si hay condiciones comerciales personalizadas, usarlas; si no, usar las por defecto
+  if (quote.custom_commercial_terms && quote.custom_commercial_terms.trim()) {
+    // Usar condiciones personalizadas
+    const customTermsLines = quote.custom_commercial_terms.split('\n');
+    customTermsLines.forEach(line => {
+      if (line.trim()) {
+        const splitLine = doc.splitTextToSize(line, 170);
+        splitLine.forEach((textLine: string) => {
+          doc.text(textLine, 20, termsY);
+          termsY += 4;
+        });
+      } else {
+        termsY += 2; // Espaciado para líneas vacías
+      }
+    });
+  } else {
+    // Usar condiciones por defecto
+    const terms = [
+      `• Esta cotización tiene validez hasta el ${new Date(quote.valid_until).toLocaleDateString('es-MX', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })}.`,
+      '• Los precios están expresados en pesos mexicanos (MXN) y no incluyen IVA.',
+      '• Forma de pago: 50% anticipo, 50% al finalizar la instalación.',
+    ];
+    
+    terms.forEach(term => {
+      doc.text(term, 20, termsY);
+      termsY += 4;
+    });
+  }
 
   // Footer
   doc.setFillColor(240, 240, 240);
