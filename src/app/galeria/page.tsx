@@ -117,16 +117,24 @@ const galleryData = {
         src: '/proyectos/clinicas_1.png', 
         alt: 'Sistema Cliniks',
         title: 'Sistema de Gestión Clínica - Cliniks',
-        description: 'Plataforma web completa para administración de clínicas médicas con módulos de expedientes electrónicos, agendamiento de citas, facturación, inventario de medicamentos y reportes estadísticos.',
+        description: 'Plataforma web completa para administración de clínicas médicas con módulos de expedientes electrónicos, agendamiento de citas, expedición de recetas, inventario de medicamentos y reportes estadísticos, sistema configurable, manejo de usuarios y permisos, medicos, especialidades, sucursales, precios, integracion de pagos con tarjetas bancarias, etc.',
         client: 'Clínica Médica',
         date: '2024'
       },
       { 
-        src: '/proyectos/clinicas_2.png', 
-        alt: 'Decora Tu Home',
-        title: 'E-commerce Decora Tu Home',
-        description: 'Tienda en línea para venta de artículos de decoración con catálogo de productos, carrito de compras, pasarela de pagos, gestión de inventario y panel administrativo completo.',
+        src: '/proyectos/decotuhome_panel.jpeg', 
+        alt: 'DecoraTuHome',
+        title: 'Administrativo DecoraTuHome',
+        description: 'Sistema administrativo y punto de venta para la venta de artículos de decoración con catálogo de productos,imprime tickets,, administra de clientes, reportes y panel de control de gastos y ganancias',
         client: 'Tienda de Decoración',
+        date: '2024'
+      },
+      { 
+        src: '/proyectos/clinikas_pv.png', 
+        alt: 'Sistema POS Farmacias',
+        title: 'Sistema de Punto de Venta para Farmacias',
+        description: 'Sistema de punto de venta especializado y configurable diseñado inicialmente para farmacias, adaptable a todo tipo de negocio. Incluye gestión de múltiples almacenes, configuración de cajas y cajeros, niveles de precios diferenciados, control de retiros de efectivo, cortes de caja automatizados, sistema de promociones y descuentos, control de inventarios en tiempo real, reportes de ventas detallados y módulo de facturación electrónica. Interfaz intuitiva optimizada para operación rápida y eficiente.',
+        client: 'Farmacia / Retail',
         date: '2024'
       },
       { 

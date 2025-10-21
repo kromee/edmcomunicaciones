@@ -337,39 +337,39 @@ export default function ProyectosPage() {
             <Reveal delay={0.2}>
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
                 <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/decoratuhome.png")}
+                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                  onClick={() => setSelectedImage("/proyectos/decotuhome_panel.jpeg")}
                 >
                   <Image 
-                    src="/decoratuhome.png" 
+                    src="/proyectos/decotuhome_panel.jpeg" 
                     alt="DecoraTuHome proyecto 1" 
                     width={400}
                     height={300}
-                    className="object-contain max-w-full max-h-full p-4"
+                    className="object-cover w-full h-full"
                   />
                 </div>
                 <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/decoratuhome_app.png")}
+                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                  onClick={() => setSelectedImage("/proyectos/decotuhome_venta.jpeg")}
                 >
                   <Image 
-                    src="/decoratuhome_app.png" 
+                    src="/proyectos/decotuhome_venta.jpeg" 
                     alt="DecoraTuHome proyecto 2" 
                     width={400}
                     height={300}
-                    className="object-contain max-w-full max-h-full p-4"
+                    className="object-cover w-full h-full"
                   />
                 </div>
                 <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/decoratuhome_web.png")}
+                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                  onClick={() => setSelectedImage("/proyectos/decotuhome_reportes.jpeg")}
                 >
                   <Image 
-                    src="/decoratuhome_web.png" 
+                    src="/proyectos/decotuhome_reportes.jpeg" 
                     alt="DecoraTuHome proyecto 3" 
                     width={400}
                     height={300}
-                    className="object-contain max-w-full max-h-full p-4"
+                    className="object-cover w-full h-full"
                   />
                 </div>
               </div>
