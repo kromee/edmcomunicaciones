@@ -18,6 +18,8 @@ type Quote = {
   client_company: string | null;
   service_type: string;
   description: string | null;
+  valid_until: string;
+  custom_commercial_terms: string | null;
   subtotal: number;
   tax: number;
   total_amount: number;
@@ -92,11 +94,15 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
       
       // Convertir quote_items a items para el generador de PDF
       const quoteForPDF = {
-        ...quote,
+        quote_number: quote.quote_number,
+        client_name: quote.client_name,
+        client_email: quote.client_email,
         client_phone: quote.client_phone || '',
         client_company: quote.client_company || '',
+        service_type: quote.service_type,
         description: quote.description || '',
-        valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        valid_until: quote.valid_until,
+        custom_commercial_terms: quote.custom_commercial_terms,
         items: quote.quote_items.map(item => ({
           item_name: item.item_name,
           description: item.description || '',
@@ -105,7 +111,11 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
           unit_price: item.unit_price,
           percentage: item.percentage || 0,
           total: item.total
-        }))
+        })),
+        subtotal: quote.total_amount,
+        tax: 0,
+        total_amount: quote.total_amount,
+        created_at: quote.created_at
       };
       
       const pdf = await generateQuotePDF(quoteForPDF);

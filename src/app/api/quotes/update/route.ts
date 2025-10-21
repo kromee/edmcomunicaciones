@@ -12,6 +12,7 @@ export async function PUT(request: NextRequest) {
       description,
       valid_until,
       notes,
+      custom_commercial_terms,
       status,
       items,
       total_amount
@@ -28,6 +29,7 @@ export async function PUT(request: NextRequest) {
         description,
         valid_until,
         notes,
+        custom_commercial_terms,
         status,
         total_amount,
         updated_at: new Date().toISOString()

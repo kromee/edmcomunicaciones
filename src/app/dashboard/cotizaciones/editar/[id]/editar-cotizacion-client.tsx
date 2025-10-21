@@ -14,8 +14,11 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
     description: quote.description,
     valid_until: quote.valid_until,
     notes: quote.notes || '',
+    custom_commercial_terms: quote.custom_commercial_terms || '',
     status: quote.status
   });
+
+  const [useCustomTerms, setUseCustomTerms] = useState(!!quote.custom_commercial_terms);
 
   const [items, setItems] = useState<QuoteItem[]>(quote.quote_items);
   const [subtotal, setSubtotal] = useState(0);
@@ -238,6 +241,54 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 placeholder="Notas adicionales..."
               />
+            </div>
+
+            {/* Condiciones Comerciales Personalizadas */}
+            <div className="sm:col-span-2">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Condiciones Comerciales
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useCustomTerms}
+                    onChange={(e) => {
+                      setUseCustomTerms(e.target.checked);
+                      if (!e.target.checked) {
+                        setFormData({ ...formData, custom_commercial_terms: '' });
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Usar condiciones personalizadas</span>
+                </label>
+              </div>
+              
+              {useCustomTerms ? (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Condiciones específicas para este cliente. Este texto reemplazará las condiciones por defecto en el PDF.
+                  </p>
+                  <textarea
+                    name="custom_commercial_terms"
+                    value={formData.custom_commercial_terms || ''}
+                    onChange={handleFormChange}
+                    rows={6}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
+                    placeholder="• Esta cotización tiene validez hasta el [fecha].&#10;• Los precios están expresados en pesos mexicanos (MXN) y no incluyen IVA.&#10;• Forma de pago: [especificar].&#10;• [Otras condiciones específicas del cliente]"
+                  />
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Condiciones por defecto:</p>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Esta cotización tiene validez hasta la fecha especificada.</li>
+                    <li>• Los precios están expresados en pesos mexicanos (MXN) y no incluyen IVA.</li>
+                    <li>• Forma de pago: 50% anticipo, 50% al finalizar la instalación.</li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>

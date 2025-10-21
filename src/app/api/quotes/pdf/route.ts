@@ -35,12 +35,14 @@ export async function POST(request: NextRequest) {
       service_type: quote.service_type,
       description: quote.description,
       valid_until: quote.valid_until,
+      custom_commercial_terms: quote.custom_commercial_terms,
       items: (quote.quote_items || []).map((item: any) => ({
         item_name: item.item_name,
         description: item.description,
         quantity: item.quantity,
         unit: item.unit,
         unit_price: item.unit_price,
+        percentage: item.percentage,
         total: item.total
       })),
       subtotal: quote.total_amount,
