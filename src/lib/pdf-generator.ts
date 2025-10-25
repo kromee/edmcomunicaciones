@@ -57,7 +57,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
 
   // Header - Logo y título
   doc.setFillColor(...primaryColor);
-  doc.rect(0, 0, 210, 40, 'F');
+  doc.rect(0, 0, 210, 30, 'F');
   
   // Logo de la empresa
   const logo = await loadLogoAsBase64();
@@ -107,17 +107,17 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   // Información de EDM
   doc.setTextColor(...darkColor);
   doc.setFontSize(9);
-  doc.text('edm_comunicaciones@hotmail.com', 20, 46);
-  doc.text(process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '55 5031 7183', 20, 51);
+  doc.text('edm_comunicaciones@hotmail.com', 20,35);
+  doc.text(process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '55 5031 7183', 20, 40);
 
   // Información del cliente
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text('Cliente:', 20, 65);
+  doc.text('Cliente:', 20, 50);
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
-  let yPos = 70;
+  let yPos =55;
   doc.text(quote.client_name, 20, yPos);
   if (quote.client_company) {
     yPos += 5;
@@ -138,7 +138,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
     month: 'long',
     day: 'numeric'
   });
-  doc.text(`Fecha: ${fechaEmision}`, 140, 65);
+  doc.text(`Fecha: ${fechaEmision}`, 140,50);
   
   if (quote.valid_until) {
     const fechaVencimiento = new Date(quote.valid_until).toLocaleDateString('es-MX', {
@@ -146,7 +146,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
       month: 'long',
       day: 'numeric'
     });
-    doc.text(`Válida hasta: ${fechaVencimiento}`, 140, 70);
+    doc.text(`Válida hasta: ${fechaVencimiento}`, 140, 55);
   }
 
   // Descripción del servicio
@@ -162,11 +162,11 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   }
 
   // Tabla de items
-  const tableStartY = Math.max(yPos + 3, 100);
+  const tableStartY = Math.max(yPos + 3, 60);
   
   autoTable(doc, {
     startY: tableStartY,
-    head: [['#', 'Cantidad', 'Unidad', 'Descripción', 'P. Unitario', 'Total(MN)']],
+    head: [['#', 'Cant', 'Unid', 'Descripción', 'Precio U', 'Total(MN)']],
     body: (quote.items || []).map((item, index) => {
       const quantity = item.quantity || 0;
       const unitPrice = item.unit_price || 0;
@@ -196,12 +196,12 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
       textColor: darkColor
     },
     columnStyles: {
-      0: { cellWidth: 10, halign: 'center' },  // #
-      1: { cellWidth: 17, halign: 'center' },  // Cantidad (más pequeña)
-      2: { cellWidth: 17, halign: 'center' },  // Unidad (más pequeña)
-      3: { cellWidth: 80 },                     // Descripción (más ancha)
-      4: { cellWidth: 25, halign: 'right' },    // P. Unitario
-      5: { cellWidth: 25, halign: 'right' }     // Total(MN)
+      0: { cellWidth: 7, halign: 'center' },  // #
+      1: { cellWidth: 14, halign: 'center' },  // Cantidad (más pequeña)
+      2: { cellWidth: 14, halign: 'center' },  // Unidad (más pequeña)
+      3: { cellWidth: 100 },                     // Descripción (más ancha)
+      4: { cellWidth: 20, halign: 'right' },    // P. Unitario
+      5: { cellWidth: 20, halign: 'right' }     // Total(MN)
     },
     margin: { left: 20, right: 20 }
   });
@@ -227,12 +227,12 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   doc.setTextColor(...darkColor);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text('CONDICIONES COMERCIALES:', 20, finalY + 25);
+  doc.text('CONDICIONES COMERCIALES:', 20, finalY + 20);
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   
-  let termsY = finalY + 30;
+  let termsY = finalY + 25;
   
   // Si hay condiciones comerciales personalizadas, usarlas; si no, usar las por defecto
   if (quote.custom_commercial_terms && quote.custom_commercial_terms.trim()) {
