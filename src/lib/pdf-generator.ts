@@ -206,6 +206,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
     margin: { left: 20, right: 20 }
   });
 
+  // se modifican las columnas para que se ajusten a los valores grandes
   // SUBTOTAL
   const finalY = ((doc as any).lastAutoTable?.finalY || tableStartY + 100) + 1;
   
