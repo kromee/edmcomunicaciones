@@ -199,9 +199,9 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
       0: { cellWidth: 7, halign: 'center' },  // #
       1: { cellWidth: 14, halign: 'center' },  // Cantidad (más pequeña)
       2: { cellWidth: 14, halign: 'center' },  // Unidad (más pequeña)
-      3: { cellWidth: 100 },                     // Descripción (más ancha)
-      4: { cellWidth: 20, halign: 'right' },    // P. Unitario
-      5: { cellWidth: 20, halign: 'right' }     // Total(MN)
+      3: { cellWidth: 90 },                     // Descripción (ajustada para dar más espacio a Precio U y Total)
+      4: { cellWidth: 25, halign: 'right' },    // P. Unitario - aumentado para valores grandes
+      5: { cellWidth: 28, halign: 'right' }     // Total(MN) - aumentado para valores grandes
     },
     margin: { left: 20, right: 20 }
   });
@@ -217,7 +217,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   doc.setFont('helvetica', 'bold');
   doc.setDrawColor(...primaryColor);
   doc.setLineWidth(0.5);
-  doc.line(165, finalY + 6, 194, finalY + 6);
+  doc.line(170, finalY + 6, 194, finalY + 6);
   
   doc.text('SUBTOTAL:', 165, finalY + 12, { align: 'right' });
   doc.setTextColor(...primaryColor);
