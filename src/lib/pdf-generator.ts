@@ -32,7 +32,7 @@ type QuoteData = {
   description: string;
   valid_until: string;
   custom_commercial_terms?: string | null;
-  show_valid_until?: boolean;
+  show_valid_until?: boolean | null;
   items: Array<{
     item_name: string;
     description: string;

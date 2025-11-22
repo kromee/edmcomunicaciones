@@ -35,6 +35,6 @@ export type QuoteFormData = {
   valid_until: string;
   notes: string;
   custom_commercial_terms?: string | null;
-  show_valid_until?: boolean;
+  show_valid_until?: boolean | null;
   status: string;
 };

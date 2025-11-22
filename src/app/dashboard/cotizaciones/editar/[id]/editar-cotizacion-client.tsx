@@ -15,7 +15,7 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
     valid_until: quote.valid_until,
     notes: quote.notes || '',
     custom_commercial_terms: quote.custom_commercial_terms || '',
-    show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
+    show_valid_until: quote.show_valid_until ?? true,
     status: quote.status
   });
 
@@ -202,7 +202,7 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
                 <input
                   type="checkbox"
                   name="show_valid_until"
-                  checked={formData.show_valid_until !== undefined ? formData.show_valid_until : true}
+                  checked={formData.show_valid_until ?? true}
                   onChange={(e) => setFormData({ ...formData, show_valid_until: e.target.checked })}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 />
