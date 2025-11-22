@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       description: quote.description,
       valid_until: quote.valid_until,
       custom_commercial_terms: quote.custom_commercial_terms,
+      show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
       items: (quote.quote_items || []).map((item: any) => ({
         item_name: item.item_name,
         description: item.description,

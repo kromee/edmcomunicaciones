@@ -55,6 +55,8 @@ export interface Database {
           pdf_url: string | null
           notes: string | null
           valid_until: string | null
+          custom_commercial_terms: string | null
+          show_valid_until: boolean | null
           created_by: string | null
           created_at: string
           updated_at: string
@@ -75,6 +77,8 @@ export interface Database {
           pdf_url?: string | null
           notes?: string | null
           valid_until?: string | null
+          custom_commercial_terms?: string | null
+          show_valid_until?: boolean | null
           created_by?: string | null
           created_at?: string
           updated_at?: string
@@ -95,6 +99,8 @@ export interface Database {
           pdf_url?: string | null
           notes?: string | null
           valid_until?: string | null
+          custom_commercial_terms?: string | null
+          show_valid_until?: boolean | null
           created_by?: string | null
           created_at?: string
           updated_at?: string

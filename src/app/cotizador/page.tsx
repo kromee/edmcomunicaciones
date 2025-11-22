@@ -42,6 +42,7 @@ type QuoteFormData = {
   valid_until: string;
   notes: string;
   custom_commercial_terms: string;
+  show_valid_until: boolean;
 };
 
 function CotizadorContent() {
@@ -70,7 +71,8 @@ function CotizadorContent() {
     description: 'A continuación presento la propuesta económica solicitada por concepto de ',
     valid_until: getDefaultValidUntil(),
     notes: '',
-    custom_commercial_terms: ''
+    custom_commercial_terms: '',
+    show_valid_until: true
   });
 
   const [useCustomTerms, setUseCustomTerms] = useState(false);
@@ -549,6 +551,16 @@ function CotizadorContent() {
                       onChange={handleFormChange}
                       className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                    <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="show_valid_until"
+                        checked={formData.show_valid_until}
+                        onChange={(e) => setFormData({ ...formData, show_valid_until: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Mostrar fecha de vencimiento en el PDF</span>
+                    </label>
                   </div>
                   <div className="sm:col-span-2">
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">

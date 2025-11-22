@@ -20,6 +20,7 @@ type Quote = {
   description: string | null;
   valid_until: string;
   custom_commercial_terms: string | null;
+  show_valid_until?: boolean | null;
   subtotal: number;
   tax: number;
   total_amount: number;
@@ -103,6 +104,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
         description: quote.description || '',
         valid_until: quote.valid_until,
         custom_commercial_terms: quote.custom_commercial_terms,
+        show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
         items: quote.quote_items.map(item => ({
           item_name: item.item_name,
           description: item.description || '',

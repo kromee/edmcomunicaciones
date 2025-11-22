@@ -17,6 +17,7 @@ type QuoteData = {
   valid_until: string;
   notes: string | null;
   custom_commercial_terms: string | null;
+  show_valid_until?: boolean | null;
   status: string;
   total_amount: number;
   created_at: string;
@@ -50,6 +51,7 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
         description: quote.description || '',
         valid_until: quote.valid_until,
         custom_commercial_terms: quote.custom_commercial_terms,
+        show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
         items: quote.quote_items.map(item => ({
           item_name: item.item_name,
           description: item.description || '',
