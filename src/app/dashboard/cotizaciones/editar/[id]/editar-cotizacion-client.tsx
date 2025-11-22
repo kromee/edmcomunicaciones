@@ -15,6 +15,7 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
     valid_until: quote.valid_until,
     notes: quote.notes || '',
     custom_commercial_terms: quote.custom_commercial_terms || '',
+    show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
     status: quote.status
   });
 
@@ -197,6 +198,16 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
                 onChange={handleFormChange}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+              <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="show_valid_until"
+                  checked={formData.show_valid_until !== undefined ? formData.show_valid_until : true}
+                  onChange={(e) => setFormData({ ...formData, show_valid_until: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Mostrar fecha de vencimiento en el PDF</span>
+              </label>
             </div>
 
             <div className="sm:col-span-2">

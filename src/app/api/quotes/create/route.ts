@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
       valid_until,
       notes,
       custom_commercial_terms,
+      show_valid_until,
       items,
       subtotal,
       tax,
@@ -96,6 +97,7 @@ export async function POST(request: NextRequest) {
         valid_until: valid_until || null,
         notes: notes || null,
         custom_commercial_terms: custom_commercial_terms || null,
+        show_valid_until: show_valid_until !== undefined ? show_valid_until : true,
         status: 'pending',
         created_by: session.id
       })
@@ -143,6 +145,7 @@ export async function POST(request: NextRequest) {
     // Generar PDF
     const pdf = await generateQuotePDF({
       ...quote,
+      show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
       items
     });
 

@@ -32,6 +32,7 @@ type QuoteData = {
   description: string;
   valid_until: string;
   custom_commercial_terms?: string | null;
+  show_valid_until?: boolean;
   items: Array<{
     item_name: string;
     description: string;
@@ -140,7 +141,8 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   });
   doc.text(`Fecha: ${fechaEmision}`, 140,50);
   
-  if (quote.valid_until) {
+  // Mostrar fecha de vencimiento solo si show_valid_until es true (por defecto true si no se especifica)
+  if (quote.valid_until && (quote.show_valid_until !== false)) {
     const fechaVencimiento = new Date(quote.valid_until).toLocaleDateString('es-MX', {
       year: 'numeric',
       month: 'long',

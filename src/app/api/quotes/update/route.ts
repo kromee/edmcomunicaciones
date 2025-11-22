@@ -13,6 +13,7 @@ export async function PUT(request: NextRequest) {
       valid_until,
       notes,
       custom_commercial_terms,
+      show_valid_until,
       status,
       items,
       total_amount
@@ -22,18 +23,25 @@ export async function PUT(request: NextRequest) {
     console.log('Items to update:', items);
 
     // Actualizar la cotización principal
+    const updateData: any = {
+      service_type,
+      description,
+      valid_until,
+      notes,
+      custom_commercial_terms,
+      status,
+      total_amount,
+      updated_at: new Date().toISOString()
+    };
+    
+    // Solo incluir show_valid_until si se proporciona
+    if (show_valid_until !== undefined) {
+      updateData.show_valid_until = show_valid_until;
+    }
+    
     const { error: quoteError } = await supabase
       .from('quotes')
-      .update({
-        service_type,
-        description,
-        valid_until,
-        notes,
-        custom_commercial_terms,
-        status,
-        total_amount,
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', quoteId);
 
     if (quoteError) {
