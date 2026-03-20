@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS quotes (
   subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
   tax DECIMAL(10,2) NOT NULL DEFAULT 0,
   total_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'sent')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'sent', 'paid')),
   pdf_url TEXT,
   notes TEXT,
   valid_until DATE,
@@ -293,5 +293,5 @@ COMMENT ON TABLE clients IS 'Base de datos de clientes de la empresa';
 COMMENT ON TABLE contacts IS 'Contactos recibidos desde el formulario web';
 
 COMMENT ON COLUMN quote_items.unit IS 'Unidad de medida: PZA (Pieza) o SERV (Servicio)';
-COMMENT ON COLUMN quotes.status IS 'Estado: pending (pendiente), approved (aprobada), rejected (rechazada), sent (enviada)';
+COMMENT ON COLUMN quotes.status IS 'Estado: pending, sent, approved, rejected, paid';
 COMMENT ON COLUMN contacts.status IS 'Estado: new (nuevo), contacted (contactado), closed (cerrado)';

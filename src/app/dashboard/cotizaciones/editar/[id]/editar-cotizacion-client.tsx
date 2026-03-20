@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useModal } from '@/hooks/useModal';
 import { Modal } from '@/components/Modal';
 import { QuoteData, QuoteFormData, QuoteItem } from '@/types/quote.types';
+import { normalizeQuoteStatus } from '@/lib/quote-status';
 
 export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
     notes: quote.notes || '',
     custom_commercial_terms: quote.custom_commercial_terms || '',
     show_valid_until: quote.show_valid_until ?? true,
-    status: quote.status
+    status: normalizeQuoteStatus(quote.status)
   });
 
   const [useCustomTerms, setUseCustomTerms] = useState(!!quote.custom_commercial_terms);
@@ -100,6 +101,7 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
         body: JSON.stringify({
           quoteId: quote.id,
           ...formData,
+          status: normalizeQuoteStatus(formData.status),
           items: items.map(item => ({
             id: item.id,
             item_name: item.description,
@@ -233,10 +235,11 @@ export default function EditarCotizacionClient({ quote }: { quote: QuoteData }) 
                 onChange={handleFormChange}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="borrador">Borrador</option>
-                <option value="enviada">Enviada</option>
-                <option value="autorizada">Autorizada</option>
-                <option value="rechazada">Rechazada</option>
+                <option value="pending">Pendiente</option>
+                <option value="sent">Enviada</option>
+                <option value="approved">Aprobada</option>
+                <option value="rejected">Rechazada</option>
+                <option value="paid">Pagado</option>
               </select>
             </div>
 
