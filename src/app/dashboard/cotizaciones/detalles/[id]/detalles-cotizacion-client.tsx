@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useModal } from '@/hooks/useModal';
 import { Modal } from '@/components/Modal';
 import { generateQuotePDF } from '@/lib/pdf-generator';
+import { normalizeQuoteStatus, quoteStatusBadgeClasses } from '@/lib/quote-status';
 
 type QuoteData = {
   id: string;
@@ -37,6 +38,8 @@ type QuoteData = {
 export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }) {
   const router = useRouter();
   const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
+  const [markingPaid, setMarkingPaid] = useState(false);
+  const statusNormalized = normalizeQuoteStatus(quote.status);
 
   const downloadPDF = async () => {
     try {
@@ -76,6 +79,29 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
     }
   };
 
+  const markAsPaid = async () => {
+    if (statusNormalized === 'paid') return;
+    setMarkingPaid(true);
+    try {
+      const response = await fetch('/api/quotes/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteId: quote.id, status: 'paid' }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        showSuccess('Estado actualizado', 'La cotización quedó marcada como Pagado');
+        router.refresh();
+      } else {
+        showError('Error', data.error || 'No se pudo actualizar el estado');
+      }
+    } catch {
+      showError('Error', 'No se pudo actualizar el estado');
+    } finally {
+      setMarkingPaid(false);
+    }
+  };
+
   const deleteQuote = async () => {
     showConfirm(
       'Eliminar Cotización',
@@ -107,14 +133,7 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pendiente' },
-      sent: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Enviada' },
-      approved: { bg: 'bg-green-100', text: 'text-green-800', label: 'Aprobada' },
-      rejected: { bg: 'bg-red-100', text: 'text-red-800', label: 'Rechazada' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    const config = quoteStatusBadgeClasses(status);
 
     return (
       <span className={`px-3 py-1 text-xs font-semibold rounded-full ${config.bg} ${config.text}`}>
@@ -272,7 +291,20 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
 
         {/* Botones de Acción */}
         <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end flex-wrap">
+            {statusNormalized !== 'paid' && (
+              <button
+                type="button"
+                onClick={markAsPaid}
+                disabled={markingPaid}
+                className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-emerald-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-emerald-700 transition shadow-sm hover:shadow-md disabled:opacity-60 order-first sm:order-none"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {markingPaid ? 'Guardando…' : 'Marcar como pagado'}
+              </button>
+            )}
             <button
               onClick={downloadPDF}
               className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm hover:shadow-md"

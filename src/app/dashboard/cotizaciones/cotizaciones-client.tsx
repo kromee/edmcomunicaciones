@@ -6,6 +6,7 @@ import { Reveal } from '@/components/Reveal';
 import { generateQuotePDF } from '@/lib/pdf-generator';
 import { Modal } from '@/components/Modal';
 import { useModal } from '@/hooks/useModal';
+import { quoteStatusBadgeClasses } from '@/lib/quote-status';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,7 +25,7 @@ type Quote = {
   subtotal: number;
   tax: number;
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'sent';
+  status: 'pending' | 'approved' | 'rejected' | 'sent' | 'paid';
   created_at: string;
   quote_items: Array<{
     item_name: string;
@@ -159,14 +160,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pendiente' },
-      sent: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Enviada' },
-      approved: { bg: 'bg-green-100', text: 'text-green-800', label: 'Aprobada' },
-      rejected: { bg: 'bg-red-100', text: 'text-red-800', label: 'Rechazada' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    const config = quoteStatusBadgeClasses(status);
 
     return (
       <span className={`px-3 py-1 text-xs font-semibold rounded-full ${config.bg} ${config.text}`}>

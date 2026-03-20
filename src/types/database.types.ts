@@ -51,7 +51,7 @@ export interface Database {
           subtotal: number
           tax: number
           total_amount: number
-          status: 'pending' | 'approved' | 'rejected' | 'sent'
+          status: 'pending' | 'approved' | 'rejected' | 'sent' | 'paid'
           pdf_url: string | null
           notes: string | null
           valid_until: string | null
@@ -73,7 +73,7 @@ export interface Database {
           subtotal?: number
           tax?: number
           total_amount?: number
-          status?: 'pending' | 'approved' | 'rejected' | 'sent'
+          status?: 'pending' | 'approved' | 'rejected' | 'sent' | 'paid'
           pdf_url?: string | null
           notes?: string | null
           valid_until?: string | null
@@ -95,7 +95,7 @@ export interface Database {
           subtotal?: number
           tax?: number
           total_amount?: number
-          status?: 'pending' | 'approved' | 'rejected' | 'sent'
+          status?: 'pending' | 'approved' | 'rejected' | 'sent' | 'paid'
           pdf_url?: string | null
           notes?: string | null
           valid_until?: string | null
