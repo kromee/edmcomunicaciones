@@ -18,6 +18,7 @@ type QuoteData = {
   total_amount: number;
   created_at: string;
   updated_at: string;
+  created_by: string | null;
   quote_items: Array<{
     id: string;
     item_name: string;
@@ -47,6 +48,18 @@ export default async function DetallesCotizacionPage({ params }: { params: { id:
     redirect('/dashboard/cotizaciones');
   }
 
+  let creator: { name: string; email: string } | null = null;
+  if (quote.created_by) {
+    const { data: userRow } = await supabase
+      .from('users')
+      .select('name, email')
+      .eq('id', quote.created_by)
+      .maybeSingle();
+    if (userRow) {
+      creator = { name: userRow.name, email: userRow.email };
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -67,7 +80,7 @@ export default async function DetallesCotizacionPage({ params }: { params: { id:
           </a>
         </div>
 
-        <DetallesCotizacionClient quote={quote as QuoteData} />
+        <DetallesCotizacionClient quote={quote as QuoteData} creator={creator} />
       </div>
     </div>
   );
