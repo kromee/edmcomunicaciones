@@ -33,9 +33,16 @@ type QuoteData = {
     percentage: number;
     total: number;
   }>;
+  created_by?: string | null;
 };
 
-export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }) {
+export default function DetallesCotizacionClient({
+  quote,
+  creator,
+}: {
+  quote: QuoteData;
+  creator: { name: string; email: string } | null;
+}) {
   const router = useRouter();
   const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
   const [markingPaid, setMarkingPaid] = useState(false);
@@ -188,6 +195,24 @@ export default function DetallesCotizacionClient({ quote }: { quote: QuoteData }
                   day: 'numeric'
                 })}
               </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Registrada por
+              </label>
+              {creator ? (
+                <div className="text-gray-900">
+                  <p className="font-medium">{creator.name}</p>
+                  <p className="text-sm text-gray-600">{creator.email}</p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  {quote.created_by
+                    ? 'No se pudo cargar el usuario (revisa permisos en la tabla users).'
+                    : '—'}
+                </p>
+              )}
             </div>
             
             <div>
