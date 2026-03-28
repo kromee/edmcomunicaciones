@@ -1,11 +1,16 @@
 import { cookies } from 'next/headers';
+import { SessionUser } from '@/types/session';
 
-export type SessionUser = {
-  id: string;
-  email: string;
-  name: string;
-  role: 'admin' | 'viewer';
-};
+export type { SessionUser };
+
+function isDynamicServerUsageError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const d = error as { digest?: string; message?: string };
+  return (
+    d.digest === 'DYNAMIC_SERVER_USAGE' ||
+    (typeof d.message === 'string' && d.message.includes('Dynamic server usage'))
+  );
+}
 
 export async function getSession(): Promise<SessionUser | null> {
   try {
@@ -19,6 +24,9 @@ export async function getSession(): Promise<SessionUser | null> {
     const session = JSON.parse(sessionCookie.value);
     return session;
   } catch (error) {
+    if (isDynamicServerUsageError(error)) {
+      return null;
+    }
     console.error('Error getting session:', error);
     return null;
   }
