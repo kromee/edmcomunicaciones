@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar variables de entorno
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.error('Missing Supabase environment variables');
       return NextResponse.json(
         { success: false, error: 'Configuración del servidor incorrecta' },
@@ -27,11 +27,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Creating Supabase client...');
-    const supabase = await createClient();
-    console.log('Supabase client created successfully');
+    console.log('Creating Supabase admin client...');
+    const supabase = createAdminClient();
+    console.log('Supabase admin client created successfully');
 
-    // Buscar usuario por email
+    // Buscar usuario por email (bypassing RLS with service role)
     console.log('Searching for user in database...');
     const { data: user, error } = await supabase
       .from('users')
