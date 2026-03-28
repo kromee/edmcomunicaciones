@@ -12,7 +12,6 @@ export default async function DetalleClientePage({ params }: { params: { id: str
 
   const supabase = await createClient();
   
-  // Obtener datos del cliente
   const { data: client, error } = await supabase
     .from('clients')
     .select('*')
@@ -24,11 +23,17 @@ export default async function DetalleClientePage({ params }: { params: { id: str
     redirect('/dashboard/clientes');
   }
 
+  const { data: quotes } = await supabase
+    .from('quotes')
+    .select('id, quote_number, total_amount, status, created_at, service_type')
+    .eq('client_email', client.email)
+    .order('created_at', { ascending: false });
+
   return (
     <DetalleClienteClient 
       client={client}
-      user={session} 
+      user={session}
+      quotes={quotes || []}
     />
   );
 }
-
