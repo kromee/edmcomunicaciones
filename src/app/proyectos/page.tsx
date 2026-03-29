@@ -5,618 +5,412 @@ import { Reveal } from '@/components/Reveal';
 import Image from 'next/image';
 import { useState } from 'react';
 
-export default function ProyectosPage() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
+function NetworkBackground() {
   return (
-    <>
-      <Navbar />
-      <main>
-        {/* Hero */}
-        <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <h1 className="text-center text-3xl sm:text-4xl font-bold tracking-tight">Casos de Éxito</h1>
-            </Reveal>
-            <Reveal delay={0.08}>
-              <p className="mt-4 text-center text-lg text-gray-600 max-w-3xl mx-auto">
-                Proyectos ejecutados con excelencia técnica, entrega puntual y resultados medibles para empresas líderes en su sector.
-              </p>
-            </Reveal>
-          </div>
-        </section>
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 hex-pattern opacity-100" />
+      <div className="absolute inset-0 grid-pattern" />
+      <div className="absolute top-20 left-[5%] w-40 h-40 border border-accent/10 rounded-full animate-spin-slow" />
+      <div className="absolute bottom-1/4 right-[10%] w-32 h-32 border border-brand/10 rounded-full animate-spin-slow" style={{ animationDirection: 'reverse' }} />
+      <div className="absolute top-1/3 right-[15%] w-3 h-3 bg-accent/50 rounded-full animate-pulse-dot" />
+      <div className="absolute bottom-1/3 left-[25%] w-2 h-2 bg-brand/50 rounded-full animate-pulse-dot delay-300" />
+    </div>
+  );
+}
 
-        {/* Proyecto 1: Kenworth */}
-        <section className="py-16 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="border-l-4 border-blue-600 pl-6 mb-8">
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h2 className="text-3xl font-bold text-gray-900">Centro de Capacitación — Voz y Datos</h2>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">2024</span>
-                </div>
-                <p className="mt-2 text-lg text-gray-600">Kenworth Mexicana</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700">
-                  Implementación integral de infraestructura de telecomunicaciones para el nuevo centro de capacitación técnica de Kenworth Mexicana. 
-                  El proyecto incluyó el diseño, instalación y certificación de cableado estructurado Cat 6A para 30 estaciones de trabajo en aulas interactivas,
-                  despliegue de red Wi-Fi empresarial mesh con roaming automático en comedores, áreas de cursos y pasillos, y configuración de VLANs segmentadas
-                  por tipo de usuario (instructores, alumnos, administrativos).
-                </p>
-                <p className="mt-4 text-gray-700">
-                  Se instalaron 8 access points Ubiquiti UniFi de última generación con controller en nube, garantizando cobertura total y throughput de 300 Mbps
-                  en todas las zonas. El cableado backbone incluye fibra óptica OM4 entre el site principal y los racks distribuidos, con switches administrables
-                  Cisco Catalyst para garantizar QoS y gestión centralizada. Se entregó documentación completa de topología, certificados Fluke y garantía extendida de 25 años.
-                </p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>30 puntos de datos certificados Cat 6A</strong> para estaciones de trabajo en 3 aulas de capacitación.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Red Wi-Fi empresarial mesh</strong> con 8 APs, SSID por perfil y autenticación WPA3-Enterprise.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Backbone de fibra óptica OM4</strong> con switches administrables y segmentación por VLANs.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Certificación Fluke</strong> de todos los enlaces y garantía de 25 años en instalación.</span>
-                  </li>
-                </ul>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/vozydatos.png")}
-                >
-                  <Image 
-                    src="/vozydatos.png" 
-                    alt="Kenworth proyecto 1" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/vozydatoswifi.png")}
-                >
-                  <Image 
-                    src="/vozydatoswifi.png" 
-                    alt="Kenworth proyecto 2" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/switches.png")}
-                >
-                  <Image 
-                    src="/switches.png" 
-                    alt="Kenworth proyecto 3" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
+interface Project {
+  id: string;
+  title: string;
+  client: string;
+  year: string;
+  category: string;
+  description: string;
+  features: string[];
+  images: { src: string; alt: string }[];
+  color: string;
+  bgColor: string;
+  icon: React.ReactNode;
+}
 
-        {/* Proyecto 2: Novaprint */}
-        <section className="py-16 bg-gray-50">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="border-l-4 border-green-600 pl-6 mb-8">
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h2 className="text-3xl font-bold text-gray-900">Control de Acceso Biométrico Corporativo</h2>
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">2025</span>
-                </div>
-                <p className="mt-2 text-lg text-gray-600">Novaprint</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700">
-                  Instalación y configuración de sistema integral de control de asistencia y acceso biométrico en las 5 entradas del corporativo Novaprint.
-                  Se implementaron terminales de huella dactilar y reconocimiento facial de última generación (ZKTeco) con lector dual para máxima precisión,
-                  integrados a plataforma centralizada de RRHH para reportería en tiempo real, cálculo automático de horas extra, retardos y gestión de incidencias.
-                </p>
-                <p className="mt-4 text-gray-700">
-                  El sistema permite control de acceso diferenciado por horarios y perfiles de empleado, sincronización automática con Active Directory,
-                  backup en nube y notificaciones push a supervisores. Se configuró control anti-passback para evitar registros duplicados, logs de auditoría
-                  con foto capturada en cada evento y exportación a sistemas de nómina (edm comuniciones biométrico). Capacitación al personal de RRHH y manuales de operación incluidos.
-                </p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>5 terminales biométricas dual</strong> (huella + facial) en entradas corporativas con lector de proximidad RFID.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Integración con RRHH:</strong> sincronización de plantilla, reportes automáticos y exportación a nómina.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Control anti-passback</strong> y perfiles horarios diferenciados por departamento con alertas en tiempo real.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Respaldo en nube</strong> y logs de auditoría con captura fotográfica en cada registro de acceso.</span>
-                  </li>
-                </ul>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/biometrico.png")}
-                >
-                  <Image 
-                    src="/biometrico.png" 
-                    alt="Novaprint proyecto 1" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/sistemabiometrico.png")}
-                >
-                  <Image 
-                    src="/sistemabiometrico.png" 
-                    alt="Novaprint proyecto 2" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/biometricohorarios.png")}
-                >
-                  <Image 
-                    src="/biometricohorarios.png" 
-                    alt="Novaprint proyecto 3" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
+const projects: Project[] = [
+  {
+    id: 'kenworth',
+    title: 'Centro de Capacitación — Voz y Datos',
+    client: 'Kenworth Mexicana',
+    year: '2024',
+    category: 'Cableado Estructurado',
+    description: 'Implementación integral de infraestructura de telecomunicaciones para el nuevo centro de capacitación técnica. Incluye cableado Cat 6A, red Wi-Fi mesh y backbone de fibra óptica OM4.',
+    features: [
+      '30 puntos de datos certificados Cat 6A',
+      '8 access points Ubiquiti UniFi mesh',
+      'Fibra óptica OM4 backbone',
+      'Certificación Fluke y garantía 25 años'
+    ],
+    images: [
+      { src: '/vozydatos.png', alt: 'Kenworth - Voz y datos' },
+      { src: '/vozydatoswifi.png', alt: 'Kenworth - WiFi' },
+      { src: '/switches.png', alt: 'Kenworth - Switches' }
+    ],
+    color: 'border-l-blue-500',
+    bgColor: 'from-blue-500 to-blue-600',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    id: 'novaprint',
+    title: 'Control de Acceso Biométrico Corporativo',
+    client: 'Novaprint',
+    year: '2025',
+    category: 'Biometría',
+    description: 'Sistema integral de control de asistencia y acceso biométrico en 5 entradas corporativas con terminales dual (huella + facial), integración con RRHH y respaldo en nube.',
+    features: [
+      '5 terminales biométricas dual ZKTeco',
+      'Integración con plataforma RRHH',
+      'Control anti-passback',
+      'Respaldo en nube y logs con foto'
+    ],
+    images: [
+      { src: '/biometrico.png', alt: 'Novaprint - Biométrico' },
+      { src: '/sistemabiometrico.png', alt: 'Novaprint - Sistema' },
+      { src: '/biometricohorarios.png', alt: 'Novaprint - Horarios' }
+    ],
+    color: 'border-l-green-500',
+    bgColor: 'from-green-500 to-green-600',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    id: 'cliniks',
+    title: 'Clinik\'s — Sistema Hospitalario Integral',
+    client: 'Clínica Santa Teresa',
+    year: '2025',
+    category: 'Software',
+    description: 'Sistema clínico hospitalario a medida para gestión de consultas, expedientes electrónicos, inventario médico y expedición de recetas digitales con firma electrónica.',
+    features: [
+      'Expediente clínico electrónico completo',
+      'Control de inventario médico',
+      'Recetas digitales con firma electrónica',
+      'Plataforma en nube Azure'
+    ],
+    images: [
+      { src: '/cliniks.png', alt: 'Cliniks - Dashboard' },
+      { src: '/cliniks_pacientes.png', alt: 'Cliniks - Pacientes' },
+      { src: '/cliniks_reservaciones.png', alt: 'Cliniks - Reservaciones' }
+    ],
+    color: 'border-l-purple-500',
+    bgColor: 'from-purple-500 to-purple-600',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    id: 'decotuhome',
+    title: 'Sistema POS y Control de Inventarios',
+    client: 'DecoraTuHome',
+    year: '2024',
+    category: 'Software',
+    description: 'Sistema de punto de venta integral con lector de código de barras, terminal bancaria Verifone y dashboard ejecutivo. Multi-sucursal con arquitectura offline-first.',
+    features: [
+      'POS completo con terminal Verifone',
+      'Control de inventarios en tiempo real',
+      'Dashboard ejecutivo con gráficas',
+      'Multi-sucursal offline-first'
+    ],
+    images: [
+      { src: '/proyectos/decotuhome_panel.jpeg', alt: 'DecoraTuHome - Panel' },
+      { src: '/proyectos/decotuhome_venta.jpeg', alt: 'DecoraTuHome - Venta' },
+      { src: '/proyectos/decotuhome_reportes.jpeg', alt: 'DecoraTuHome - Reportes' }
+    ],
+    color: 'border-l-orange-500',
+    bgColor: 'from-orange-500 to-orange-600',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    id: 'app-mercancia',
+    title: 'App Móvil Control de Entradas/Salidas',
+    client: 'Almacén Logístico',
+    year: '2023',
+    category: 'Desarrollo Móvil',
+    description: 'Aplicación móvil nativa para validación en tiempo real de entradas y salidas de mercancía mediante lectura de código de barras con modo offline-first.',
+    features: [
+      'Lector de código de barras 1D/2D',
+      'Validación automática vs factura',
+      'Modo offline-first',
+      'Panel web administrativo'
+    ],
+    images: [
+      { src: '/inventario_login.png', alt: 'App - Login' },
+      { src: '/inventario_captura.png', alt: 'App - Captura' },
+      { src: '/inventario_reporte.png', alt: 'App - Reporte' }
+    ],
+    color: 'border-l-indigo-500',
+    bgColor: 'from-indigo-500 to-indigo-600',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3 15h4m-4 4h4m-4-8h4m-4 4h4" strokeLinecap="round" />
+      </svg>
+    )
+  },
+  {
+    id: 'ballotini',
+    title: 'Sistema de Videovigilancia Integral',
+    client: 'Ballotini Panamericana',
+    year: '2025',
+    category: 'CCTV',
+    description: 'Implementación completa de videovigilancia IP con 24 cámaras 4K/8MP, NVR empresarial RAID 6, analítica inteligente y acceso remoto multiplataforma.',
+    features: [
+      '24 cámaras IP 4K/8MP con IR',
+      'NVR RAID 6 y respaldo en nube',
+      'Analítica inteligente de video',
+      'Acceso remoto 24/7'
+    ],
+    images: [
+      { src: '/cctv_instalacion.png', alt: 'CCTV - Instalación' },
+      { src: '/cctv_monitoreo.png', alt: 'CCTV - Monitoreo' },
+      { src: '/cctv_analitica.png', alt: 'CCTV - Analítica' }
+    ],
+    color: 'border-l-red-500',
+    bgColor: 'from-red-500 to-red-600',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    )
+  }
+];
 
-        {/* Proyecto 3: Clinik's */}
-        <section className="py-16 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="border-l-4 border-purple-600 pl-6 mb-8">
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h2 className="text-3xl font-bold text-gray-900">Clinik's — Sistema Hospitalario Integral</h2>
-                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">2025</span>
+function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+  return (
+    <div className="group">
+      <Reveal delay={index * 0.1}>
+        <div className={`card-nexus rounded-3xl overflow-hidden border-l-4 ${project.color} transition-all duration-500 hover:shadow-nexus`}>
+          <div className="grid lg:grid-cols-2 gap-0">
+            <div className="p-8 lg:p-10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${project.bgColor} flex items-center justify-center text-white shadow-lg`}>
+                  {project.icon}
                 </div>
-                <p className="mt-2 text-lg text-gray-600">Clínica Santa Teresa</p>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${project.bgColor} text-white`}>
+                  {project.category}
+                </span>
               </div>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700">
-                  Desarrollo e implementación de sistema clínico hospitalario a la medida (Clinik's) para gestión integral de consultas, expedientes electrónicos,
-                  inventario de medicamentos e insumos médicos, y expedición de recetas digitales con firma electrónica. La plataforma web responsiva permite acceso
-                  simultáneo desde consultorios, farmacia interna, admisión y laboratorio, con roles granulares por perfil de usuario (médicos, enfermeras, administrativos).
-                </p>
-                <p className="mt-4 text-gray-700">
-                  Incluye módulo de expediente clínico electrónico (ECE) con historial médico completo, alergias, antecedentes heredofamiliares, signos vitales y notas
-                  de evolución con anexos multimedia (estudios radiológicos, laboratorios). El control de inventarios cuenta con alertas de stock mínimo, caducidades próximas,
-                  trazabilidad de lotes y reportes de consumo por departamento. La expedición de recetas genera PDF con código QR de validación y firma digital del médico tratante.
-                  Sistema 100% en nube (Azure), con respaldos automáticos diarios, cifrado AES-256 y cumplimiento de NOM-024-SSA3 (expediente clínico).
-                </p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Expediente clínico electrónico completo:</strong> historial, signos vitales, alergias, notas de evolución y anexos multimedia.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Control de inventario médico:</strong> alertas de stock/caducidad, trazabilidad de lotes y reportes de consumo.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Recetas digitales con firma electrónica</strong> y código QR de validación, cumplimiento NOM-024-SSA3.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Plataforma en nube Azure</strong> con respaldos automáticos, cifrado AES-256 y acceso multiplataforma.</span>
-                  </li>
-                </ul>
+              
+              <div className="flex items-baseline gap-3 mb-2">
+                <h3 className="text-2xl font-black text-brand leading-tight">{project.title}</h3>
+                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">{project.year}</span>
               </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/cliniks.png")}
-                >
-                  <Image 
-                    src="/cliniks.png" 
-                    alt="Cliniks proyecto 1" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/cliniks_pacientes.png")}
-                >
-                  <Image 
-                    src="/cliniks_pacientes.png" 
-                    alt="Cliniks proyecto 2" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/cliniks_reservaciones.png")}
-                >
-                  <Image 
-                    src="/cliniks_reservaciones.png" 
-                    alt="Cliniks proyecto 3" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
+              
+              <p className="text-lg font-medium text-accent mb-4">{project.client}</p>
+              
+              <p className="text-gray-600 leading-relaxed mb-6">{project.description}</p>
+              
+              <div className="space-y-3">
+                {project.features.map((feature, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent group-hover:scale-110 transition-all duration-300">
+                      <svg className="w-3 h-3 text-accent group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 text-sm">{feature}</span>
+                  </div>
+                ))}
               </div>
-            </Reveal>
+            </div>
+            
+            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 p-4 lg:p-6">
+              <div className="grid grid-cols-3 gap-3 h-full">
+                {project.images.map((img, i) => (
+                  <div 
+                    key={i}
+                    className={`relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg ${i === 0 ? 'col-span-3 aspect-video' : 'aspect-square'}`}
+                    onClick={() => setSelectedImage(img.src)}
+                  >
+                    <Image 
+                      src={img.src}
+                      alt={img.alt}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                      <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                      </svg>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </section>
-
-        {/* Proyecto 4: DecoraTuHome */}
-        <section className="py-16 bg-gray-50">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="border-l-4 border-orange-600 pl-6 mb-8">
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h2 className="text-3xl font-bold text-gray-900">Sistema de Punto de Venta y Control de Inventarios</h2>
-                  <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold">2024</span>
-                </div>
-                <p className="mt-2 text-lg text-gray-600">DecoraTuHome</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700">
-                  Sistema de punto de venta (POS) integral desarrollado para DecoraTuHome, retail especializado en artículos de decoración y hogar. La solución incluye
-                  módulo de ventas con lector de código de barras, integración con terminales bancarias Verifone para cobro con tarjeta (EMV, contactless), impresión
-                  térmica de tickets fiscales y no fiscales, y gestión de descuentos por promoción o mayoreo.
-                </p>
-                <p className="mt-4 text-gray-700">
-                  El control de mercancías cuenta con entrada por compra (validación vs. orden de compra), salida por venta automática, ajustes de inventario con autorización
-                  por supervisor, trazabilidad de movimientos y alertas de reorden. Dashboard ejecutivo en tiempo real con gráficas de ventas por categoría, productos más vendidos,
-                  margen de utilidad y análisis de rotación. Reportes visuales exportables (PDF/Excel): corte de caja, ventas por cajero, inventario valorizado y análisis ABC.
-                  Sistema multi-sucursal con sincronización centralizada y arquitectura offline-first (funciona sin internet y sincroniza al reconectar).
-                </p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>POS completo:</strong> lector de código de barras, integración con terminal Verifone e impresora térmica de tickets.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Control de inventarios:</strong> entradas/salidas, ajustes autorizados, alertas de reorden y trazabilidad completa.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Dashboard ejecutivo</strong> con gráficas de ventas, margen de utilidad y análisis de rotación en tiempo real.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Multi-sucursal offline-first:</strong> funciona sin internet y sincroniza automáticamente al reconectar.</span>
-                  </li>
-                </ul>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                  onClick={() => setSelectedImage("/proyectos/decotuhome_panel.jpeg")}
-                >
-                  <Image 
-                    src="/proyectos/decotuhome_panel.jpeg" 
-                    alt="DecoraTuHome proyecto 1" 
-                    width={400}
-                    height={300}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                  onClick={() => setSelectedImage("/proyectos/decotuhome_venta.jpeg")}
-                >
-                  <Image 
-                    src="/proyectos/decotuhome_venta.jpeg" 
-                    alt="DecoraTuHome proyecto 2" 
-                    width={400}
-                    height={300}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                  onClick={() => setSelectedImage("/proyectos/decotuhome_reportes.jpeg")}
-                >
-                  <Image 
-                    src="/proyectos/decotuhome_reportes.jpeg" 
-                    alt="DecoraTuHome proyecto 3" 
-                    width={400}
-                    height={300}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Proyecto 5: App Móvil Control de Mercancías */}
-        <section className="py-16 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="border-l-4 border-indigo-600 pl-6 mb-8">
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h2 className="text-3xl font-bold text-gray-900">App Móvil para Control de Entradas/Salidas de Mercancías</h2>
-                  <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-semibold">2023</span>
-                </div>
-                <p className="mt-2 text-lg text-gray-600">Almacén Logístico</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700">
-                  Aplicación móvil nativa (Android/iOS) para validación en tiempo real de entradas y salidas de mercancía en almacén mediante lectura de código de barras.
-                  La app permite al personal de recepción y embarques escanear productos, comparar automáticamente vs. factura digital (XML) o remisión, detectar discrepancias
-                  (cantidad, SKU, lote) y generar reportes de incidencias con captura fotográfica y geolocalización del evento.
-                </p>
-                <p className="mt-4 text-gray-700">
-                  Incluye modo offline para operar en zonas sin cobertura (almacenes cerrados, contenedores), sincronización automática al reconectar, firma digital del transportista
-                  en pantalla y generación de acuse de recibo con sello de tiempo. Integración nativa con cámara del dispositivo para lector de código de barras 1D/2D (EAN-13, Code 128, QR),
-                  notificaciones push ante discrepancias críticas y panel web administrativo con dashboard de movimientos, histórico de validaciones y reportes descargables.
-                  Stack: React Native + Node.js + PostgreSQL + AWS S3 (almacenamiento de evidencias fotográficas).
-                </p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Lector de código de barras integrado:</strong> escaneo rápido 1D/2D (EAN-13, Code 128, QR) desde cámara del móvil.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Validación automática vs. factura/remisión:</strong> detección de discrepancias en cantidad, SKU o lote con alertas.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Modo offline-first:</strong> funciona sin internet en almacenes, sincroniza automáticamente y guarda evidencias fotográficas.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Panel web administrativo:</strong> dashboard de movimientos, histórico de validaciones y reportes exportables PDF/Excel.</span>
-                  </li>
-                </ul>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/inventario_login.png")}
-                >
-                  <Image 
-                    src="/inventario_login.png" 
-                    alt="App Mercancia proyecto 1" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/inventario_captura.png")}
-                >
-                  <Image 
-                    src="/inventario_captura.png" 
-                    alt="App Mercancia proyecto 2" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/inventario_reporte.png")}
-                >
-                  <Image 
-                    src="/inventario_reporte.png" 
-                    alt="App Mercancia proyecto 3" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Proyecto 6: Ballotini Panamericana - CCTV */}
-        <section className="py-16 bg-gray-50">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="border-l-4 border-red-600 pl-6 mb-8">
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h2 className="text-3xl font-bold text-gray-900">Sistema de Videovigilancia Integral</h2>
-                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">2025</span>
-                </div>
-                <p className="mt-2 text-lg text-gray-600">Ballotini Panamericana</p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700">
-                  Implementación completa de sistema de videovigilancia IP para las instalaciones de Ballotini Panamericana, 
-                  incluyendo planta de producción, almacenes, oficinas administrativas y áreas perimetrales. Se instalaron 
-                  24 cámaras IP de alta resolución (4K/8MP) con tecnología de visión nocturna IR, detección de movimiento 
-                  inteligente y analítica de video avanzada para monitoreo 24/7 de la operación industrial.
-                </p>
-                <p className="mt-4 text-gray-700">
-                  El sistema incluye NVR empresarial con almacenamiento RAID 6 para redundancia, respaldo en nube híbrido 
-                  y acceso remoto multiplataforma. Se configuraron zonas de detección personalizadas, alertas automáticas 
-                  por email/SMS, mapas de calor para análisis de tráfico y integración con sistema de control de acceso 
-                  existente. Incluye mantenimiento preventivo trimestral, actualización de firmware y soporte técnico 24/7.
-                </p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>24 cámaras IP 4K/8MP:</strong> cobertura total de planta, almacenes, oficinas y perímetro con visión nocturna IR hasta 50m.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>NVR empresarial:</strong> almacenamiento RAID 6, 30 días de grabación continua y respaldo automático en nube.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Analítica inteligente:</strong> detección de intrusión, conteo de personas, mapas de calor y alertas automáticas.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Acceso remoto:</strong> monitoreo desde web, iOS y Android con notificaciones push en tiempo real.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 text-xs font-bold">✓</span>
-                    <span className="text-gray-700"><strong>Mantenimiento integral:</strong> servicio preventivo trimestral, actualizaciones y soporte técnico 24/7 incluido.</span>
-                  </li>
-                </ul>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/cctv_instalacion.png")}
-                >
-                  <Image 
-                    src="/cctv_instalacion.png" 
-                    alt="CCTV instalación" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/cctv_monitoreo.png")}
-                >
-                  <Image 
-                    src="/cctv_monitoreo.png" 
-                    alt="CCTV monitoreo" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-                <div 
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-300 bg-gray-100 flex items-center justify-center"
-                  onClick={() => setSelectedImage("/cctv_analitica.png")}
-                >
-                  <Image 
-                    src="/cctv_analitica.png" 
-                    alt="CCTV analítica" 
-                    width={400}
-                    height={300}
-                    className="object-contain max-w-full max-h-full p-4"
-                  />
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-16 bg-gradient-to-r from-sky-500 to-blue-600">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-            <Reveal>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white">¿Listo para ser nuestro próximo caso de éxito?</h2>
-              <p className="mt-4 text-lg text-white/90">Transformamos desafíos técnicos en soluciones que generan valor real para tu negocio.</p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="https://wa.me/525530358478?text=Hola,%20quiero%20iniciar%20un%20proyecto%20con%20EDM%20Comunicaciones"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-3 text-sky-600 shadow-lg transition hover:shadow-xl active:scale-95 font-semibold"
-                >
-                  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 32 32" fill="currentColor"><path d="M19.11 17.23c-.29-.15-1.7-.84-1.96-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.9 1.13-.17.19-.33.22-.62.07-.29-.15-1.22-.45-2.33-1.44-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.55-.88-2.12-.23-.55-.47-.48-.64-.48h-.55c-.19 0-.5.07-.76.36-.26.29-.99.97-.99 2.36s1.02 2.74 1.16 2.93c.15.19 2 3.06 4.86 4.29.68.29 1.21.46 1.62.58.68.22 1.31.19 1.8.11.55-.08 1.7-.7 1.94-1.38.24-.68.24-1.26.17-1.38-.08-.11-.26-.18-.55-.33z"/><path d="M26.68 5.32C23.9 2.54 20.2 1 16.3 1 8.46 1 2.1 7.37 2.1 15.2c0 2.61.68 5.16 1.98 7.41L2 31l8.55-2.24c2.19 1.2 4.67 1.84 7.2 1.84 7.84 0 14.2-6.37 14.2-14.2 0-3.9-1.54-7.6-4.32-10.38zM17.75 27.1c-2.22 0-4.39-.6-6.28-1.73l-.45-.27-5.07 1.33 1.35-4.94-.3-.51c-1.21-2.02-1.85-4.34-1.85-6.77 0-7.31 5.95-13.26 13.26-13.26 3.54 0 6.86 1.38 9.36 3.89 2.49 2.5 3.87 5.82 3.87 9.36 0 7.31-5.95 13.26-13.26 13.26z"/></svg>
-                  Iniciar mi proyecto
-                </a>
-                <a
-                  href="mailto:edm_comunicaciones@hotmail.com?subject=Consulta%20sobre%20proyectos&body=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos."
-                  className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-8 py-3 text-white transition hover:bg-white/10 font-semibold"
-                >
-                  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                  Más información
-                </a>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-      </main>
-      <Footer />
-
-      {/* Modal de imagen */}
+        </div>
+      </Reveal>
+      
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-4xl max-h-[90vh] mx-4">
+          <div className="relative max-w-5xl w-full">
             <button
               onClick={() => setSelectedImage(null)}
               className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
-              aria-label="Cerrar imagen"
             >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <div className="bg-white rounded-lg overflow-hidden shadow-2xl">
-              <Image
-                src={selectedImage}
-                alt="Imagen del proyecto"
-                width={800}
-                height={600}
-                className="max-w-full max-h-[80vh] object-contain"
-              />
+            <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative aspect-video">
+                <Image
+                  src={selectedImage}
+                  alt="Imagen del proyecto"
+                  fill
+                  className="object-contain"
+                />
+              </div>
             </div>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export default function ProyectosPage() {
+  return (
+    <>
+      <Navbar />
+      <main className="relative">
+        <div className="nexus-bg">
+          <NetworkBackground />
+          
+          <section className="relative pt-24 pb-16 overflow-hidden">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <Reveal>
+                <div className="text-center max-w-4xl mx-auto">
+                  <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20 text-accent font-semibold text-sm mb-6">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                    Casos de Éxito
+                  </span>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                    <span className="text-gradient-brand">Proyectos</span>
+                    <br />
+                    <span className="text-brand">que Generan</span>
+                    <br />
+                    <span className="text-gradient-accent">Valor Real</span>
+                  </h1>
+                  <p className="mt-8 text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                    Ejecutados con excelencia técnica, entrega puntual y resultados medibles 
+                    para empresas líderes en su sector.
+                  </p>
+                </div>
+              </Reveal>
+              
+              <Reveal delay={0.2}>
+                <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                  <div className="text-center p-4">
+                    <div className="stat-number">6</div>
+                    <p className="mt-1 text-sm text-gray-600 font-medium">Proyectos</p>
+                  </div>
+                  <div className="text-center p-4">
+                    <div className="stat-number">50+</div>
+                    <p className="mt-1 text-sm text-gray-600 font-medium">Clientes</p>
+                  </div>
+                  <div className="text-center p-4">
+                    <div className="stat-number">100%</div>
+                    <p className="mt-1 text-sm text-gray-600 font-medium">Satisfacción</p>
+                  </div>
+                  <div className="text-center p-4">
+                    <div className="stat-number">12+</div>
+                    <p className="mt-1 text-sm text-gray-600 font-medium">Años</p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </section>
+
+          <section className="py-12 relative">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="space-y-8">
+                {projects.map((project, index) => (
+                  <ProjectCard key={project.id} project={project} index={index} />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="py-24 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-brand via-brand/95 to-brand/90" />
+            <div className="absolute inset-0 hex-pattern opacity-10" />
+            
+            <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+              <Reveal>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-white/90 text-sm font-medium">Transformamos desafíos en soluciones</span>
+                </div>
+              </Reveal>
+              
+              <Reveal delay={0.1}>
+                <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">
+                  ¿Listo para ser nuestro próximo caso de éxito?
+                </h2>
+              </Reveal>
+              
+              <Reveal delay={0.2}>
+                <p className="mt-6 text-xl text-white/80 max-w-2xl mx-auto">
+                  Iniciemos juntos un proyecto que impulse la competitividad y crecimiento de tu empresa.
+                </p>
+              </Reveal>
+              
+              <Reveal delay={0.3}>
+                <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                  <a
+                    href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quiero%20iniciar%20un%20proyecto%20..."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-brand font-bold rounded-xl hover:bg-white/90 transition-all hover:scale-105 shadow-lg"
+                  >
+                    <svg className="w-6 h-6" viewBox="0 0 32 32" fill="currentColor">
+                      <path d="M19.11 17.23c-.29-.15-1.7-.84-1.96-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.9 1.13-.17.19-.33.22-.62.07-.29-.15-1.22-.45-2.33-1.44-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.55-.88-2.12-.23-.55-.47-.48-.64-.48h-.55c-.19 0-.5.07-.76.36-.26.29-.99.97-.99 2.36s1.02 2.74 1.16 2.93c.15.19 2 3.06 4.86 4.29.68.29 1.21.46 1.62.58.68.22 1.31.19 1.8.11.55-.08 1.7-.7 1.94-1.38.24-.68.24-1.26.17-1.38-.08-.11-.26-.18-.55-.33z"/>
+                      <path d="M26.68 5.32C23.9 2.54 20.2 1 16.3 1 8.46 1 2.1 7.37 2.1 15.2c0 2.61.68 5.16 1.98 7.41L2 31l8.55-2.24c2.19 1.2 4.67 1.84 7.2 1.84 7.84 0 14.2-6.37 14.2-14.2 0-3.9-1.54-7.6-4.32-10.38z"/>
+                    </svg>
+                    Iniciar Mi Proyecto
+                  </a>
+                  <a
+                    href="mailto:edm_comunicaciones@hotmail.com?subject=Consulta%20sobre%20proyectos&body=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos."
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:bg-white/10 transition-all hover:scale-105"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Más Información
+                  </a>
+                </div>
+              </Reveal>
+            </div>
+          </section>
+        </div>
+      </main>
+      <Footer />
     </>
   );
 }
