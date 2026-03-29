@@ -69,6 +69,9 @@ const config: Config = {
         'card': '0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px -4px rgba(0, 0, 0, 0.1)',
         'elevated': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
         'sidebar': '4px 0 20px rgba(0, 0, 0, 0.05)',
+        'nexus': '0 25px 50px -12px rgba(14, 165, 233, 0.25), 0 0 0 1px rgba(14, 165, 233, 0.1)',
+        'nexus-lg': '0 32px 64px -12px rgba(14, 165, 233, 0.35), 0 0 0 1px rgba(14, 165, 233, 0.15)',
+        'brand-glow': '0 0 30px rgba(15, 30, 72, 0.2)',
       },
       borderRadius: {
         'xl': '1rem',
@@ -78,6 +81,14 @@ const config: Config = {
         'fade-in': 'fadeIn 0.3s ease-out',
         'slide-in': 'slideIn 0.3s ease-out',
         'slide-up': 'slideUp 0.3s ease-out',
+        'node-float': 'nodeFloat 6s ease-in-out infinite',
+        'pulse-dot': 'pulseDot 2s ease-in-out infinite',
+        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+        'data-flow': 'dataFlow 3s linear infinite',
+        'rotate': 'rotate 20s linear infinite',
+        'spin-slow': 'spinSlow 30s linear infinite',
+        'float': 'float 4s ease-in-out infinite',
+        'shimmer': 'shimmer 3s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -91,6 +102,39 @@ const config: Config = {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        nodeFloat: {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '50%': { transform: 'translateY(-10px) rotate(2deg)' },
+        },
+        pulseDot: {
+          '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.5)' },
+        },
+        pulseGlow: {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(14, 165, 233, 0.3)' },
+          '50%': { boxShadow: '0 0 40px rgba(14, 165, 233, 0.6)' },
+        },
+        dataFlow: {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '50%': { opacity: '1' },
+          '100%': { transform: 'translateX(100%)', opacity: '0' },
+        },
+        rotate: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+        spinSlow: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(-360deg)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         },
       },
       backdropBlur: {
