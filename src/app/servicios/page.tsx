@@ -16,24 +16,54 @@ function NetworkBackground() {
   );
 }
 
-function ServiceCard({ icon, title, description, color, delay }: { icon: React.ReactNode; title: string; description: string; color: string; delay?: number }) {
+function ServiceCard({ icon, title, description, color, number, delay }: { icon: React.ReactNode; title: string; description: string; color: string; number: string; delay?: number }) {
   return (
     <Reveal delay={delay}>
       <a href={`#${title.toLowerCase().replace(/\s+/g, '-').replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')}`} className="group block h-full">
-        <div className={`card-nexus rounded-2xl p-5 h-full border-t-4 ${color} transition-all duration-500 hover:shadow-nexus flex flex-col`}>
-          <div className="flex items-center gap-3">
-            <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color.replace('border-', 'bg-')}/10`}>
-              {icon}
+        <div className="relative h-full bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1">
+          {/* Top accent line */}
+          <div className={`h-1 w-full bg-gradient-to-r ${color}`} />
+          
+          {/* Content */}
+          <div className="p-7">
+            {/* Header with number and icon */}
+            <div className="flex items-start justify-between mb-5">
+              <div className={`w-16 h-16 rounded-xl flex items-center justify-center bg-gradient-to-br ${color.replace('from-', 'from-').replace('to-', 'to-')} shadow-lg transform group-hover:scale-105 transition-transform duration-500`}>
+                <div className="text-white">
+                  {icon}
+                </div>
+              </div>
+              <span className="text-4xl font-black text-gray-100 opacity-50">{number}</span>
             </div>
-            <h3 className="text-lg font-bold text-brand group-hover:text-accent transition-colors leading-tight">{title}</h3>
+            
+            {/* Title */}
+            <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand transition-colors">
+              {title}
+            </h3>
+            
+            {/* Divider */}
+            <div className="w-12 h-0.5 bg-gradient-to-r from-accent to-transparent mb-4 transform origin-left group-hover:w-20 transition-all duration-500" />
+            
+            {/* Description */}
+            <p className="text-gray-600 text-sm leading-relaxed mb-5">
+              {description}
+            </p>
+            
+            {/* Footer */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                Ver más detalles
+              </span>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br ${color.replace('from-', 'from-').replace('to-', 'to-')} transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300`}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </div>
+            </div>
           </div>
-          <p className="mt-3 text-gray-600 text-sm leading-relaxed line-clamp-3 flex-1">{description}</p>
-          <div className="mt-3 flex items-center text-accent font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-            <span>Explorar</span>
-            <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </div>
+          
+          {/* Hover overlay effect */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${color.replace('from-', 'from-').replace('to-', 'to-')} opacity-0 group-hover:opacity-5 transition-opacity duration-500 pointer-events-none`} />
         </div>
       </a>
     </Reveal>
@@ -119,65 +149,68 @@ export default function ServiciosPage() {
 
           <section className="py-16 relative">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
                 <ServiceCard
                   icon={
-                    <svg className="w-7 h-7 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="12" cy="12" r="2" />
+                      <circle cx="12" cy="12" r="3" fill="currentColor" />
                     </svg>
                   }
                   title="CCTV"
                   description="Sistemas de videovigilancia IP con analítica de video, monitoreo 24/7 y respaldo en nube."
-                  color="border-t-red-500"
+                  color="from-red-500 to-rose-600"
+                  number="01"
                   delay={0}
                 />
                 <ServiceCard
                   icon={
-                    <svg className="w-7 h-7 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="6" cy="6" r="1" fill="currentColor" />
-                      <circle cx="6" cy="12" r="1" fill="currentColor" />
-                      <circle cx="6" cy="18" r="1" fill="currentColor" />
+                      <path d="M6 6h.01M6 12h.01M6 18h.01" strokeWidth="2" strokeLinecap="round" />
                     </svg>
                   }
                   title="Cableado"
                   description="Infraestructura Cat 6A/7 y fibra óptica certificada con garantía de 25 años."
-                  color="border-t-blue-500"
+                  color="from-blue-500 to-cyan-600"
+                  number="02"
                   delay={0.05}
                 />
                 <ServiceCard
                   icon={
-                    <svg className="w-7 h-7 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   }
                   title="Mantenimiento"
                   description="Preventivo y correctivo de PCs, servidores, HVAC y hardware con SLA garantizado."
-                  color="border-t-amber-500"
+                  color="from-amber-500 to-orange-600"
+                  number="03"
                   delay={0.1}
                 />
                 <ServiceCard
                   icon={
-                    <svg className="w-7 h-7 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   }
                   title="Instalación"
                   description="Biométricos, Wi-Fi empresarial, enlaces punto a punto y configuración llave en mano."
-                  color="border-t-purple-500"
+                  color="from-purple-500 to-violet-600"
+                  number="04"
                   delay={0.15}
                 />
                 <ServiceCard
                   icon={
-                    <svg className="w-7 h-7 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   }
                   title="Software"
                   description="ERP/CRM, apps móviles, integración con hardware y APIs REST personalizadas."
-                  color="border-t-indigo-500"
+                  color="from-indigo-500 to-blue-600"
+                  number="05"
                   delay={0.2}
                 />
               </div>
