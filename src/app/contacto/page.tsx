@@ -24,9 +24,10 @@ interface ContactInfoProps {
   link?: string;
   linkText: string;
   linkColor: string;
+  linkBg?: string;
 }
 
-function ContactInfo({ icon, title, value, link, linkText, linkColor }: ContactInfoProps) {
+function ContactInfo({ icon, title, value, link, linkText, linkColor, linkBg }: ContactInfoProps) {
   return (
     <div className="flex items-start gap-4 group">
       <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-accent/10 to-brand/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -36,8 +37,16 @@ function ContactInfo({ icon, title, value, link, linkText, linkColor }: ContactI
         <h3 className="font-bold text-brand">{title}</h3>
         <p className="text-gray-600">{value}</p>
         {link && (
-          <a href={link} className={`text-sm font-medium hover:underline ${linkColor}`}>
+          <a 
+            href={link} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105 ${linkBg || 'bg-gray-100 hover:bg-gray-200'} ${linkColor}`}
+          >
             {linkText}
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
           </a>
         )}
       </div>
@@ -188,7 +197,7 @@ export default function ContactoPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                       <div className="grid gap-5 sm:grid-cols-2">
-                        <div>
+                        <div className="relative">
                           <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                             Nombre completo *
                           </label>
@@ -199,11 +208,12 @@ export default function ContactoPage() {
                             value={formData.name}
                             onChange={handleChange}
                             required
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all outline-none"
                             placeholder="Tu nombre completo"
+                            style={{ position: 'relative', zIndex: 1 }}
                           />
                         </div>
-                        <div>
+                        <div className="relative">
                           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                             Correo electrónico *
                           </label>
@@ -214,14 +224,15 @@ export default function ContactoPage() {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all outline-none"
                             placeholder="tu@empresa.com"
+                            style={{ position: 'relative', zIndex: 1 }}
                           />
                         </div>
                       </div>
 
                       <div className="grid gap-5 sm:grid-cols-2">
-                        <div>
+                        <div className="relative">
                           <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
                             Teléfono
                           </label>
@@ -231,11 +242,12 @@ export default function ContactoPage() {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all outline-none"
                             placeholder="+52 55 1234 5678"
+                            style={{ position: 'relative', zIndex: 1 }}
                           />
                         </div>
-                        <div>
+                        <div className="relative">
                           <label htmlFor="company" className="block text-sm font-semibold text-gray-700 mb-2">
                             Empresa
                           </label>
@@ -245,13 +257,14 @@ export default function ContactoPage() {
                             name="company"
                             value={formData.company}
                             onChange={handleChange}
-                            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all outline-none"
                             placeholder="Nombre de tu empresa"
+                            style={{ position: 'relative', zIndex: 1 }}
                           />
                         </div>
                       </div>
 
-                      <div>
+                      <div className="relative">
                         <label htmlFor="service" className="block text-sm font-semibold text-gray-700 mb-2">
                           Servicio de interés
                         </label>
@@ -260,7 +273,8 @@ export default function ContactoPage() {
                           name="service"
                           value={formData.service}
                           onChange={handleChange}
-                          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all outline-none cursor-pointer"
+                          style={{ position: 'relative', zIndex: 1 }}
                         >
                           <option value="">Selecciona un servicio</option>
                           <option value="cctv">CCTV y Videovigilancia</option>
@@ -273,7 +287,7 @@ export default function ContactoPage() {
                         </select>
                       </div>
 
-                      <div>
+                      <div className="relative">
                         <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
                           Mensaje *
                         </label>
@@ -284,15 +298,16 @@ export default function ContactoPage() {
                           onChange={handleChange}
                           required
                           rows={5}
-                          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all resize-none"
+                          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all resize-none outline-none"
                           placeholder="Cuéntanos sobre tu proyecto, necesidades específicas, presupuesto aproximado, etc."
+                          style={{ position: 'relative', zIndex: 1 }}
                         />
                       </div>
 
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full btn-nexus-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full btn-nexus-primary disabled:opacity-50 disabled:cursor-not-allowed py-4 text-lg font-bold"
                       >
                         {isSubmitting ? (
                           <div className="flex items-center justify-center">
@@ -304,7 +319,7 @@ export default function ContactoPage() {
                           </div>
                         ) : (
                           <>
-                            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-5 h-5 mr-2 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
                             Enviar mensaje
@@ -326,59 +341,75 @@ export default function ContactoPage() {
                       </p>
                     </div>
 
-                    <div className="card-nexus rounded-3xl p-8 hover:shadow-nexus transition-all duration-500 space-y-6">
-                      <ContactInfo
-                        icon={
+                    <div className="card-nexus rounded-3xl p-8 hover:shadow-nexus transition-all duration-500 space-y-6 relative z-10">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-accent/10 to-brand/10 flex items-center justify-center">
                           <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
-                        }
-                        title="Teléfono"
-                        value={config.contact.phone}
-                        link={getPhoneLink()}
-                        linkText="Llamar ahora"
-                        linkColor="text-accent"
-                      />
+                        </div>
+                        <div className="relative z-10">
+                          <h3 className="font-bold text-brand">Teléfono</h3>
+                          <p className="text-gray-600">{config.contact.phone}</p>
+                          <a 
+                            href="tel:+525530358478"
+                            className="inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-accent hover:bg-accent/90 transition-all hover:scale-105 relative z-20"
+                          >
+                            Llamar ahora
+                          </a>
+                        </div>
+                      </div>
 
-                      <ContactInfo
-                        icon={
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/10 to-brand/10 flex items-center justify-center">
                           <svg className="w-6 h-6 text-green-500" viewBox="0 0 32 32" fill="currentColor">
                             <path d="M19.11 17.23c-.29-.15-1.7-.84-1.96-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.9 1.13-.17.19-.33.22-.62.07-.29-.15-1.22-.45-2.33-1.44-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.55-.88-2.12-.23-.55-.47-.48-.64-.48h-.55c-.19 0-.5.07-.76.36-.26.29-.99.97-.99 2.36s1.02 2.74 1.16 2.93c.15.19 2 3.06 4.86 4.29.68.29 1.21.46 1.62.58.68.22 1.31.19 1.8.11.55-.08 1.7-.7 1.94-1.38.24-.68.24-1.26.17-1.38-.08-.11-.26-.18-.55-.33z"/>
                             <path d="M26.68 5.32C23.9 2.54 20.2 1 16.3 1 8.46 1 2.1 7.37 2.1 15.2c0 2.61.68 5.16 1.98 7.41L2 31l8.55-2.24c2.19 1.2 4.67 1.84 7.2 1.84 7.84 0 14.2-6.37 14.2-14.2 0-3.9-1.54-7.6-4.32-10.38z"/>
                           </svg>
-                        }
-                        title="WhatsApp"
-                        value={config.contact.whatsapp}
-                        link={getWhatsAppLink('Hola, quisiera información sobre sus servicios de telecomunicaciones.')}
-                        linkText="Chatear en WhatsApp"
-                        linkColor="text-green-600"
-                      />
+                        </div>
+                        <div className="relative z-10">
+                          <h3 className="font-bold text-brand">WhatsApp</h3>
+                          <p className="text-gray-600">{config.contact.whatsapp}</p>
+                          <a 
+                            href="https://wa.me/525530358478?text=Hola%2C%20quisiera%20información%20sobre%20sus%20servicios%20de%20telecomunicaciones."
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition-all hover:scale-105 relative z-20"
+                          >
+                            Chatear ahora
+                          </a>
+                        </div>
+                      </div>
 
-                      <ContactInfo
-                        icon={
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/10 to-brand/10 flex items-center justify-center">
                           <svg className="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
-                        }
-                        title="Correo electrónico"
-                        value={config.contact.email}
-                        link={getEmailLink('Consulta sobre servicios', 'Hola, me interesa conocer más sobre sus servicios.')}
-                        linkText="Enviar correo"
-                        linkColor="text-purple-600"
-                      />
+                        </div>
+                        <div className="relative z-10">
+                          <h3 className="font-bold text-brand">Correo electrónico</h3>
+                          <p className="text-gray-600">{config.contact.email}</p>
+                          <a 
+                            href="mailto:edm_comunicaciones@hotmail.com?subject=Consulta%20sobre%20servicios&body=Hola%2C%20me%20interesa%20conocer%20más%20sobre%20sus%20servicios."
+                            className="inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 transition-all hover:scale-105 relative z-20"
+                          >
+                            Enviar correo
+                          </a>
+                        </div>
+                      </div>
 
-                      <ContactInfo
-                        icon={
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/10 to-brand/10 flex items-center justify-center">
                           <svg className="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                        }
-                        title="Horario de atención"
-                        value="Lunes a Viernes: 9:00 AM - 6:00 PM"
-                        link={undefined}
-                        linkText=""
-                        linkColor=""
-                      />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-brand">Horario de atención</h3>
+                          <p className="text-gray-600">Lunes a Viernes: 9:00 AM - 6:00 PM</p>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="bg-gradient-to-br from-brand to-accent rounded-3xl p-8 text-white relative overflow-hidden">
