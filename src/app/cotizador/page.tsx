@@ -4,12 +4,18 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { SessionUser } from '@/types/session';
+import {
+  QUOTE_ITEM_UNIT_OPTIONS,
+  normalizeQuoteItemUnit,
+  type QuoteItemUnit,
+  getQuoteItemUnitLabel,
+} from '@/lib/quote-item-units';
 
 type QuoteItem = {
   id: string;
   description: string;
   quantity: number;
-  unit: 'PZA' | 'SERV';
+  unit: QuoteItemUnit;
   unit_price: number;
   percentage: number;
   total: number;
@@ -193,7 +199,9 @@ function CotizadorContent() {
   const handleItemChange = (id: string, field: keyof QuoteItem, value: string | number) => {
     setItems(items.map(item => {
       if (item.id === id) {
-        const updatedItem = { ...item, [field]: value };
+        const next =
+          field === 'unit' ? normalizeQuoteItemUnit(value) : value;
+        const updatedItem = { ...item, [field]: next } as QuoteItem;
         if (field === 'quantity' || field === 'unit_price' || field === 'percentage') {
           const priceWithPercentage = updatedItem.unit_price * (1 + updatedItem.percentage / 100);
           updatedItem.total = updatedItem.quantity * priceWithPercentage;
@@ -812,11 +820,14 @@ function CotizadorContent() {
                             <label className="block text-xs font-medium text-gray-500 mb-1.5">Unidad</label>
                             <select
                               value={item.unit}
-                              onChange={(e) => handleItemChange(item.id, 'unit', e.target.value as 'PZA' | 'SERV')}
+                              onChange={(e) => handleItemChange(item.id, 'unit', e.target.value)}
                               className="input bg-white"
                             >
-                              <option value="PZA">Pieza</option>
-                              <option value="SERV">Servicio</option>
+                              {QUOTE_ITEM_UNIT_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </option>
+                              ))}
                             </select>
                           </div>
                           <div>
@@ -1039,7 +1050,7 @@ function CotizadorContent() {
                           <tr key={item.id}>
                             <td className="px-4 py-3 text-sm text-muted">{index + 1}</td>
                             <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.description}</td>
-                            <td className="px-4 py-3 text-sm text-gray-600 text-center">{item.quantity} {item.unit}</td>
+                            <td className="px-4 py-3 text-sm text-gray-600 text-center">{item.quantity} {getQuoteItemUnitLabel(item.unit)}</td>
                             <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{formatCurrency(item.total)}</td>
                           </tr>
                         ))}

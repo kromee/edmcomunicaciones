@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 
 export async function PUT(request: NextRequest) {
   try {
@@ -73,7 +74,7 @@ export async function PUT(request: NextRequest) {
         item_name: item.item_name || item.description,
         description: item.description,
         quantity: parseInt(item.quantity) || 1,
-        unit: item.unit || 'PZA',
+        unit: normalizeQuoteItemUnit(item.unit),
         unit_price: parseFloat(item.unit_price) || 0,
         total: parseFloat(item.total) || 0
       }));
