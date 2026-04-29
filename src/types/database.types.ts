@@ -113,7 +113,7 @@ export interface Database {
           item_name: string
           description: string | null
           quantity: number
-          unit: 'PZA' | 'SERV'
+          unit: import('@/lib/quote-item-units').QuoteItemUnit
           unit_price: number
           total: number
           created_at: string
@@ -124,7 +124,7 @@ export interface Database {
           item_name: string
           description?: string | null
           quantity?: number
-          unit?: 'PZA' | 'SERV'
+          unit?: import('@/lib/quote-item-units').QuoteItemUnit
           unit_price?: number
           total?: number
           created_at?: string
@@ -135,7 +135,7 @@ export interface Database {
           item_name?: string
           description?: string | null
           quantity?: number
-          unit?: 'PZA' | 'SERV'
+          unit?: import('@/lib/quote-item-units').QuoteItemUnit
           unit_price?: number
           total?: number
           created_at?: string

@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { normalizeQuoteItemUnit, type QuoteItemUnit } from '@/lib/quote-item-units';
 
 // Función para cargar el logo como base64 desde URL pública
 async function loadLogoAsBase64(): Promise<string> {
@@ -37,7 +38,7 @@ type QuoteData = {
     item_name: string;
     description: string;
     quantity: number;
-    unit: 'PZA' | 'SERV';
+    unit: QuoteItemUnit;
     unit_price: number;
     percentage: number;
     total: number;
@@ -180,7 +181,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
       return [
         index + 1,
         quantity,
-        item.unit || 'PZA',
+        normalizeQuoteItemUnit(item.unit),
         item.description || '-',
         `$${priceWithPercentage.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
         `$${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useModal } from '@/hooks/useModal';
 import { Modal } from '@/components/Modal';
 import { generateQuotePDF } from '@/lib/pdf-generator';
+import { getQuoteItemUnitLabel, normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { normalizeQuoteStatus, quoteStatusBadgeClasses } from '@/lib/quote-status';
 import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
@@ -128,7 +129,7 @@ export default function DetallesCotizacionClient({
           item_name: item.item_name,
           description: item.description || '',
           quantity: item.quantity,
-          unit: item.unit as 'PZA' | 'SERV',
+          unit: normalizeQuoteItemUnit(item.unit),
           unit_price: item.unit_price,
           percentage: item.percentage || 0,
           total: item.total
@@ -444,7 +445,7 @@ export default function DetallesCotizacionClient({
                         <td className="px-6 py-4 text-sm text-muted">{index + 1}</td>
                         <td className="px-6 py-4">
                           <p className="font-medium text-gray-900">{item.description}</p>
-                          <p className="text-xs text-muted-light">{item.unit}</p>
+                          <p className="text-xs text-muted-light">{getQuoteItemUnitLabel(item.unit)}</p>
                         </td>
                         <td className="px-6 py-4 text-center text-sm text-gray-900">{item.quantity}</td>
                         <td className="px-6 py-4 text-right text-sm text-gray-900">{formatCurrency(item.unit_price)}</td>

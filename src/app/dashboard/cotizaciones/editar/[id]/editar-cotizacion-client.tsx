@@ -9,6 +9,7 @@ import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { SessionUser } from '@/types/session';
 import { generateQuotePDF } from '@/lib/pdf-generator';
+import { QUOTE_ITEM_UNIT_OPTIONS, normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 
 const serviceTypes = [
   { value: 'cctv', label: 'CCTV y Videovigilancia', icon: '📹' },
@@ -57,6 +58,7 @@ export default function EditarCotizacionClient({
     quote.quote_items.map(item => ({
       ...item,
       item_name: item.description || '',
+      unit: normalizeQuoteItemUnit(item.unit),
     }))
   );
   
@@ -88,7 +90,8 @@ export default function EditarCotizacionClient({
   const updateItem = (id: string, field: keyof QuoteItem, value: any) => {
     setItems(prev => prev.map(item => {
       if (item.id === id) {
-        const updatedItem = { ...item, [field]: value };
+        const next = field === 'unit' ? normalizeQuoteItemUnit(value) : value;
+        const updatedItem = { ...item, [field]: next };
         if (field === 'quantity' || field === 'unit_price' || field === 'percentage') {
           const priceWithPercentage = updatedItem.unit_price * (1 + (updatedItem.percentage || 0) / 100);
           updatedItem.total = updatedItem.quantity * priceWithPercentage;
@@ -189,7 +192,7 @@ export default function EditarCotizacionClient({
           item_name: item.description || '',
           description: item.description || '',
           quantity: item.quantity,
-          unit: item.unit as 'PZA' | 'SERV',
+          unit: normalizeQuoteItemUnit(item.unit),
           unit_price: item.unit_price,
           percentage: item.percentage || 0,
           total: item.total
@@ -444,8 +447,11 @@ export default function EditarCotizacionClient({
                             onChange={(e) => updateItem(item.id, 'unit', e.target.value)}
                             className="input bg-white"
                           >
-                            <option value="PZA">Pieza</option>
-                            <option value="SERV">Servicio</option>
+                            {QUOTE_ITEM_UNIT_OPTIONS.map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div>

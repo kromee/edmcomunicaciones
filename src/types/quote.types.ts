@@ -1,9 +1,11 @@
+import type { QuoteItemUnit } from '@/lib/quote-item-units';
+
 export type QuoteItem = {
   id: string;
   item_name: string;
   description: string;
   quantity: number;
-  unit: 'PZA' | 'SERV';
+  unit: QuoteItemUnit;
   unit_price: number;
   percentage: number;
   total: number;

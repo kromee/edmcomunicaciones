@@ -7,6 +7,8 @@ import { DashboardHeader } from '@/components/DashboardHeader';
 import { Modal } from '@/components/Modal';
 import { useModal } from '@/hooks/useModal';
 import { generateQuotePDF } from '@/lib/pdf-generator';
+import type { QuoteItemUnit } from '@/lib/quote-item-units';
+import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -31,7 +33,7 @@ type Quote = {
     item_name: string;
     description: string | null;
     quantity: number;
-    unit: 'PZA' | 'SERV';
+    unit: QuoteItemUnit;
     unit_price: number;
     percentage: number;
     total: number;
@@ -142,7 +144,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
           item_name: item.item_name,
           description: item.description || '',
           quantity: item.quantity,
-          unit: item.unit,
+          unit: normalizeQuoteItemUnit(item.unit),
           unit_price: item.unit_price,
           percentage: item.percentage || 0,
           total: item.total

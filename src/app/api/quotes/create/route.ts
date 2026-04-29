@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session';
 import { generateQuotePDF } from '@/lib/pdf-generator';
 import emailjs from '@emailjs/browser';
 import { config } from '@/lib/config';
+import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 
 export async function POST(request: NextRequest) {
   try {
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
       item_name: item.description, // Usar description como item_name
       description: item.description,
       quantity: parseInt(item.quantity) || 0,
-      unit: item.unit,
+      unit: normalizeQuoteItemUnit(item.unit),
       unit_price: parseFloat(item.unit_price) || 0,
       percentage: parseFloat(item.percentage) || 0,
       total: parseFloat(item.total) || 0

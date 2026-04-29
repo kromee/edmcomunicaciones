@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS quote_items (
   item_name TEXT NOT NULL,
   description TEXT,
   quantity INTEGER NOT NULL DEFAULT 1,
-  unit TEXT NOT NULL DEFAULT 'PZA' CHECK (unit IN ('PZA', 'SERV')),
+  unit TEXT NOT NULL DEFAULT 'PZA' CHECK (unit IN ('PZA', 'SERV', 'MTR')),
   unit_price DECIMAL(10,2) NOT NULL DEFAULT 0,
   total DECIMAL(10,2) NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -292,6 +292,6 @@ COMMENT ON TABLE quote_items IS 'Items/productos/servicios de cada cotización';
 COMMENT ON TABLE clients IS 'Base de datos de clientes de la empresa';
 COMMENT ON TABLE contacts IS 'Contactos recibidos desde el formulario web';
 
-COMMENT ON COLUMN quote_items.unit IS 'Unidad de medida: PZA (Pieza) o SERV (Servicio)';
+COMMENT ON COLUMN quote_items.unit IS 'Unidad: PZA (Pieza), SERV (Servicio), MTR (Metros)';
 COMMENT ON COLUMN quotes.status IS 'Estado: pending, sent, approved, rejected, paid';
 COMMENT ON COLUMN contacts.status IS 'Estado: new (nuevo), contacted (contactado), closed (cerrado)';

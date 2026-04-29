@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateQuotePDF } from '@/lib/pdf-generator';
+import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
         item_name: item.item_name,
         description: item.description,
         quantity: item.quantity,
-        unit: item.unit,
+        unit: normalizeQuoteItemUnit(item.unit),
         unit_price: item.unit_price,
         percentage: item.percentage,
         total: item.total
