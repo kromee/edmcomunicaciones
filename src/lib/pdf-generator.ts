@@ -56,6 +56,9 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   const primaryColor: [number, number, number] = [14, 165, 233]; // Sky blue
   const darkColor: [number, number, number] = [15, 23, 42]; // Slate 900
   const grayColor: [number, number, number] = [107, 114, 128]; // Gray 500
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const footerHeight = 20;
+  const footerTopY = pageHeight - footerHeight;
 
   // Header - Logo y título
   doc.setFillColor(...primaryColor);
@@ -209,52 +212,61 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
     margin: { left: 20, right: 20 }
   });
 
-  // se modifican las columnas para que se ajusten a los valores grandes
-  // SUBTOTAL
+  // Bloque inferior (subtotal + términos) con control de salto de página
   const finalY = ((doc as any).lastAutoTable?.finalY || tableStartY + 100) + 1;
-  
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  
-  // SUBTOTAL
+  let blockStartY = finalY;
+  const estimatedTermsLines = quote.custom_commercial_terms && quote.custom_commercial_terms.trim()
+    ? quote.custom_commercial_terms.split('\n').length + 4
+    : 8;
+  const estimatedBlockHeight = 24 + estimatedTermsLines * 4;
+
+  // Si el bloque no cabe antes del footer, moverlo a una nueva página.
+  if (blockStartY + estimatedBlockHeight > footerTopY - 4) {
+    doc.addPage();
+    blockStartY = 16;
+  }
+
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setDrawColor(...primaryColor);
   doc.setLineWidth(0.5);
-  doc.line(170, finalY + 6, 194, finalY + 6);
-  
-  doc.text('SUBTOTAL:', 165, finalY + 12, { align: 'right' });
+  doc.line(170, blockStartY + 6, 194, blockStartY + 6);
+
+  doc.text('SUBTOTAL:', 165, blockStartY + 12, { align: 'right' });
   doc.setTextColor(...primaryColor);
-  doc.text(`$${(quote.total_amount || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`, 194, finalY + 12, { align: 'right' });
+  doc.text(`$${(quote.total_amount || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`, 194, blockStartY + 12, { align: 'right' });
 
   // Términos y condiciones
   doc.setTextColor(...darkColor);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text('CONDICIONES COMERCIALES:', 20, finalY + 20);
-  
+  doc.text('CONDICIONES COMERCIALES:', 20, blockStartY + 20);
+
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
-  
-  let termsY = finalY + 25;
-  
+  let termsY = blockStartY + 25;
+
+  const writeTermLine = (textLine: string, step = 4) => {
+    if (termsY > footerTopY - 8) {
+      doc.addPage();
+      termsY = 16;
+    }
+    doc.text(textLine, 20, termsY);
+    termsY += step;
+  };
+
   // Si hay condiciones comerciales personalizadas, usarlas; si no, usar las por defecto
   if (quote.custom_commercial_terms && quote.custom_commercial_terms.trim()) {
-    // Usar condiciones personalizadas
     const customTermsLines = quote.custom_commercial_terms.split('\n');
     customTermsLines.forEach(line => {
       if (line.trim()) {
         const splitLine = doc.splitTextToSize(line, 170);
-        splitLine.forEach((textLine: string) => {
-          doc.text(textLine, 20, termsY);
-          termsY += 4;
-        });
+        splitLine.forEach((textLine: string) => writeTermLine(textLine, 4));
       } else {
-        termsY += 2; // Espaciado para líneas vacías
+        termsY += 2;
       }
     });
   } else {
-    // Usar condiciones por defecto
     const terms = [
       `• Esta cotización tiene validez hasta el ${new Date(quote.valid_until).toLocaleDateString('es-MX', { 
         year: 'numeric', 
@@ -264,21 +276,18 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
       '• Los precios están expresados en pesos mexicanos (MXN) y no incluyen IVA.',
       '• Forma de pago: 50% anticipo, 50% al finalizar la instalación.',
     ];
-    
-    terms.forEach(term => {
-      doc.text(term, 20, termsY);
-      termsY += 4;
-    });
+
+    terms.forEach(term => writeTermLine(term, 4));
   }
 
-  // Footer
+  // Footer en la última página (siempre visible y sin tapar totales)
   doc.setFillColor(240, 240, 240);
-  doc.rect(0, 277, 210, 20, 'F');
-  
+  doc.rect(0, footerTopY, 210, footerHeight, 'F');
+
   doc.setTextColor(...grayColor);
   doc.setFontSize(8);
-  doc.text('EDM Comunicaciones - Soluciones Integrales en Telecomunicaciones', 105, 285, { align: 'center' });
-  doc.text(`edm_comunicaciones@hotmail.com | ${process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '55 5031 7183'}`, 105, 290, { align: 'center' });
+  doc.text('EDM Comunicaciones - Soluciones Integrales en Telecomunicaciones', 105, footerTopY + 8, { align: 'center' });
+  doc.text(`edm_comunicaciones@hotmail.com | ${process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '55 5031 7183'}`, 105, footerTopY + 13, { align: 'center' });
 
   return doc;
 }
