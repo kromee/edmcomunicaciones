@@ -324,6 +324,15 @@ export default function DetallesCotizacionClient({
                   Editar
                 </button>
                 <button
+                  onClick={() => router.push(`/cotizador?duplicateQuoteId=${quote.id}`)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-surface-secondary text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16h8M8 12h8m-8-4h8m3 12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2h8l4 4v12z" />
+                  </svg>
+                  Duplicar
+                </button>
+                <button
                   onClick={deleteQuote}
                   className="inline-flex items-center gap-2 px-4 py-2 text-danger text-sm font-medium rounded-xl hover:bg-danger/5 transition-colors"
                 >

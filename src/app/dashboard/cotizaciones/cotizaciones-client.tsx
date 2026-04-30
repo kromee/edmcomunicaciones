@@ -425,6 +425,15 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                                   </svg>
                                   Editar
                                 </a>
+                                <a
+                                  href={`/cotizador?duplicateQuoteId=${quote.id}`}
+                                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+                                >
+                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16h8M8 12h8m-8-4h8m3 12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2h8l4 4v12z" />
+                                  </svg>
+                                  Duplicar
+                                </a>
                                 <button
                                   onClick={() => downloadPDF(quote)}
                                   className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"

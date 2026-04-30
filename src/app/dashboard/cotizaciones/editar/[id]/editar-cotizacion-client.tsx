@@ -377,16 +377,6 @@ export default function EditarCotizacionClient({
             <div className="bg-white rounded-2xl shadow-card overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Items ({items.length})</h2>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent text-sm font-medium rounded-xl hover:bg-accent/20 transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Agregar
-                </button>
               </div>
 
               <div className="p-6 space-y-4">
@@ -498,6 +488,17 @@ export default function EditarCotizacionClient({
                     </div>
                   </div>
                 ))}
+
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-accent/30 bg-accent/5 text-accent text-sm font-medium rounded-xl hover:bg-accent/10 hover:border-accent/50 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Agregar nuevo item
+                </button>
               </div>
 
               {/* Grand Total */}

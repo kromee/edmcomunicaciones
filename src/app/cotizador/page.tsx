@@ -53,6 +53,29 @@ type QuoteFormData = {
   show_valid_until: boolean;
 };
 
+type QuoteTemplate = {
+  id: string;
+  quote_number: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string | null;
+  client_company: string | null;
+  service_type: string;
+  description: string | null;
+  notes: string | null;
+  custom_commercial_terms: string | null;
+  show_valid_until: boolean | null;
+  quote_items: Array<{
+    id: string;
+    description: string | null;
+    quantity: number;
+    unit: string;
+    unit_price: number;
+    percentage: number;
+    total: number;
+  }>;
+};
+
 const serviceTypes = [
   { value: 'cctv', label: 'CCTV y Videovigilancia', icon: '📹' },
   { value: 'cableado', label: 'Cableado Estructurado', icon: '🔌' },
@@ -114,6 +137,7 @@ function CotizadorContent() {
   const [total, setTotal] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [duplicateSource, setDuplicateSource] = useState<string | null>(null);
 
   const [user] = useState<SessionUser>({
     id: '1',
@@ -145,6 +169,79 @@ function CotizadorContent() {
       };
       loadClient();
     }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const duplicateQuoteId = searchParams.get('duplicateQuoteId');
+    if (!duplicateQuoteId) return;
+
+    const loadQuoteToDuplicate = async () => {
+      try {
+        const response = await fetch(`/api/quotes/get?id=${duplicateQuoteId}`);
+        const data = await response.json();
+        if (!data.success || !data.quote) return;
+
+        const quote: QuoteTemplate = data.quote;
+        setDuplicateSource(quote.quote_number);
+
+        setFormData(prev => ({
+          ...prev,
+          client_name: quote.client_name || '',
+          client_email: quote.client_email || '',
+          client_phone: quote.client_phone || '',
+          client_company: quote.client_company || '',
+          service_type: quote.service_type || '',
+          description: quote.description || prev.description,
+          valid_until: getDefaultValidUntil(),
+          notes: quote.notes || '',
+          custom_commercial_terms: quote.custom_commercial_terms || '',
+          show_valid_until: quote.show_valid_until ?? true,
+        }));
+
+        const templateItems = (quote.quote_items || []).map((item, index) => {
+          const quantity = Number(item.quantity) || 1;
+          const unitPrice = Number(item.unit_price) || 0;
+          const percentage = Number(item.percentage) || 0;
+          const priceWithPercentage = unitPrice * (1 + percentage / 100);
+          return {
+            id: `${Date.now()}-${index}`,
+            description: item.description || '',
+            quantity,
+            unit: normalizeQuoteItemUnit(item.unit),
+            unit_price: unitPrice,
+            percentage,
+            total: quantity * priceWithPercentage,
+          };
+        });
+
+        if (templateItems.length > 0) {
+          setItems(templateItems);
+        }
+
+        setSelectedClient({
+          id: 'duplicated',
+          name: quote.client_name || '',
+          email: quote.client_email || '',
+          phone: quote.client_phone || null,
+          company: quote.client_company || null,
+          address: null,
+          city: null,
+          state: null,
+          postal_code: null,
+          country: 'México',
+          tax_id: null,
+          notes: null,
+          status: 'active',
+          created_by: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('Error duplicating quote:', error);
+      }
+    };
+
+    loadQuoteToDuplicate();
   }, [searchParams]);
 
   const searchClients = async (query: string) => {
@@ -332,6 +429,17 @@ function CotizadorContent() {
           </div>
 
           {/* Success/Error Alerts */}
+          {duplicateSource && (
+            <div className="mb-6 p-4 bg-accent/10 border border-accent/20 rounded-2xl flex items-center justify-between gap-3 animate-slide-up">
+              <div>
+                <p className="font-semibold text-accent-dark">Cotización duplicada</p>
+                <p className="text-sm text-accent/80">
+                  Basada en {duplicateSource}. Puedes cambiar cliente y ajustar los ítems antes de guardar.
+                </p>
+              </div>
+            </div>
+          )}
+
           {submitStatus === 'success' && (
             <div className="mb-6 p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center gap-3 animate-slide-up">
               <div className="w-10 h-10 rounded-xl bg-success flex items-center justify-center">
