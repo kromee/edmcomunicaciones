@@ -30,6 +30,14 @@ const statusOptions = [
   { value: 'paid', label: 'Pagada', bg: 'bg-green-100', text: 'text-green-700' },
 ];
 
+type ClientRow = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  company: string | null;
+};
+
 export default function EditarCotizacionClient({ 
   quote, 
   user 
@@ -61,6 +69,16 @@ export default function EditarCotizacionClient({
       unit: normalizeQuoteItemUnit(item.unit),
     }))
   );
+
+  const [clientFields, setClientFields] = useState({
+    client_name: quote.client_name,
+    client_email: quote.client_email,
+    client_phone: quote.client_phone ?? '',
+    client_company: quote.client_company ?? '',
+  });
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
+  const [clientSearchResults, setClientSearchResults] = useState<ClientRow[]>([]);
+  const [clientSearchLoading, setClientSearchLoading] = useState(false);
   
   const [subtotal, setSubtotal] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,7 +90,44 @@ export default function EditarCotizacionClient({
 
   useEffect(() => {
     setHasChanges(true);
-  }, [formData, items]);
+  }, [formData, items, clientFields]);
+
+  const searchClientsForEdit = async (query: string) => {
+    if (query.length < 2) {
+      setClientSearchResults([]);
+      return;
+    }
+    setClientSearchLoading(true);
+    try {
+      const response = await fetch(`/api/clients/search?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      if (data.success) {
+        setClientSearchResults(data.clients || []);
+      }
+    } catch (error) {
+      console.error('Error buscando clientes:', error);
+    } finally {
+      setClientSearchLoading(false);
+    }
+  };
+
+  const applyClientFromDirectory = (client: ClientRow) => {
+    setClientFields({
+      client_name: client.name,
+      client_email: client.email,
+      client_phone: client.phone || '',
+      client_company: client.company || '',
+    });
+    setClientSearchQuery('');
+    setClientSearchResults([]);
+  };
+
+  const handleClientFieldChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setClientFields((prev) => ({ ...prev, [name]: value }));
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-MX', {
@@ -132,6 +187,15 @@ export default function EditarCotizacionClient({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!clientFields.client_name.trim() || !clientFields.client_email.trim()) {
+      showError(
+        'Datos incompletos',
+        'El nombre y el correo del cliente son obligatorios.'
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -142,6 +206,10 @@ export default function EditarCotizacionClient({
         },
         body: JSON.stringify({
           quoteId: quote.id,
+          client_name: clientFields.client_name.trim(),
+          client_email: clientFields.client_email.trim(),
+          client_phone: clientFields.client_phone.trim() || null,
+          client_company: clientFields.client_company.trim() || null,
           ...formData,
           status: normalizeQuoteStatus(formData.status),
           items: items.map(item => ({
@@ -179,10 +247,10 @@ export default function EditarCotizacionClient({
     try {
       const quoteForPDF = {
         quote_number: quote.quote_number,
-        client_name: quote.client_name,
-        client_email: quote.client_email,
-        client_phone: quote.client_phone || '',
-        client_company: quote.client_company || '',
+        client_name: clientFields.client_name,
+        client_email: clientFields.client_email,
+        client_phone: clientFields.client_phone || '',
+        client_company: clientFields.client_company || '',
         service_type: formData.service_type,
         description: formData.description || '',
         valid_until: formData.valid_until,
@@ -257,28 +325,142 @@ export default function EditarCotizacionClient({
                 </span>
               </div>
               <p className="text-muted">
-                {quote.client_name} • {quote.client_company || quote.client_email}
+                {clientFields.client_name} •{' '}
+                {clientFields.client_company || clientFields.client_email}
               </p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Info Card */}
+            {/* Cliente + total */}
             <div className="bg-white rounded-2xl shadow-card overflow-hidden">
               <div className="p-6 bg-gradient-to-r from-brand/5 to-accent/5 border-b border-gray-100">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-bold text-lg">
-                      {quote.client_name.charAt(0).toUpperCase()}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                      {(clientFields.client_name || '?').charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{quote.client_name}</p>
-                      <p className="text-sm text-muted">{quote.client_email}</p>
+                      <h2 className="text-lg font-semibold text-gray-900">Cliente</h2>
+                      <p className="text-sm text-muted">
+                        Busca en el directorio o edita los datos manualmente.
+                      </p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right sm:pt-1 flex-shrink-0">
                     <p className="text-xs text-muted-light uppercase tracking-wide">Total</p>
                     <p className="text-2xl font-bold text-brand">{formatCurrency(subtotal)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Buscar cliente en directorio
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={clientSearchQuery}
+                      onChange={(e) => {
+                        const q = e.target.value;
+                        setClientSearchQuery(q);
+                        searchClientsForEdit(q);
+                      }}
+                      className="input pl-11 pr-4 py-3"
+                      placeholder="Nombre, correo o empresa (mín. 2 caracteres)..."
+                      autoComplete="off"
+                    />
+                    <svg
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-light pointer-events-none"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                    {clientSearchLoading && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
+                    {clientSearchResults.length > 0 && (
+                      <div className="absolute left-0 right-0 z-20 mt-2 bg-white rounded-xl shadow-elevated border border-gray-100 max-h-64 overflow-y-auto">
+                        {clientSearchResults.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => applyClientFromDirectory(c)}
+                            className="w-full text-left px-4 py-3 hover:bg-surface-secondary transition-colors border-b border-gray-50 last:border-0"
+                          >
+                            <p className="font-medium text-gray-900">{c.name}</p>
+                            <p className="text-sm text-muted truncate">{c.email}</p>
+                            {c.company && (
+                              <p className="text-xs text-muted-light mt-0.5">{c.company}</p>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Nombre del cliente *
+                    </label>
+                    <input
+                      type="text"
+                      name="client_name"
+                      value={clientFields.client_name}
+                      onChange={handleClientFieldChange}
+                      className="input"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Correo *
+                    </label>
+                    <input
+                      type="email"
+                      name="client_email"
+                      value={clientFields.client_email}
+                      onChange={handleClientFieldChange}
+                      className="input"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Teléfono
+                    </label>
+                    <input
+                      type="tel"
+                      name="client_phone"
+                      value={clientFields.client_phone}
+                      onChange={handleClientFieldChange}
+                      className="input"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Empresa
+                    </label>
+                    <input
+                      type="text"
+                      name="client_company"
+                      value={clientFields.client_company}
+                      onChange={handleClientFieldChange}
+                      className="input"
+                    />
                   </div>
                 </div>
               </div>

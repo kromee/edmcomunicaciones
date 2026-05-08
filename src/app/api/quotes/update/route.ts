@@ -1,14 +1,27 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
+import { getSession } from '@/lib/session';
 
 export async function PUT(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'No autorizado' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createClient();
     const body = await request.json();
     
     const {
       quoteId,
+      client_name,
+      client_email,
+      client_phone,
+      client_company,
       service_type,
       description,
       valid_until,
@@ -24,7 +37,7 @@ export async function PUT(request: NextRequest) {
     console.log('Items to update:', items);
 
     // Actualizar la cotización principal
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       service_type,
       description,
       valid_until,
@@ -34,6 +47,25 @@ export async function PUT(request: NextRequest) {
       total_amount,
       updated_at: new Date().toISOString()
     };
+
+    if (typeof client_name === 'string' && client_name.trim()) {
+      updateData.client_name = client_name.trim();
+    }
+    if (typeof client_email === 'string' && client_email.trim()) {
+      updateData.client_email = client_email.trim();
+    }
+    if (client_phone !== undefined) {
+      updateData.client_phone =
+        typeof client_phone === 'string' && client_phone.trim()
+          ? client_phone.trim()
+          : null;
+    }
+    if (client_company !== undefined) {
+      updateData.client_company =
+        typeof client_company === 'string' && client_company.trim()
+          ? client_company.trim()
+          : null;
+    }
     
     // Solo incluir show_valid_until si se proporciona
     if (show_valid_until !== undefined) {
