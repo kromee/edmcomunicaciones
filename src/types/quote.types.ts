@@ -35,6 +35,7 @@ export type QuoteFormData = {
   service_type: string;
   description: string;
   valid_until: string;
+  quote_date: string;
   notes: string;
   custom_commercial_terms?: string | null;
   show_valid_until?: boolean | null;

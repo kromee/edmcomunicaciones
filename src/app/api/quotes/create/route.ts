@@ -5,6 +5,7 @@ import { generateQuotePDF } from '@/lib/pdf-generator';
 import emailjs from '@emailjs/browser';
 import { config } from '@/lib/config';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
+import { dateInputToISO } from '@/lib/quote-dates';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
       service_type,
       description,
       valid_until,
+      quote_date,
       notes,
       custom_commercial_terms,
       show_valid_until,
@@ -82,9 +84,7 @@ export async function POST(request: NextRequest) {
     console.log('Generated quote number:', quote_number);
 
     // Crear cotización
-    const { data: quote, error: quoteError } = await supabase
-      .from('quotes')
-      .insert({
+    const insertPayload: Record<string, unknown> = {
         quote_number,
         client_name,
         client_email,
@@ -101,7 +101,15 @@ export async function POST(request: NextRequest) {
         show_valid_until: show_valid_until !== undefined ? show_valid_until : true,
         status: 'pending',
         created_by: session.id
-      })
+      };
+
+    if (typeof quote_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(quote_date)) {
+      insertPayload.created_at = dateInputToISO(quote_date);
+    }
+
+    const { data: quote, error: quoteError } = await supabase
+      .from('quotes')
+      .insert(insertPayload)
       .select()
       .single();
 
