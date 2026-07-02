@@ -10,6 +10,7 @@ import { DashboardHeader } from '@/components/DashboardHeader';
 import { SessionUser } from '@/types/session';
 import { generateQuotePDF } from '@/lib/pdf-generator';
 import { QUOTE_ITEM_UNIT_OPTIONS, normalizeQuoteItemUnit } from '@/lib/quote-item-units';
+import { isoToDateInput, dateInputToISO } from '@/lib/quote-dates';
 
 const serviceTypes = [
   { value: 'cctv', label: 'CCTV y Videovigilancia', icon: '📹' },
@@ -53,6 +54,7 @@ export default function EditarCotizacionClient({
   const [formData, setFormData] = useState<QuoteFormData>({
     service_type: quote.service_type,
     description: quote.description || '',
+    quote_date: isoToDateInput(quote.created_at),
     valid_until: quote.valid_until,
     notes: quote.notes || '',
     custom_commercial_terms: quote.custom_commercial_terms || '',
@@ -268,7 +270,7 @@ export default function EditarCotizacionClient({
         subtotal: subtotal,
         tax: 0,
         total_amount: subtotal,
-        created_at: quote.created_at
+        created_at: dateInputToISO(formData.quote_date)
       };
       
       const pdf = await generateQuotePDF(quoteForPDF);
@@ -503,6 +505,23 @@ export default function EditarCotizacionClient({
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* Quote date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha de cotización
+                  </label>
+                  <input
+                    type="date"
+                    name="quote_date"
+                    value={formData.quote_date}
+                    onChange={handleFormChange}
+                    className="input"
+                  />
+                  <p className="text-xs text-muted mt-1.5">
+                    Aparece como &quot;Fecha&quot; en el PDF.
+                  </p>
                 </div>
 
                 {/* Valid Until */}

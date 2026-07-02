@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { getSession } from '@/lib/session';
+import { dateInputToISO } from '@/lib/quote-dates';
 
 export async function PUT(request: NextRequest) {
   try {
@@ -25,6 +26,7 @@ export async function PUT(request: NextRequest) {
       service_type,
       description,
       valid_until,
+      quote_date,
       notes,
       custom_commercial_terms,
       show_valid_until,
@@ -70,6 +72,10 @@ export async function PUT(request: NextRequest) {
     // Solo incluir show_valid_until si se proporciona
     if (show_valid_until !== undefined) {
       updateData.show_valid_until = show_valid_until;
+    }
+
+    if (typeof quote_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(quote_date)) {
+      updateData.created_at = dateInputToISO(quote_date);
     }
     
     const { error: quoteError } = await supabase

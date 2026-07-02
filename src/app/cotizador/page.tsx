@@ -10,6 +10,10 @@ import {
   type QuoteItemUnit,
   getQuoteItemUnitLabel,
 } from '@/lib/quote-item-units';
+import {
+  getTodayDateString,
+  getDefaultValidUntil,
+} from '@/lib/quote-dates';
 
 type QuoteItem = {
   id: string;
@@ -48,6 +52,7 @@ type QuoteFormData = {
   service_type: string;
   description: string;
   valid_until: string;
+  quote_date: string;
   notes: string;
   custom_commercial_terms: string;
   show_valid_until: boolean;
@@ -98,13 +103,6 @@ function CotizadorContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const getDefaultValidUntil = () => {
-    const today = new Date();
-    const futureDate = new Date(today);
-    futureDate.setDate(today.getDate() + 30);
-    return futureDate.toISOString().split('T')[0];
-  };
-
   const [formData, setFormData] = useState<QuoteFormData>({
     client_name: '',
     client_email: '',
@@ -112,6 +110,7 @@ function CotizadorContent() {
     client_company: '',
     service_type: '',
     description: 'A continuación presento la propuesta económica solicitada por concepto de ',
+    quote_date: getTodayDateString(),
     valid_until: getDefaultValidUntil(),
     notes: '',
     custom_commercial_terms: '',
@@ -192,6 +191,7 @@ function CotizadorContent() {
           client_company: quote.client_company || '',
           service_type: quote.service_type || '',
           description: quote.description || prev.description,
+          quote_date: getTodayDateString(),
           valid_until: getDefaultValidUntil(),
           notes: quote.notes || '',
           custom_commercial_terms: quote.custom_commercial_terms || '',
@@ -434,7 +434,7 @@ function CotizadorContent() {
               <div>
                 <p className="font-semibold text-accent-dark">Cotización duplicada</p>
                 <p className="text-sm text-accent/80">
-                  Basada en {duplicateSource}. Puedes cambiar cliente y ajustar los ítems antes de guardar.
+                  Basada en {duplicateSource}. La fecha de cotización se inicializa en hoy; puedes ajustar fechas, cliente e ítems antes de guardar.
                 </p>
               </div>
             </div>
@@ -786,8 +786,23 @@ function CotizadorContent() {
                   </div>
                 </div>
 
-                {/* Date and Description */}
+                {/* Fechas y descripción */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Fecha de cotización
+                    </label>
+                    <input
+                      type="date"
+                      name="quote_date"
+                      value={formData.quote_date}
+                      onChange={handleFormChange}
+                      className="input"
+                    />
+                    <p className="text-xs text-muted mt-1.5">
+                      Aparece como &quot;Fecha&quot; en el PDF.
+                    </p>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Válida hasta</label>
                     <input
@@ -808,18 +823,19 @@ function CotizadorContent() {
                       <span className="text-sm text-gray-600">Mostrar en el PDF</span>
                     </label>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Descripción general</label>
-                    <textarea
-                      id="description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleFormChange}
-                      rows={3}
-                      className="input resize-none"
-                      placeholder="Describe el proyecto o servicio..."
-                    />
-                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Descripción general</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleFormChange}
+                    rows={3}
+                    className="input resize-none"
+                    placeholder="Describe el proyecto o servicio..."
+                  />
                 </div>
 
                 {/* Navigation */}
@@ -1128,7 +1144,10 @@ function CotizadorContent() {
                       {serviceTypes.find(s => s.value === formData.service_type)?.label || '-'}
                     </p>
                     <p className="text-sm text-muted mt-1">
-                      {formData.show_valid_until ? `Válida hasta: ${new Date(formData.valid_until).toLocaleDateString('es-MX')}` : 'Sin fecha de validez'}
+                      Fecha: {new Date(formData.quote_date + 'T12:00:00').toLocaleDateString('es-MX')}
+                    </p>
+                    <p className="text-sm text-muted">
+                      {formData.show_valid_until ? `Válida hasta: ${new Date(formData.valid_until + 'T12:00:00').toLocaleDateString('es-MX')}` : 'Sin fecha de validez'}
                     </p>
                   </div>
 
