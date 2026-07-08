@@ -62,27 +62,38 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
     status: 'active' as 'active' | 'inactive' | 'prospect'
   });
 
+  const normalizeText = (value: unknown): string =>
+    String(value ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
   const filteredClients = (() => {
     let filtered = clients;
-    
+
     if (statusFilter !== 'all') {
       filtered = filtered.filter(client => client.status === statusFilter);
     }
-    
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(client => 
-        client.name.toLowerCase().includes(term) ||
-        client.email.toLowerCase().includes(term) ||
-        (client.phone && client.phone.includes(term)) ||
-        (client.company && client.company.toLowerCase().includes(term)) ||
-        (client.city && client.city.toLowerCase().includes(term)) ||
-        (client.state && client.state.toLowerCase().includes(term)) ||
-        (client.tax_id && client.tax_id.toLowerCase().includes(term)) ||
-        (client.notes && client.notes.toLowerCase().includes(term))
-      );
+
+    const tokens = normalizeText(searchTerm).split(/\s+/).filter(Boolean);
+    if (tokens.length > 0) {
+      filtered = filtered.filter(client => {
+        const haystack = normalizeText(
+          [
+            client.name,
+            client.email,
+            client.phone,
+            client.company,
+            client.city,
+            client.state,
+            client.tax_id,
+            client.notes,
+          ].join(' ')
+        );
+        return tokens.every(token => haystack.includes(token));
+      });
     }
-    
+
     return filtered;
   })();
 
@@ -223,7 +234,14 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
   return (
     <div className="min-h-screen bg-surface-secondary">
       <Sidebar />
-      <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
+      <DashboardHeader
+        user={user}
+        onLogout={handleLogout}
+        sidebarCollapsed={sidebarCollapsed}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Buscar por nombre, email, empresa..."
+      />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -329,32 +347,6 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          {/* Search */}
-          <div className="mb-6">
-            <div className="relative">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por nombre, email, empresa..."
-                className="input pl-11 pr-4 py-3"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
             </div>
           </div>
 
