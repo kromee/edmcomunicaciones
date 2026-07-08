@@ -366,6 +366,15 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                               {quote.client_company && (
                                 <p className="text-sm text-muted truncate">{quote.client_company}</p>
                               )}
+                              {quote.description && quote.description.trim() && (
+                                <p
+                                  className="mt-1.5 text-sm text-muted-light line-clamp-2 break-words"
+                                  title={quote.description}
+                                >
+                                  <span className="font-medium text-muted">Proyecto: </span>
+                                  {quote.description}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
