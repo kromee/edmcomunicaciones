@@ -20,6 +20,9 @@ interface DashboardHeaderProps {
   sidebarCollapsed?: boolean;
   notifications?: Notification[];
   unreadCount?: number;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
 }
 
 export function DashboardHeader({ 
@@ -27,7 +30,10 @@ export function DashboardHeader({
   onLogout, 
   sidebarCollapsed = false,
   notifications = [],
-  unreadCount = 0
+  unreadCount = 0,
+  searchValue,
+  onSearchChange,
+  searchPlaceholder = 'Buscar cotizaciones, clientes...'
 }: DashboardHeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -98,27 +104,43 @@ export function DashboardHeader({
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Left: Search */}
           <div className="flex-1 max-w-md">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-muted-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+            {onSearchChange ? (
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 text-muted-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={searchValue ?? ''}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  placeholder={searchPlaceholder}
+                  className="
+                    w-full pl-12 pr-10 py-2.5
+                    bg-surface-secondary
+                    border border-transparent
+                    rounded-xl
+                    text-sm text-gray-700
+                    placeholder:text-muted-light
+                    focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
+                    transition-all duration-200
+                  "
+                />
+                {searchValue && (
+                  <button
+                    type="button"
+                    onClick={() => onSearchChange('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="Limpiar búsqueda"
+                  >
+                    <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
               </div>
-              <input
-                type="text"
-                placeholder="Buscar cotizaciones, clientes..."
-                className="
-                  w-full pl-12 pr-4 py-2.5
-                  bg-surface-secondary
-                  border border-transparent
-                  rounded-xl
-                  text-sm text-gray-700
-                  placeholder:text-muted-light
-                  focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
-                  transition-all duration-200
-                "
-              />
-            </div>
+            ) : null}
           </div>
 
           {/* Right: Actions */}

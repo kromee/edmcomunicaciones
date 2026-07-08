@@ -72,26 +72,50 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [actionsOpen, setActionsOpen] = useState<string | null>(null);
 
+  // Normaliza texto: minúsculas y sin acentos/diacríticos, para búsquedas tolerantes
+  const normalizeText = (value: unknown): string =>
+    String(value ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+  // Construye un único texto buscable con todos los campos relevantes de la cotización
+  const buildSearchHaystack = (quote: Quote): string => {
+    const parts: unknown[] = [
+      quote.quote_number,
+      quote.client_name,
+      quote.client_company,
+      quote.client_email,
+      quote.client_phone,
+      quote.service_type,
+      quote.description,
+    ];
+
+    if (Array.isArray(quote.quote_items)) {
+      for (const item of quote.quote_items) {
+        parts.push(item.item_name, item.description);
+      }
+    }
+
+    return normalizeText(parts.join(' '));
+  };
+
   const filterQuotes = (quotes: Quote[], searchTerm: string, status: StatusFilter) => {
     let filtered = quotes;
-    
+
     if (status !== 'all') {
       filtered = filtered.filter(quote => quote.status === status);
     }
-    
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(quote => 
-        quote.quote_number.toLowerCase().includes(term) ||
-        quote.client_name.toLowerCase().includes(term) ||
-        (quote.client_company && quote.client_company.toLowerCase().includes(term)) ||
-        quote.service_type.toLowerCase().includes(term) ||
-        (quote.description && quote.description.toLowerCase().includes(term)) ||
-        quote.client_email.toLowerCase().includes(term) ||
-        (quote.client_phone && quote.client_phone.includes(term))
-      );
+
+    const tokens = normalizeText(searchTerm).split(/\s+/).filter(Boolean);
+    if (tokens.length > 0) {
+      filtered = filtered.filter(quote => {
+        const haystack = buildSearchHaystack(quote);
+        // Todas las palabras deben aparecer (búsqueda tipo "AND")
+        return tokens.every(token => haystack.includes(token));
+      });
     }
-    
+
     return filtered;
   };
 
@@ -211,7 +235,14 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
   return (
     <div className="min-h-screen bg-surface-secondary">
       <Sidebar />
-      <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
+      <DashboardHeader
+        user={user}
+        onLogout={handleLogout}
+        sidebarCollapsed={sidebarCollapsed}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Buscar por número, cliente, empresa, proyecto..."
+      />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -274,32 +305,6 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
             </div>
           </div>
 
-          {/* Search */}
-          <div className="mb-6">
-            <div className="relative">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por número, cliente, empresa..."
-                className="input pl-11 pr-4 py-3"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-
           {/* Quotes Grid */}
           {filteredQuotes.length === 0 ? (
             <div className="bg-white rounded-2xl p-12 shadow-card text-center">
@@ -340,7 +345,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
           ) : (
             <div className="grid gap-4">
               {paginatedQuotes.map((quote) => {
-                const statusStyle = statusConfig[quote.status];
+                const statusStyle = statusConfig[quote.status as StatusFilter] ?? statusConfig.pending;
                 return (
                   <div 
                     key={quote.id} 
