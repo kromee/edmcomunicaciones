@@ -11,6 +11,11 @@ import { SessionUser } from '@/types/session';
 import { generateQuotePDF } from '@/lib/pdf-generator';
 import { QUOTE_ITEM_UNIT_OPTIONS, normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { isoToDateInput, dateInputToISO } from '@/lib/quote-dates';
+import {
+  commercialTermsFromString,
+  commercialTermsToString,
+} from '@/lib/commercial-terms';
+import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
 
 const serviceTypes = [
   { value: 'cctv', label: 'CCTV y Videovigilancia', icon: '📹' },
@@ -62,7 +67,9 @@ export default function EditarCotizacionClient({
     status: normalizeQuoteStatus(quote.status)
   });
 
-  const [useCustomTerms, setUseCustomTerms] = useState(!!quote.custom_commercial_terms);
+  const [commercialTerms, setCommercialTerms] = useState<string[]>(
+    commercialTermsFromString(quote.custom_commercial_terms)
+  );
 
   const [items, setItems] = useState<QuoteItem[]>(
     quote.quote_items.map(item => ({
@@ -92,7 +99,7 @@ export default function EditarCotizacionClient({
 
   useEffect(() => {
     setHasChanges(true);
-  }, [formData, items, clientFields]);
+  }, [formData, items, clientFields, commercialTerms]);
 
   const searchClientsForEdit = async (query: string) => {
     if (query.length < 2) {
@@ -213,6 +220,7 @@ export default function EditarCotizacionClient({
           client_phone: clientFields.client_phone.trim() || null,
           client_company: clientFields.client_company.trim() || null,
           ...formData,
+          custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
           status: normalizeQuoteStatus(formData.status),
           items: items.map(item => ({
             id: item.id,
@@ -256,7 +264,7 @@ export default function EditarCotizacionClient({
         service_type: formData.service_type,
         description: formData.description || '',
         valid_until: formData.valid_until,
-        custom_commercial_terms: formData.custom_commercial_terms,
+        custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
         show_valid_until: formData.show_valid_until,
         items: items.map(item => ({
           item_name: item.description || '',
@@ -713,43 +721,11 @@ export default function EditarCotizacionClient({
 
             {/* Commercial Terms */}
             <div className="bg-white rounded-2xl shadow-card p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Condiciones Comerciales</h2>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useCustomTerms}
-                    onChange={(e) => {
-                      setUseCustomTerms(e.target.checked);
-                      if (!e.target.checked) {
-                        setFormData({ ...formData, custom_commercial_terms: '' });
-                      }
-                    }}
-                    className="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Personalizadas</span>
-                </label>
-              </div>
-
-              {useCustomTerms ? (
-                <textarea
-                  name="custom_commercial_terms"
-                  value={formData.custom_commercial_terms || ''}
-                  onChange={handleFormChange}
-                  rows={4}
-                  className="input resize-none font-mono text-sm"
-                  placeholder="• Condición 1&#10;• Condición 2&#10;• Condición 3"
-                />
-              ) : (
-                <div className="p-4 bg-surface-secondary rounded-xl text-sm text-muted space-y-1">
-                  <p className="font-medium text-gray-600 mb-2">Condiciones por defecto:</p>
-                  <ul className="list-disc list-inside space-y-0.5">
-                    <li>Validez de 30 días</li>
-                    <li>Pesos mexicanos (MXN), sin IVA</li>
-                    <li>50% anticipo, 50% al finalizar</li>
-                  </ul>
-                </div>
-              )}
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Condiciones Comerciales</h2>
+              <CommercialTermsEditor
+                terms={commercialTerms}
+                onChange={setCommercialTerms}
+              />
             </div>
 
             {/* Actions */}
