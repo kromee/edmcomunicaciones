@@ -14,6 +14,12 @@ import {
   getTodayDateString,
   getDefaultValidUntil,
 } from '@/lib/quote-dates';
+import {
+  DEFAULT_COMMERCIAL_TERMS,
+  commercialTermsFromString,
+  commercialTermsToString,
+} from '@/lib/commercial-terms';
+import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
 
 type QuoteItem = {
   id: string;
@@ -117,7 +123,9 @@ function CotizadorContent() {
     show_valid_until: true
   });
 
-  const [useCustomTerms, setUseCustomTerms] = useState(false);
+  const [commercialTerms, setCommercialTerms] = useState<string[]>([
+    ...DEFAULT_COMMERCIAL_TERMS,
+  ]);
 
   const [items, setItems] = useState<QuoteItem[]>([
     {
@@ -197,6 +205,10 @@ function CotizadorContent() {
           custom_commercial_terms: quote.custom_commercial_terms || '',
           show_valid_until: quote.show_valid_until ?? true,
         }));
+
+        setCommercialTerms(
+          commercialTermsFromString(quote.custom_commercial_terms)
+        );
 
         const templateItems = (quote.quote_items || []).map((item, index) => {
           const quantity = Number(item.quantity) || 1;
@@ -347,6 +359,7 @@ function CotizadorContent() {
         },
         body: JSON.stringify({
           ...formData,
+          custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
           items,
           subtotal,
           tax,
@@ -1040,41 +1053,13 @@ function CotizadorContent() {
 
                 {/* Commercial Terms */}
                 <div className="mt-4 p-4 bg-surface-secondary rounded-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={useCustomTerms}
-                        onChange={(e) => {
-                          setUseCustomTerms(e.target.checked);
-                          if (!e.target.checked) {
-                            setFormData({ ...formData, custom_commercial_terms: '' });
-                          }
-                        }}
-                        className="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Usar condiciones comerciales personalizadas</span>
-                    </label>
-                  </div>
-                  {useCustomTerms ? (
-                    <textarea
-                      name="custom_commercial_terms"
-                      value={formData.custom_commercial_terms}
-                      onChange={handleFormChange}
-                      rows={4}
-                      className="input resize-none font-mono text-sm"
-                      placeholder="• Condición 1&#10;• Condición 2&#10;• Condición 3"
-                    />
-                  ) : (
-                    <div className="text-sm text-muted space-y-1">
-                      <p className="font-medium text-gray-600">Condiciones por defecto:</p>
-                      <ul className="list-disc list-inside space-y-0.5 text-muted-light">
-                        <li>Validez de 30 días</li>
-                        <li>Pesos mexicanos (MXN), sin IVA</li>
-                        <li>50% anticipo, 50% al finalizar</li>
-                      </ul>
-                    </div>
-                  )}
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Condiciones comerciales
+                  </label>
+                  <CommercialTermsEditor
+                    terms={commercialTerms}
+                    onChange={setCommercialTerms}
+                  />
                 </div>
 
                 {/* Navigation */}
