@@ -116,6 +116,7 @@ export interface Database {
           unit: import('@/lib/quote-item-units').QuoteItemUnit
           unit_price: number
           total: number
+          sort_order: number
           created_at: string
         }
         Insert: {
@@ -127,6 +128,7 @@ export interface Database {
           unit?: import('@/lib/quote-item-units').QuoteItemUnit
           unit_price?: number
           total?: number
+          sort_order?: number
           created_at?: string
         }
         Update: {
@@ -138,6 +140,7 @@ export interface Database {
           unit?: import('@/lib/quote-item-units').QuoteItemUnit
           unit_price?: number
           total?: number
+          sort_order?: number
           created_at?: string
         }
       }

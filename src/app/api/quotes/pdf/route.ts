@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateQuotePDF } from '@/lib/pdf-generator';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
+import { sortQuoteItems } from '@/lib/quote-item-order';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +18,7 @@ export async function POST(request: NextRequest) {
         quote_items (*)
       `)
       .eq('id', quoteId)
+      .order('sort_order', { foreignTable: 'quote_items', ascending: true })
       .single();
 
     if (error || !quote) {
@@ -26,7 +28,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Preparar datos para el PDF
+    const orderedItems = sortQuoteItems(quote.quote_items || []);
+
+    // Preparar datos para el PDF (incluye corridas vacías en su posición)
     const quoteForPDF = {
       quote_number: quote.quote_number,
       client_name: quote.client_name,
@@ -38,7 +42,7 @@ export async function POST(request: NextRequest) {
       valid_until: quote.valid_until,
       custom_commercial_terms: quote.custom_commercial_terms,
       show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
-      items: (quote.quote_items || []).map((item: any) => ({
+      items: orderedItems.map((item: any) => ({
         item_name: item.item_name,
         description: item.description,
         quantity: item.quantity,

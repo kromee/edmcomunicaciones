@@ -105,16 +105,20 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Insertar nuevos items
+    // Insertar nuevos items (incluye corridas vacías; orden = posición)
     if (items && items.length > 0) {
-      const itemsToInsert = items.map((item: any) => ({
+      const itemsToInsert = items.map((item: any, index: number) => ({
         quote_id: quoteId,
-        item_name: item.item_name || item.description,
-        description: item.description,
+        item_name: (item.item_name || item.description)?.trim()
+          ? (item.item_name || item.description)
+          : `Corrida ${index + 1}`,
+        description: item.description ?? '',
         quantity: parseInt(item.quantity) || 1,
         unit: normalizeQuoteItemUnit(item.unit),
         unit_price: parseFloat(item.unit_price) || 0,
-        total: parseFloat(item.total) || 0
+        percentage: parseFloat(item.percentage) || 0,
+        total: parseFloat(item.total) || 0,
+        sort_order: index,
       }));
 
       console.log('Inserting items:', itemsToInsert);

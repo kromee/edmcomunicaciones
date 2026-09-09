@@ -185,7 +185,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
         index + 1,
         quantity,
         normalizeQuoteItemUnit(item.unit),
-        item.description || '-',
+        item.description?.trim() || '',
         `$${priceWithPercentage.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
         `$${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
       ];

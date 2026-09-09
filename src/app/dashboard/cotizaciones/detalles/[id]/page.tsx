@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import DetallesCotizacionClient from './detalles-cotizacion-client';
+import { sortQuoteItems } from '@/lib/quote-item-order';
 
 type QuoteData = {
   id: string;
@@ -47,11 +48,17 @@ export default async function DetallesCotizacionPage({ params }: { params: { id:
       quote_items (*)
     `)
     .eq('id', params.id)
+    .order('sort_order', { foreignTable: 'quote_items', ascending: true })
     .single();
 
   if (error || !quote) {
     redirect('/dashboard/cotizaciones');
   }
+
+  const quoteOrdered = {
+    ...quote,
+    quote_items: sortQuoteItems(quote.quote_items || []),
+  };
 
   let creator: { name: string; email: string } | null = null;
   if (quote.created_by) {
@@ -67,7 +74,7 @@ export default async function DetallesCotizacionPage({ params }: { params: { id:
 
   return (
     <DetallesCotizacionClient 
-      quote={quote as QuoteData} 
+      quote={quoteOrdered as QuoteData} 
       creator={creator}
       user={session}
     />

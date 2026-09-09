@@ -20,6 +20,7 @@ import {
   commercialTermsToString,
 } from '@/lib/commercial-terms';
 import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
+import { reorderList } from '@/lib/quote-item-order';
 
 type QuoteItem = {
   id: string;
@@ -145,6 +146,7 @@ function CotizadorContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [duplicateSource, setDuplicateSource] = useState<string | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   const [user] = useState<SessionUser>({
     id: '1',
@@ -344,6 +346,25 @@ function CotizadorContent() {
     if (items.length > 1) {
       setItems(items.filter(item => item.id !== id));
     }
+  };
+
+  const moveItem = (from: number, to: number) => {
+    setItems((prev) => reorderList(prev, from, to));
+  };
+
+  const handleItemDragStart = (index: number) => {
+    setDragIndex(index);
+  };
+
+  const handleItemDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+    moveItem(dragIndex, index);
+    setDragIndex(index);
+  };
+
+  const handleItemDragEnd = () => {
+    setDragIndex(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -900,20 +921,68 @@ function CotizadorContent() {
               </div>
 
               <div className="p-6">
+                <p className="text-sm text-muted mb-4">
+                  Puedes dejar corridas vacías para llenarlas después y arrastrar cualquier partida a otra posición.
+                </p>
                 {/* Items List */}
                 <div className="space-y-4">
                   {items.map((item, index) => (
                     <div 
-                      key={item.id} 
-                      className="group relative bg-surface-secondary rounded-xl p-4 sm:p-5 border border-gray-100 hover:border-accent/30 transition-all duration-200"
+                      key={item.id}
+                      draggable
+                      onDragStart={() => handleItemDragStart(index)}
+                      onDragOver={(e) => handleItemDragOver(e, index)}
+                      onDragEnd={handleItemDragEnd}
+                      className={`group relative bg-surface-secondary rounded-xl p-4 sm:p-5 border transition-all duration-200 ${
+                        dragIndex === index
+                          ? 'border-accent shadow-soft opacity-90'
+                          : 'border-gray-100 hover:border-accent/30'
+                      }`}
                     >
                       {/* Item Header */}
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-muted hover:bg-white hover:text-gray-700"
+                            title="Arrastrar para reordenar"
+                            aria-label={`Arrastrar corrida ${index + 1}`}
+                            onMouseDown={(e) => e.stopPropagation()}
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M7 4a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm6-10a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2z" />
+                            </svg>
+                          </button>
                           <span className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center text-accent font-semibold text-sm">
                             {index + 1}
                           </span>
-                          <span className="text-sm font-medium text-muted">Item</span>
+                          <span className="text-sm font-medium text-muted">
+                            {item.description?.trim() ? 'Item' : 'Corrida vacía'}
+                          </span>
+                          <div className="hidden sm:flex items-center gap-1 ml-1">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moveItem(index, index - 1)}
+                              className="p-1 rounded text-muted hover:bg-white disabled:opacity-30"
+                              title="Subir"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === items.length - 1}
+                              onClick={() => moveItem(index, index + 1)}
+                              className="p-1 rounded text-muted hover:bg-white disabled:opacity-30"
+                              title="Bajar"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         {items.length > 1 && (
                           <button
@@ -931,7 +1000,9 @@ function CotizadorContent() {
                       {/* Item Fields */}
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-xs font-medium text-gray-500 mb-1.5">Descripción *</label>
+                          <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                            Descripción <span className="text-muted-light font-normal">(opcional si es corrida vacía)</span>
+                          </label>
                           <input
                             type="text"
                             name={`description-${item.id}`}
@@ -1027,7 +1098,7 @@ function CotizadorContent() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  Agregar otro item
+                  Agregar corrida / item
                 </button>
 
                 {/* Grand Total */}
@@ -1140,7 +1211,7 @@ function CotizadorContent() {
                   <div className="p-4 bg-gradient-to-br from-brand/10 to-accent/10 rounded-xl border border-brand/10">
                     <p className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Total</p>
                     <p className="text-2xl font-bold text-brand">{formatCurrency(total)}</p>
-                    <p className="text-sm text-muted">{items.filter(i => i.description).length} items</p>
+                    <p className="text-sm text-muted">{items.length} corridas</p>
                   </div>
                 </div>
 
@@ -1158,10 +1229,14 @@ function CotizadorContent() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {items.filter(i => i.description).map((item, index) => (
+                        {items.map((item, index) => (
                           <tr key={item.id}>
                             <td className="px-4 py-3 text-sm text-muted">{index + 1}</td>
-                            <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.description}</td>
+                            <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                              {item.description?.trim() || (
+                                <span className="text-muted-light italic">Corrida vacía</span>
+                              )}
+                            </td>
                             <td className="px-4 py-3 text-sm text-gray-600 text-center">{item.quantity} {getQuoteItemUnitLabel(item.unit)}</td>
                             <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{formatCurrency(item.total)}</td>
                           </tr>
