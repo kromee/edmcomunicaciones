@@ -23,7 +23,7 @@ async function loadLogoAsBase64(): Promise<string> {
   }
 }
 
-type QuoteData = {
+export type QuotePDFData = {
   quote_number: string;
   client_name: string;
   client_email: string;
@@ -48,6 +48,8 @@ type QuoteData = {
   total_amount: number;
   created_at: string;
 };
+
+type QuoteData = QuotePDFData;
 
 export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   const doc = new jsPDF();

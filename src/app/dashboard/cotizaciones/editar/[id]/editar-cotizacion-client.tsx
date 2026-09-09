@@ -8,7 +8,7 @@ import { normalizeQuoteStatus } from '@/lib/quote-status';
 import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { SessionUser } from '@/types/session';
-import { generateQuotePDF } from '@/lib/pdf-generator';
+import { generateQuotePDF, type QuotePDFData } from '@/lib/pdf-generator';
 import { QUOTE_ITEM_UNIT_OPTIONS, normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { isoToDateInput, dateInputToISO } from '@/lib/quote-dates';
 import {
@@ -16,6 +16,7 @@ import {
   commercialTermsToString,
 } from '@/lib/commercial-terms';
 import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
+import { PdfPreviewModal } from '@/components/PdfPreviewModal';
 import { reorderList } from '@/lib/quote-item-order';
 
 const serviceTypes = [
@@ -93,6 +94,7 @@ export default function EditarCotizacionClient({
   const [subtotal, setSubtotal] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
 
   useEffect(() => {
     const newSubtotal = items.reduce((sum, item) => sum + item.total, 0);
@@ -274,35 +276,35 @@ export default function EditarCotizacionClient({
     }
   };
 
+  const buildPreviewQuoteData = (): QuotePDFData => ({
+    quote_number: quote.quote_number,
+    client_name: clientFields.client_name,
+    client_email: clientFields.client_email,
+    client_phone: clientFields.client_phone || '',
+    client_company: clientFields.client_company || '',
+    service_type: formData.service_type,
+    description: formData.description || '',
+    valid_until: formData.valid_until,
+    custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
+    show_valid_until: formData.show_valid_until,
+    items: items.map(item => ({
+      item_name: item.description || '',
+      description: item.description || '',
+      quantity: item.quantity,
+      unit: normalizeQuoteItemUnit(item.unit),
+      unit_price: item.unit_price,
+      percentage: item.percentage || 0,
+      total: item.total
+    })),
+    subtotal: subtotal,
+    tax: 0,
+    total_amount: subtotal,
+    created_at: dateInputToISO(formData.quote_date)
+  });
+
   const handleDownloadPDF = async () => {
     try {
-      const quoteForPDF = {
-        quote_number: quote.quote_number,
-        client_name: clientFields.client_name,
-        client_email: clientFields.client_email,
-        client_phone: clientFields.client_phone || '',
-        client_company: clientFields.client_company || '',
-        service_type: formData.service_type,
-        description: formData.description || '',
-        valid_until: formData.valid_until,
-        custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
-        show_valid_until: formData.show_valid_until,
-        items: items.map(item => ({
-          item_name: item.description || '',
-          description: item.description || '',
-          quantity: item.quantity,
-          unit: normalizeQuoteItemUnit(item.unit),
-          unit_price: item.unit_price,
-          percentage: item.percentage || 0,
-          total: item.total
-        })),
-        subtotal: subtotal,
-        tax: 0,
-        total_amount: subtotal,
-        created_at: dateInputToISO(formData.quote_date)
-      };
-      
-      const pdf = await generateQuotePDF(quoteForPDF);
+      const pdf = await generateQuotePDF(buildPreviewQuoteData());
       pdf.save(`${quote.quote_number}.pdf`);
       showSuccess('PDF Generado', 'El PDF se ha descargado exitosamente');
     } catch (error) {
@@ -613,22 +615,26 @@ export default function EditarCotizacionClient({
                 <p className="text-sm text-muted">
                   Puedes dejar corridas vacías y arrastrar partidas a otra posición.
                 </p>
-                {items.map((item, index) => (
+                {items.map((item, index) => {
+                  const isEmptyCorrida = !item.description?.trim();
+                  return (
                   <div 
                     key={item.id}
                     draggable
                     onDragStart={() => handleItemDragStart(index)}
                     onDragOver={(e) => handleItemDragOver(e, index)}
                     onDragEnd={handleItemDragEnd}
-                    className={`group relative bg-surface-secondary rounded-xl p-5 border transition-all ${
+                    className={`group relative rounded-xl p-5 border-2 transition-all ${
                       dragIndex === index
-                        ? 'border-accent shadow-soft opacity-90'
-                        : 'border-gray-100 hover:border-accent/30'
+                        ? 'border-accent shadow-soft opacity-90 bg-surface-secondary'
+                        : isEmptyCorrida
+                          ? 'border-dashed border-amber-400 bg-amber-50/80 hover:border-amber-500'
+                          : 'border-gray-100 bg-surface-secondary hover:border-accent/30'
                     }`}
                   >
                     {/* Item Header */}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <button
                           type="button"
                           className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-muted hover:bg-white hover:text-gray-700"
@@ -639,12 +645,23 @@ export default function EditarCotizacionClient({
                             <path d="M7 4a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm6-10a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2z" />
                           </svg>
                         </button>
-                        <span className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center text-accent font-semibold text-sm">
+                        <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-semibold text-sm ${
+                          isEmptyCorrida
+                            ? 'bg-amber-200 text-amber-900'
+                            : 'bg-accent/10 text-accent'
+                        }`}>
                           {index + 1}
                         </span>
-                        <span className="text-sm font-medium text-muted">
-                          {item.description?.trim() ? 'Item' : 'Corrida vacía'}
-                        </span>
+                        {isEmptyCorrida ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-200 text-amber-900">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                            </svg>
+                            Falta descripción
+                          </span>
+                        ) : (
+                          <span className="text-sm font-medium text-muted">Item</span>
+                        )}
                         <div className="hidden sm:flex items-center gap-1 ml-1">
                           <button
                             type="button"
@@ -686,13 +703,24 @@ export default function EditarCotizacionClient({
                     {/* Item Fields */}
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Descripción</label>
+                        <label className={`block text-xs font-medium mb-1.5 ${
+                          isEmptyCorrida ? 'text-amber-800' : 'text-gray-500'
+                        }`}>
+                          Descripción{' '}
+                          {isEmptyCorrida && (
+                            <span className="font-normal text-amber-700">(pendiente de llenar)</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           value={item.description}
                           onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                          className="input bg-white"
-                          placeholder="Descripción del item"
+                          className={`input bg-white ${
+                            isEmptyCorrida
+                              ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-200 placeholder:text-amber-700/60'
+                              : ''
+                          }`}
+                          placeholder={isEmptyCorrida ? 'Esta corrida está vacía — escribe la descripción aquí…' : 'Descripción del item'}
                         />
                       </div>
 
@@ -764,7 +792,8 @@ export default function EditarCotizacionClient({
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
 
                 <button
                   type="button"
@@ -810,7 +839,18 @@ export default function EditarCotizacionClient({
                   Cancelar
                 </button>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex items-center gap-3 w-full sm:w-auto flex-wrap justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setPdfPreviewOpen(true)}
+                    className="flex-1 sm:flex-none btn-secondary"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Vista previa
+                  </button>
                   <button
                     type="button"
                     onClick={handleDownloadPDF}
@@ -847,6 +887,14 @@ export default function EditarCotizacionClient({
           </form>
         </div>
       </main>
+
+      <PdfPreviewModal
+        isOpen={pdfPreviewOpen}
+        onClose={() => setPdfPreviewOpen(false)}
+        getQuoteData={buildPreviewQuoteData}
+        fileName={`${quote.quote_number}.pdf`}
+        title={`Vista previa · ${quote.quote_number}`}
+      />
 
       <Modal
         isOpen={modal.isOpen}
