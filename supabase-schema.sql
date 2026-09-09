@@ -66,11 +66,13 @@ CREATE TABLE IF NOT EXISTS quote_items (
   unit TEXT NOT NULL DEFAULT 'PZA' CHECK (unit IN ('PZA', 'SERV', 'MTR')),
   unit_price DECIMAL(10,2) NOT NULL DEFAULT 0,
   total DECIMAL(10,2) NOT NULL DEFAULT 0,
+  sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Índices para quote_items
 CREATE INDEX idx_quote_items_quote_id ON quote_items(quote_id);
+CREATE INDEX idx_quote_items_quote_sort ON quote_items(quote_id, sort_order);
 
 -- =====================================================
 -- Tabla: clients (Clientes)

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import CotizacionesClient from './cotizaciones-client';
+import { sortQuoteItems } from '@/lib/quote-item-order';
 
 export default async function CotizacionesPage() {
   const session = await getSession();
@@ -12,18 +13,23 @@ export default async function CotizacionesPage() {
 
   const supabase = await createClient();
 
-  // Obtener cotizaciones
   const { data: quotes, error } = await supabase
     .from('quotes')
     .select(`
       *,
       quote_items (*)
     `)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .order('sort_order', { foreignTable: 'quote_items', ascending: true });
 
   if (error) {
     console.error('Error fetching quotes:', error);
   }
 
-  return <CotizacionesClient quotes={quotes || []} user={session} />;
+  const quotesOrdered = (quotes || []).map((quote) => ({
+    ...quote,
+    quote_items: sortQuoteItems(quote.quote_items || []),
+  }));
+
+  return <CotizacionesClient quotes={quotesOrdered} user={session} />;
 }

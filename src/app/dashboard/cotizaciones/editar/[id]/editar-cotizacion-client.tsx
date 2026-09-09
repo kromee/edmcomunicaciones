@@ -16,6 +16,7 @@ import {
   commercialTermsToString,
 } from '@/lib/commercial-terms';
 import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
+import { reorderList } from '@/lib/quote-item-order';
 
 const serviceTypes = [
   { value: 'cctv', label: 'CCTV y Videovigilancia', icon: '📹' },
@@ -91,6 +92,7 @@ export default function EditarCotizacionClient({
   
   const [subtotal, setSubtotal] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const newSubtotal = items.reduce((sum, item) => sum + item.total, 0);
@@ -192,6 +194,25 @@ export default function EditarCotizacionClient({
         'Cancelar'
       );
     }
+  };
+
+  const moveItem = (from: number, to: number) => {
+    setItems((prev) => reorderList(prev, from, to));
+  };
+
+  const handleItemDragStart = (index: number) => {
+    setDragIndex(index);
+  };
+
+  const handleItemDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+    moveItem(dragIndex, index);
+    setDragIndex(index);
+  };
+
+  const handleItemDragEnd = () => {
+    setDragIndex(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -589,18 +610,65 @@ export default function EditarCotizacionClient({
               </div>
 
               <div className="p-6 space-y-4">
+                <p className="text-sm text-muted">
+                  Puedes dejar corridas vacías y arrastrar partidas a otra posición.
+                </p>
                 {items.map((item, index) => (
                   <div 
-                    key={item.id} 
-                    className="group relative bg-surface-secondary rounded-xl p-5 border border-gray-100 hover:border-accent/30 transition-all"
+                    key={item.id}
+                    draggable
+                    onDragStart={() => handleItemDragStart(index)}
+                    onDragOver={(e) => handleItemDragOver(e, index)}
+                    onDragEnd={handleItemDragEnd}
+                    className={`group relative bg-surface-secondary rounded-xl p-5 border transition-all ${
+                      dragIndex === index
+                        ? 'border-accent shadow-soft opacity-90'
+                        : 'border-gray-100 hover:border-accent/30'
+                    }`}
                   >
                     {/* Item Header */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-muted hover:bg-white hover:text-gray-700"
+                          title="Arrastrar para reordenar"
+                          aria-label={`Arrastrar corrida ${index + 1}`}
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M7 4a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm6-10a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2z" />
+                          </svg>
+                        </button>
                         <span className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center text-accent font-semibold text-sm">
                           {index + 1}
                         </span>
-                        <span className="text-sm font-medium text-muted">Item</span>
+                        <span className="text-sm font-medium text-muted">
+                          {item.description?.trim() ? 'Item' : 'Corrida vacía'}
+                        </span>
+                        <div className="hidden sm:flex items-center gap-1 ml-1">
+                          <button
+                            type="button"
+                            disabled={index === 0}
+                            onClick={() => moveItem(index, index - 1)}
+                            className="p-1 rounded text-muted hover:bg-white disabled:opacity-30"
+                            title="Subir"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={index === items.length - 1}
+                            onClick={() => moveItem(index, index + 1)}
+                            className="p-1 rounded text-muted hover:bg-white disabled:opacity-30"
+                            title="Bajar"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                       {items.length > 1 && (
                         <button

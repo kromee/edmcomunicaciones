@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getSession } from '@/lib/session';
+import { sortQuoteItems } from '@/lib/quote-item-order';
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,10 +47,13 @@ export async function GET(request: NextRequest) {
           unit,
           unit_price,
           percentage,
-          total
+          total,
+          sort_order,
+          created_at
         )
       `)
       .eq('id', id)
+      .order('sort_order', { foreignTable: 'quote_items', ascending: true })
       .single();
 
     if (error || !quote) {
@@ -59,7 +63,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, quote });
+    return NextResponse.json({
+      success: true,
+      quote: {
+        ...quote,
+        quote_items: sortQuoteItems(quote.quote_items || []),
+      },
+    });
   } catch (error) {
     console.error('Error in get quote:', error);
     return NextResponse.json(

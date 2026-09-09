@@ -123,16 +123,17 @@ export async function POST(request: NextRequest) {
 
     console.log('Quote created successfully:', quote.id);
 
-    // Crear items de cotización
-    const quoteItems = items.map((item: any) => ({
+    // Crear items de cotización (incluye corridas vacías; orden = posición)
+    const quoteItems = items.map((item: any, index: number) => ({
       quote_id: quote.id,
-      item_name: item.description, // Usar description como item_name
-      description: item.description,
+      item_name: item.description?.trim() ? item.description : `Corrida ${index + 1}`,
+      description: item.description ?? '',
       quantity: parseInt(item.quantity) || 0,
       unit: normalizeQuoteItemUnit(item.unit),
       unit_price: parseFloat(item.unit_price) || 0,
       percentage: parseFloat(item.percentage) || 0,
-      total: parseFloat(item.total) || 0
+      total: parseFloat(item.total) || 0,
+      sort_order: index,
     }));
 
     console.log('Quote items to insert:', quoteItems);
