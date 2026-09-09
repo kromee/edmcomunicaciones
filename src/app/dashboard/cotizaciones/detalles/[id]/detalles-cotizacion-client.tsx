@@ -449,12 +449,35 @@ export default function DetallesCotizacionClient({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {quote.quote_items.map((item, index) => (
-                      <tr key={item.id} className="hover:bg-surface-secondary/50 transition-colors">
+                    {quote.quote_items.map((item, index) => {
+                      const isEmptyCorrida = !item.description?.trim();
+                      return (
+                      <tr
+                        key={item.id}
+                        className={
+                          isEmptyCorrida
+                            ? 'bg-amber-50 hover:bg-amber-50/90 transition-colors'
+                            : 'hover:bg-surface-secondary/50 transition-colors'
+                        }
+                      >
                         <td className="px-6 py-4 text-sm text-muted">{index + 1}</td>
                         <td className="px-6 py-4">
-                          <p className="font-medium text-gray-900">{item.description}</p>
-                          <p className="text-xs text-muted-light">{getQuoteItemUnitLabel(item.unit)}</p>
+                          {isEmptyCorrida ? (
+                            <>
+                              <p className="inline-flex items-center gap-1.5 font-semibold text-amber-900">
+                                <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
+                                Falta descripción
+                              </p>
+                              <p className="text-xs text-amber-700/80 mt-0.5">
+                                Corrida vacía · {getQuoteItemUnitLabel(item.unit)}
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="font-medium text-gray-900">{item.description}</p>
+                              <p className="text-xs text-muted-light">{getQuoteItemUnitLabel(item.unit)}</p>
+                            </>
+                          )}
                         </td>
                         <td className="px-6 py-4 text-center text-sm text-gray-900">{item.quantity}</td>
                         <td className="px-6 py-4 text-right text-sm text-gray-900">{formatCurrency(item.unit_price)}</td>
@@ -463,7 +486,8 @@ export default function DetallesCotizacionClient({
                           <span className="font-semibold text-brand">{formatCurrency(item.total)}</span>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                   <tfoot className="bg-surface-secondary">
                     <tr>

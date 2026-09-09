@@ -613,22 +613,26 @@ export default function EditarCotizacionClient({
                 <p className="text-sm text-muted">
                   Puedes dejar corridas vacías y arrastrar partidas a otra posición.
                 </p>
-                {items.map((item, index) => (
+                {items.map((item, index) => {
+                  const isEmptyCorrida = !item.description?.trim();
+                  return (
                   <div 
                     key={item.id}
                     draggable
                     onDragStart={() => handleItemDragStart(index)}
                     onDragOver={(e) => handleItemDragOver(e, index)}
                     onDragEnd={handleItemDragEnd}
-                    className={`group relative bg-surface-secondary rounded-xl p-5 border transition-all ${
+                    className={`group relative rounded-xl p-5 border-2 transition-all ${
                       dragIndex === index
-                        ? 'border-accent shadow-soft opacity-90'
-                        : 'border-gray-100 hover:border-accent/30'
+                        ? 'border-accent shadow-soft opacity-90 bg-surface-secondary'
+                        : isEmptyCorrida
+                          ? 'border-dashed border-amber-400 bg-amber-50/80 hover:border-amber-500'
+                          : 'border-gray-100 bg-surface-secondary hover:border-accent/30'
                     }`}
                   >
                     {/* Item Header */}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <button
                           type="button"
                           className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-muted hover:bg-white hover:text-gray-700"
@@ -639,12 +643,23 @@ export default function EditarCotizacionClient({
                             <path d="M7 4a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm6-10a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2zm0 5a1 1 0 100 2 1 1 0 000-2z" />
                           </svg>
                         </button>
-                        <span className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center text-accent font-semibold text-sm">
+                        <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-semibold text-sm ${
+                          isEmptyCorrida
+                            ? 'bg-amber-200 text-amber-900'
+                            : 'bg-accent/10 text-accent'
+                        }`}>
                           {index + 1}
                         </span>
-                        <span className="text-sm font-medium text-muted">
-                          {item.description?.trim() ? 'Item' : 'Corrida vacía'}
-                        </span>
+                        {isEmptyCorrida ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-200 text-amber-900">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                            </svg>
+                            Falta descripción
+                          </span>
+                        ) : (
+                          <span className="text-sm font-medium text-muted">Item</span>
+                        )}
                         <div className="hidden sm:flex items-center gap-1 ml-1">
                           <button
                             type="button"
@@ -686,13 +701,24 @@ export default function EditarCotizacionClient({
                     {/* Item Fields */}
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Descripción</label>
+                        <label className={`block text-xs font-medium mb-1.5 ${
+                          isEmptyCorrida ? 'text-amber-800' : 'text-gray-500'
+                        }`}>
+                          Descripción{' '}
+                          {isEmptyCorrida && (
+                            <span className="font-normal text-amber-700">(pendiente de llenar)</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           value={item.description}
                           onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                          className="input bg-white"
-                          placeholder="Descripción del item"
+                          className={`input bg-white ${
+                            isEmptyCorrida
+                              ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-200 placeholder:text-amber-700/60'
+                              : ''
+                          }`}
+                          placeholder={isEmptyCorrida ? 'Esta corrida está vacía — escribe la descripción aquí…' : 'Descripción del item'}
                         />
                       </div>
 
@@ -764,7 +790,8 @@ export default function EditarCotizacionClient({
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
 
                 <button
                   type="button"
