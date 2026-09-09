@@ -8,7 +8,7 @@ import { normalizeQuoteStatus } from '@/lib/quote-status';
 import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { SessionUser } from '@/types/session';
-import { generateQuotePDF } from '@/lib/pdf-generator';
+import { generateQuotePDF, type QuotePDFData } from '@/lib/pdf-generator';
 import { QUOTE_ITEM_UNIT_OPTIONS, normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { isoToDateInput, dateInputToISO } from '@/lib/quote-dates';
 import {
@@ -16,6 +16,7 @@ import {
   commercialTermsToString,
 } from '@/lib/commercial-terms';
 import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
+import { PdfPreviewModal } from '@/components/PdfPreviewModal';
 import { reorderList } from '@/lib/quote-item-order';
 
 const serviceTypes = [
@@ -93,6 +94,7 @@ export default function EditarCotizacionClient({
   const [subtotal, setSubtotal] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
 
   useEffect(() => {
     const newSubtotal = items.reduce((sum, item) => sum + item.total, 0);
@@ -274,35 +276,35 @@ export default function EditarCotizacionClient({
     }
   };
 
+  const buildPreviewQuoteData = (): QuotePDFData => ({
+    quote_number: quote.quote_number,
+    client_name: clientFields.client_name,
+    client_email: clientFields.client_email,
+    client_phone: clientFields.client_phone || '',
+    client_company: clientFields.client_company || '',
+    service_type: formData.service_type,
+    description: formData.description || '',
+    valid_until: formData.valid_until,
+    custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
+    show_valid_until: formData.show_valid_until,
+    items: items.map(item => ({
+      item_name: item.description || '',
+      description: item.description || '',
+      quantity: item.quantity,
+      unit: normalizeQuoteItemUnit(item.unit),
+      unit_price: item.unit_price,
+      percentage: item.percentage || 0,
+      total: item.total
+    })),
+    subtotal: subtotal,
+    tax: 0,
+    total_amount: subtotal,
+    created_at: dateInputToISO(formData.quote_date)
+  });
+
   const handleDownloadPDF = async () => {
     try {
-      const quoteForPDF = {
-        quote_number: quote.quote_number,
-        client_name: clientFields.client_name,
-        client_email: clientFields.client_email,
-        client_phone: clientFields.client_phone || '',
-        client_company: clientFields.client_company || '',
-        service_type: formData.service_type,
-        description: formData.description || '',
-        valid_until: formData.valid_until,
-        custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
-        show_valid_until: formData.show_valid_until,
-        items: items.map(item => ({
-          item_name: item.description || '',
-          description: item.description || '',
-          quantity: item.quantity,
-          unit: normalizeQuoteItemUnit(item.unit),
-          unit_price: item.unit_price,
-          percentage: item.percentage || 0,
-          total: item.total
-        })),
-        subtotal: subtotal,
-        tax: 0,
-        total_amount: subtotal,
-        created_at: dateInputToISO(formData.quote_date)
-      };
-      
-      const pdf = await generateQuotePDF(quoteForPDF);
+      const pdf = await generateQuotePDF(buildPreviewQuoteData());
       pdf.save(`${quote.quote_number}.pdf`);
       showSuccess('PDF Generado', 'El PDF se ha descargado exitosamente');
     } catch (error) {
@@ -837,7 +839,18 @@ export default function EditarCotizacionClient({
                   Cancelar
                 </button>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex items-center gap-3 w-full sm:w-auto flex-wrap justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setPdfPreviewOpen(true)}
+                    className="flex-1 sm:flex-none btn-secondary"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Vista previa
+                  </button>
                   <button
                     type="button"
                     onClick={handleDownloadPDF}
@@ -874,6 +887,14 @@ export default function EditarCotizacionClient({
           </form>
         </div>
       </main>
+
+      <PdfPreviewModal
+        isOpen={pdfPreviewOpen}
+        onClose={() => setPdfPreviewOpen(false)}
+        getQuoteData={buildPreviewQuoteData}
+        fileName={`${quote.quote_number}.pdf`}
+        title={`Vista previa · ${quote.quote_number}`}
+      />
 
       <Modal
         isOpen={modal.isOpen}

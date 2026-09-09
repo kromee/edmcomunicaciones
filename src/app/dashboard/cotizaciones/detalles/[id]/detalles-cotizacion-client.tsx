@@ -3,11 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useModal } from '@/hooks/useModal';
 import { Modal } from '@/components/Modal';
-import { generateQuotePDF } from '@/lib/pdf-generator';
+import { generateQuotePDF, type QuotePDFData } from '@/lib/pdf-generator';
 import { getQuoteItemUnitLabel, normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { normalizeQuoteStatus, quoteStatusBadgeClasses } from '@/lib/quote-status';
 import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
+import { PdfPreviewModal } from '@/components/PdfPreviewModal';
 import { SessionUser } from '@/types/session';
 
 type QuoteData = {
@@ -81,6 +82,7 @@ export default function DetallesCotizacionClient({
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const statusNormalized = normalizeQuoteStatus(quote.status);
   const statusInfo = statusConfig[statusNormalized] || statusConfig.pending;
   const currentStatusOption = allStatuses.find(s => s.key === statusNormalized) || allStatuses[0];
@@ -112,35 +114,35 @@ export default function DetallesCotizacionClient({
     });
   };
 
+  const buildPreviewQuoteData = (): QuotePDFData => ({
+    quote_number: quote.quote_number,
+    client_name: quote.client_name,
+    client_email: quote.client_email,
+    client_phone: quote.client_phone || '',
+    client_company: quote.client_company || '',
+    service_type: quote.service_type,
+    description: quote.description || '',
+    valid_until: quote.valid_until,
+    custom_commercial_terms: quote.custom_commercial_terms,
+    show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
+    items: quote.quote_items.map(item => ({
+      item_name: item.item_name,
+      description: item.description || '',
+      quantity: item.quantity,
+      unit: normalizeQuoteItemUnit(item.unit),
+      unit_price: item.unit_price,
+      percentage: item.percentage || 0,
+      total: item.total
+    })),
+    subtotal: quote.total_amount,
+    tax: 0,
+    total_amount: quote.total_amount,
+    created_at: quote.created_at
+  });
+
   const downloadPDF = async () => {
     try {
-      const quoteForPDF = {
-        quote_number: quote.quote_number,
-        client_name: quote.client_name,
-        client_email: quote.client_email,
-        client_phone: quote.client_phone || '',
-        client_company: quote.client_company || '',
-        service_type: quote.service_type,
-        description: quote.description || '',
-        valid_until: quote.valid_until,
-        custom_commercial_terms: quote.custom_commercial_terms,
-        show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
-        items: quote.quote_items.map(item => ({
-          item_name: item.item_name,
-          description: item.description || '',
-          quantity: item.quantity,
-          unit: normalizeQuoteItemUnit(item.unit),
-          unit_price: item.unit_price,
-          percentage: item.percentage || 0,
-          total: item.total
-        })),
-        subtotal: quote.total_amount,
-        tax: 0,
-        total_amount: quote.total_amount,
-        created_at: quote.created_at
-      };
-      
-      const pdf = await generateQuotePDF(quoteForPDF);
+      const pdf = await generateQuotePDF(buildPreviewQuoteData());
       pdf.save(`${quote.quote_number}.pdf`);
       showSuccess('PDF Generado', 'El PDF se ha descargado exitosamente');
     } catch (error) {
@@ -305,6 +307,16 @@ export default function DetallesCotizacionClient({
                   )}
                 </div>
 
+                <button
+                  onClick={() => setPdfPreviewOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-surface-secondary text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Vista previa
+                </button>
                 <button
                   onClick={downloadPDF}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-dark transition-colors"
@@ -518,6 +530,14 @@ export default function DetallesCotizacionClient({
           </div>
         </div>
       </main>
+
+      <PdfPreviewModal
+        isOpen={pdfPreviewOpen}
+        onClose={() => setPdfPreviewOpen(false)}
+        getQuoteData={buildPreviewQuoteData}
+        fileName={`${quote.quote_number}.pdf`}
+        title={`Vista previa · ${quote.quote_number}`}
+      />
 
       <Modal
         isOpen={modal.isOpen}

@@ -13,6 +13,7 @@ import {
 import {
   getTodayDateString,
   getDefaultValidUntil,
+  dateInputToISO,
 } from '@/lib/quote-dates';
 import {
   DEFAULT_COMMERCIAL_TERMS,
@@ -20,7 +21,9 @@ import {
   commercialTermsToString,
 } from '@/lib/commercial-terms';
 import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
+import { PdfPreviewModal } from '@/components/PdfPreviewModal';
 import { reorderList } from '@/lib/quote-item-order';
+import type { QuotePDFData } from '@/lib/pdf-generator';
 
 type QuoteItem = {
   id: string;
@@ -147,6 +150,7 @@ function CotizadorContent() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [duplicateSource, setDuplicateSource] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
 
   const [user] = useState<SessionUser>({
     id: '1',
@@ -366,6 +370,32 @@ function CotizadorContent() {
   const handleItemDragEnd = () => {
     setDragIndex(null);
   };
+
+  const buildPreviewQuoteData = (): QuotePDFData => ({
+    quote_number: 'VISTA-PREVIA',
+    client_name: formData.client_name || selectedClient?.name || 'Cliente',
+    client_email: formData.client_email || selectedClient?.email || '',
+    client_phone: formData.client_phone || selectedClient?.phone || '',
+    client_company: formData.client_company || selectedClient?.company || '',
+    service_type: formData.service_type,
+    description: formData.description || '',
+    valid_until: formData.valid_until,
+    custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
+    show_valid_until: formData.show_valid_until,
+    items: items.map((item) => ({
+      item_name: item.description || '',
+      description: item.description || '',
+      quantity: item.quantity,
+      unit: item.unit,
+      unit_price: item.unit_price,
+      percentage: item.percentage || 0,
+      total: item.total,
+    })),
+    subtotal,
+    tax,
+    total_amount: total,
+    created_at: dateInputToISO(formData.quote_date || getTodayDateString()),
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1289,7 +1319,7 @@ function CotizadorContent() {
                 </div>
 
                 {/* Navigation */}
-                <div className="flex justify-between pt-6 border-t border-gray-100">
+                <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-6 border-t border-gray-100">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(3)}
@@ -1300,31 +1330,52 @@ function CotizadorContent() {
                     </svg>
                     Editar
                   </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !canProceed()}
-                    className="btn-accent disabled:opacity-50"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Creando...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Crear Cotización
-                      </>
-                    )}
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPdfPreviewOpen(true)}
+                      className="btn-secondary"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      Vista previa PDF
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || !canProceed()}
+                      className="btn-accent disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Creando...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Crear Cotización
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </form>
         </div>
       </main>
+
+      <PdfPreviewModal
+        isOpen={pdfPreviewOpen}
+        onClose={() => setPdfPreviewOpen(false)}
+        getQuoteData={buildPreviewQuoteData}
+        fileName="vista-previa-cotizacion.pdf"
+        title="Vista previa del PDF"
+      />
     </div>
   );
 }
