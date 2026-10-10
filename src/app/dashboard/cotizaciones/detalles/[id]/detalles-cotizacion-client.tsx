@@ -81,7 +81,7 @@ export default function DetallesCotizacionClient({
   const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const statusNormalized = normalizeQuoteStatus(quote.status);
   const statusInfo = statusConfig[statusNormalized] || statusConfig.pending;
@@ -212,7 +212,7 @@ export default function DetallesCotizacionClient({
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>

@@ -18,6 +18,8 @@ interface SidebarProps {
     cotizaciones?: number;
     contactos?: number;
   };
+  defaultCollapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 const getNavItems = (badges?: SidebarProps['badges']): NavItem[] => [
@@ -71,10 +73,18 @@ const secondaryNavItems: NavItem[] = [
   },
 ];
 
-export function Sidebar({ badges }: SidebarProps) {
+export function Sidebar({ badges, defaultCollapsed = false, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const toggleCollapsed = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      onCollapsedChange?.(next);
+      return next;
+    });
+  };
 
   const navItems = getNavItems(badges);
 
@@ -93,6 +103,7 @@ export function Sidebar({ badges }: SidebarProps) {
         className={`
           group relative flex items-center gap-3 px-3 py-2.5 rounded-xl
           transition-all duration-200 ease-out
+          ${isCollapsed ? 'lg:justify-center lg:px-2' : ''}
           ${active 
             ? 'bg-white text-brand shadow-soft' 
             : 'text-white/70 hover:text-white hover:bg-white/10'
@@ -102,12 +113,12 @@ export function Sidebar({ badges }: SidebarProps) {
         <span className={`${active ? 'text-accent' : 'text-white/60 group-hover:text-white'} transition-colors`}>
           {item.icon}
         </span>
-        <span className={`font-medium text-sm ${isCollapsed ? 'hidden' : 'block'}`}>
+        <span className={`font-medium text-sm ${isCollapsed ? 'lg:hidden' : 'block'}`}>
           {item.label}
         </span>
         {badge !== undefined && badge > 0 && (
           <span className={`
-            ${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'}
+            ${isCollapsed ? 'ml-auto lg:ml-0 lg:absolute lg:-top-1 lg:-right-1' : 'ml-auto'}
             flex items-center justify-center min-w-[20px] h-5 px-1.5
             text-xs font-semibold rounded-full
             ${active ? 'bg-accent text-white' : 'bg-white/20 text-white'}
@@ -115,8 +126,8 @@ export function Sidebar({ badges }: SidebarProps) {
             {badge > 99 ? '99+' : badge}
           </span>
         )}
-        {active && !isCollapsed && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-r-full" />
+        {active && (
+          <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-r-full ${isCollapsed ? 'lg:hidden' : ''}`} />
         )}
       </Link>
     );
@@ -148,14 +159,14 @@ export function Sidebar({ badges }: SidebarProps) {
         flex flex-col
         bg-gradient-to-b from-[#0f1e48] to-[#0a1628]
         transition-all duration-300 ease-out
-        ${isCollapsed ? 'w-20' : 'w-64'}
+        ${isCollapsed ? 'w-64 lg:w-20' : 'w-64'}
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         shadow-sidebar
       `}>
         {/* Logo Area */}
         <div className={`
           flex items-center gap-3 px-5 py-6 border-b border-white/10
-          ${isCollapsed ? 'justify-center px-2' : ''}
+          ${isCollapsed ? 'lg:justify-center lg:px-2' : ''}
         `}>
           <div className="relative w-10 h-10 flex-shrink-0">
             <Image
@@ -165,17 +176,15 @@ export function Sidebar({ badges }: SidebarProps) {
               className="object-contain"
             />
           </div>
-          {!isCollapsed && (
-            <div className="animate-fade-in">
-              <h1 className="text-white font-bold text-lg leading-tight">EDM</h1>
-              <p className="text-white/50 text-xs">Comunicaciones</p>
-            </div>
-          )}
+          <div className={isCollapsed ? 'lg:hidden' : ''}>
+            <h1 className="text-white font-bold text-lg leading-tight">EDM</h1>
+            <p className="text-white/50 text-xs">Comunicaciones</p>
+          </div>
         </div>
 
         {/* Collapse Button - Desktop Only */}
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={toggleCollapsed}
           className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white rounded-full shadow-soft items-center justify-center text-gray-400 hover:text-brand transition-colors"
         >
           <svg className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,11 +196,9 @@ export function Sidebar({ badges }: SidebarProps) {
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {/* Main Navigation */}
           <div className="space-y-1">
-            {!isCollapsed && (
-              <p className="px-3 py-2 text-xs font-semibold text-white/40 uppercase tracking-wider">
-                Menú Principal
-              </p>
-            )}
+            <p className={`px-3 py-2 text-xs font-semibold text-white/40 uppercase tracking-wider ${isCollapsed ? 'lg:hidden' : ''}`}>
+              Menú Principal
+            </p>
             {navItems.map((item) => {
               let badge: number | undefined;
               if (item.href === '/dashboard/cotizaciones' && badges?.cotizaciones) {
@@ -205,11 +212,9 @@ export function Sidebar({ badges }: SidebarProps) {
 
           {/* Quick Actions */}
           <div className="pt-4 mt-4 border-t border-white/10">
-            {!isCollapsed && (
-              <p className="px-3 py-2 text-xs font-semibold text-white/40 uppercase tracking-wider">
-                Acciones Rápidas
-              </p>
-            )}
+            <p className={`px-3 py-2 text-xs font-semibold text-white/40 uppercase tracking-wider ${isCollapsed ? 'lg:hidden' : ''}`}>
+              Acciones Rápidas
+            </p>
             {secondaryNavItems.map((item) => (
               <NavLink key={item.href} item={item} />
             ))}
