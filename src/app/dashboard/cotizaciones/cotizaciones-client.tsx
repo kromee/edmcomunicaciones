@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { SessionUser } from '@/types/session';
 import { Sidebar } from '@/components/DashboardSidebar';
@@ -10,7 +10,7 @@ import { generateQuotePDF } from '@/lib/pdf-generator';
 import type { QuoteItemUnit } from '@/lib/quote-item-units';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 
 type Quote = {
   id: string;
@@ -61,6 +61,108 @@ const serviceIcons: Record<string, React.ReactNode> = {
   mixto: '🏗️',
   otro: '📦',
 };
+
+function QuoteRowMenu({
+  quoteId,
+  open,
+  openUpward,
+  onToggle,
+  onDownload,
+  onDelete,
+}: {
+  quoteId: string;
+  open: boolean;
+  openUpward: boolean;
+  onToggle: () => void;
+  onDownload: () => void;
+  onDelete: () => void;
+}) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number; upward: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!open || !buttonRef.current) {
+      setCoords(null);
+      return;
+    }
+
+    const place = () => {
+      const rect = buttonRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const upward = openUpward || rect.bottom + 220 > window.innerHeight;
+      setCoords({
+        top: upward ? rect.top - 4 : rect.bottom + 4,
+        left: rect.right,
+        upward,
+      });
+    };
+
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [open, openUpward]);
+
+  return (
+    <div onClick={(e) => e.stopPropagation()}>
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={onToggle}
+        className="p-1.5 rounded-lg hover:bg-surface-secondary transition-colors text-muted hover:text-gray-900"
+        aria-label="Acciones"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+        </svg>
+      </button>
+
+      {open && coords && (
+        <div
+          className="fixed z-50 w-48 bg-white rounded-xl shadow-elevated border border-gray-100 py-1.5"
+          style={{
+            top: coords.top,
+            left: coords.left,
+            transform: coords.upward ? 'translate(-100%, -100%)' : 'translateX(-100%)',
+          }}
+        >
+          <a
+            href={`/dashboard/cotizaciones/detalles/${quoteId}`}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Ver detalles
+          </a>
+          <a
+            href={`/dashboard/cotizaciones/editar/${quoteId}`}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Editar
+          </a>
+          <a
+            href={`/cotizador?duplicateQuoteId=${quoteId}`}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Duplicar
+          </a>
+          <button
+            type="button"
+            onClick={onDownload}
+            className="flex items-center gap-3 px-4 py-2 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Descargar PDF
+          </button>
+          <div className="border-t border-gray-100 my-1" />
+          <button
+            type="button"
+            onClick={onDelete}
+            className="flex items-center gap-3 px-4 py-2 w-full text-sm text-danger hover:bg-danger/5 transition-colors"
+          >
+            Eliminar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; user: SessionUser }) {
   const router = useRouter();
@@ -245,9 +347,9 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
       />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
-        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
           {/* Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <a href="/dashboard" className="p-2 rounded-xl hover:bg-white/50 transition-colors">
@@ -271,7 +373,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
           </div>
 
           {/* Status Filters */}
-          <div className="mb-6 overflow-x-auto pb-2">
+          <div className="mb-3 overflow-x-auto pb-1">
             <div className="flex gap-2 min-w-max">
               {(Object.keys(statusConfig) as StatusFilter[]).map((status) => {
                 const config = statusConfig[status];
@@ -343,145 +445,107 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
               )}
             </div>
           ) : (
-            <div className="grid gap-4">
-              {paginatedQuotes.map((quote) => {
-                const statusStyle = statusConfig[quote.status as StatusFilter] ?? statusConfig.pending;
-                return (
-                  <div 
-                    key={quote.id} 
-                    className="bg-white rounded-2xl shadow-card hover:shadow-elevated transition-all duration-200 group"
-                  >
-                    <div className="p-5 sm:p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                        {/* Left: Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start gap-4">
-                            <div className="hidden sm:flex w-12 h-12 rounded-xl bg-gradient-to-br from-brand to-accent items-center justify-center text-2xl flex-shrink-0">
-                              {serviceIcons[quote.service_type] || '📦'}
+            <>
+              <div className="hidden md:block bg-white rounded-2xl shadow-card border border-gray-100">
+                <table className="w-full table-fixed text-sm">
+                  <thead className="sticky top-16 sm:top-20 z-20 bg-gray-50 text-[11px] uppercase tracking-wide text-muted">
+                    <tr className="border-b border-gray-100">
+                      <th className="text-left font-semibold px-4 py-2.5 w-[16%] rounded-tl-2xl">Cotización</th>
+                      <th className="text-left font-semibold px-3 py-2.5 w-[16%]">Cliente</th>
+                      <th className="text-left font-semibold px-3 py-2.5">Proyecto</th>
+                      <th className="text-left font-semibold px-3 py-2.5 w-[9%]">Fecha</th>
+                      <th className="text-right font-semibold px-3 py-2.5 w-[10%]">Total</th>
+                      <th className="px-2 py-2.5 w-[4%] rounded-tr-2xl"><span className="sr-only">Acciones</span></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {paginatedQuotes.map((quote, index) => {
+                      const project = quote.description?.trim();
+                      return (
+                        <tr
+                          key={quote.id}
+                          onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
+                          className="hover:bg-surface-secondary/70 cursor-pointer transition-colors"
+                        >
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base leading-none" aria-hidden>{serviceIcons[quote.service_type] || '📦'}</span>
+                              <span className="font-semibold text-gray-900">{quote.quote_number}</span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-1">
-                                <h3 className="text-lg font-bold text-gray-900 truncate">{quote.quote_number}</h3>
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                                  {statusStyle.icon}
-                                  {statusStyle.label}
-                                </span>
-                              </div>
-                              <p className="font-medium text-gray-900 truncate">{quote.client_name}</p>
-                              {quote.client_company && (
-                                <p className="text-sm text-muted truncate">{quote.client_company}</p>
-                              )}
-                              {quote.description && quote.description.trim() && (
-                                <p
-                                  className="mt-1.5 text-sm text-muted-light line-clamp-2 break-words"
-                                  title={quote.description}
-                                >
-                                  <span className="font-medium text-muted">Proyecto: </span>
-                                  {quote.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                          </td>
+                          <td className="px-3 py-2 overflow-hidden">
+                            <p className="font-medium text-gray-900 truncate">{quote.client_name}</p>
+                            <p className="text-xs text-muted truncate">{quote.client_company || '—'}</p>
+                          </td>
+                          <td className="px-3 py-2 overflow-hidden">
+                            <p className="text-gray-700 truncate" title={project || undefined}>
+                              {project || '—'}
+                            </p>
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-gray-700">{formatDate(quote.created_at)}</td>
+                          <td className="px-3 py-2 text-right whitespace-nowrap font-semibold text-brand">
+                            {formatCurrency(quote.total_amount)}
+                          </td>
+                          <td className="px-2 py-2">
+                            <QuoteRowMenu
+                              quoteId={quote.id}
+                              open={actionsOpen === quote.id}
+                              openUpward={index >= paginatedQuotes.length - 3}
+                              onToggle={() => setActionsOpen(actionsOpen === quote.id ? null : quote.id)}
+                              onDownload={() => downloadPDF(quote)}
+                              onDelete={() => deleteQuote(quote.id, quote.quote_number)}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
-                        {/* Center: Details */}
-                        <div className="hidden md:flex items-center gap-6 lg:gap-8">
-                          <div className="text-center">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Fecha</p>
-                            <p className="text-sm font-medium text-gray-900">{formatDate(quote.created_at)}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Válida hasta</p>
-                            <p className="text-sm font-medium text-gray-900">{formatDate(quote.valid_until)}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Items</p>
-                            <p className="text-sm font-medium text-gray-900">{quote.quote_items?.length || 0}</p>
-                          </div>
+              <div className="md:hidden bg-white rounded-2xl shadow-card border border-gray-100 divide-y divide-gray-100">
+                {paginatedQuotes.map((quote, index) => {
+                  const project = quote.description?.trim();
+                  return (
+                    <div
+                      key={quote.id}
+                      onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
+                      className="px-3 py-2.5 flex items-start gap-2 cursor-pointer active:bg-surface-secondary"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-gray-900 truncate">{quote.quote_number}</span>
+                          <span className="ml-auto text-sm font-semibold text-brand whitespace-nowrap">{formatCurrency(quote.total_amount)}</span>
                         </div>
-
-                        {/* Right: Total & Actions */}
-                        <div className="flex items-center justify-between lg:justify-end gap-4">
-                          <div className="text-right">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Total</p>
-                            <p className="text-xl font-bold text-brand">{formatCurrency(quote.total_amount)}</p>
-                          </div>
-                          
-                          {/* Actions Dropdown */}
-                          <div className="relative">
-                            <button
-                              onClick={() => setActionsOpen(actionsOpen === quote.id ? null : quote.id)}
-                              className="p-2 rounded-xl hover:bg-surface-secondary transition-colors text-muted hover:text-gray-900"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 12a1 1 0 110-2 1 1 0 010 2zm6 0a1 1 0 110-2 1 1 0 010 2z" />
-                              </svg>
-                            </button>
-                            
-                            {actionsOpen === quote.id && (
-                              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-elevated border border-gray-100 py-2 z-20 animate-slide-up">
-                                <a
-                                  href={`/dashboard/cotizaciones/detalles/${quote.id}`}
-                                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                  </svg>
-                                  Ver Detalles
-                                </a>
-                                <a
-                                  href={`/dashboard/cotizaciones/editar/${quote.id}`}
-                                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                  </svg>
-                                  Editar
-                                </a>
-                                <a
-                                  href={`/cotizador?duplicateQuoteId=${quote.id}`}
-                                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16h8M8 12h8m-8-4h8m3 12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2h8l4 4v12z" />
-                                  </svg>
-                                  Duplicar
-                                </a>
-                                <button
-                                  onClick={() => downloadPDF(quote)}
-                                  className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  Descargar PDF
-                                </button>
-                                <div className="border-t border-gray-100 my-2" />
-                                <button
-                                  onClick={() => deleteQuote(quote.id, quote.quote_number)}
-                                  className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-danger hover:bg-danger/5 transition-colors"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                  </svg>
-                                  Eliminar
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <p className="text-sm text-gray-900 truncate">
+                          {quote.client_name}
+                          {quote.client_company ? <span className="text-muted"> · {quote.client_company}</span> : null}
+                        </p>
+                        <p className="text-xs text-muted truncate" title={project || undefined}>
+                          {project || 'Sin descripción'}
+                        </p>
+                        <p className="text-[11px] text-muted-light">
+                          {formatDate(quote.created_at)}
+                        </p>
                       </div>
+                      <QuoteRowMenu
+                        quoteId={quote.id}
+                        open={actionsOpen === quote.id}
+                        openUpward={index >= paginatedQuotes.length - 2}
+                        onToggle={() => setActionsOpen(actionsOpen === quote.id ? null : quote.id)}
+                        onDownload={() => downloadPDF(quote)}
+                        onDelete={() => deleteQuote(quote.id, quote.quote_number)}
+                      />
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl p-4 shadow-card">
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl p-3 shadow-card">
               <p className="text-sm text-muted">
                 Mostrando {startIndex + 1} - {Math.min(endIndex, filteredQuotes.length)} de {filteredQuotes.length}
               </p>
