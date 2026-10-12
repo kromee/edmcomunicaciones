@@ -450,11 +450,11 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 <table className="w-full table-fixed text-sm">
                   <thead className="sticky top-16 sm:top-20 z-20 bg-gray-50 text-[11px] uppercase tracking-wide text-muted">
                     <tr className="border-b border-gray-100">
-                      <th className="text-left font-semibold px-4 py-2.5 w-[16%] rounded-tl-2xl">Cotización</th>
-                      <th className="text-left font-semibold px-3 py-2.5 w-[16%]">Cliente</th>
+                      <th className="text-left font-semibold px-4 py-2.5 w-[13%] rounded-tl-2xl">Cotización</th>
+                      <th className="text-left font-semibold px-3 py-2.5 w-[14%]">Cliente</th>
                       <th className="text-left font-semibold px-3 py-2.5">Proyecto</th>
-                      <th className="text-left font-semibold px-3 py-2.5 w-[9%]">Fecha</th>
-                      <th className="text-right font-semibold px-3 py-2.5 w-[10%]">Total</th>
+                      <th className="text-left font-semibold px-3 py-2.5 w-[8%]">Fecha</th>
+                      <th className="text-right font-semibold px-3 py-2.5 w-[9%]">Total</th>
                       <th className="px-2 py-2.5 w-[4%] rounded-tr-2xl"><span className="sr-only">Acciones</span></th>
                     </tr>
                   </thead>
@@ -467,26 +467,26 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                           onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
                           className="hover:bg-surface-secondary/70 cursor-pointer transition-colors"
                         >
-                          <td className="px-4 py-2 whitespace-nowrap">
+                          <td className="px-4 py-2.5 whitespace-nowrap align-top">
                             <div className="flex items-center gap-2">
                               <span className="text-base leading-none" aria-hidden>{serviceIcons[quote.service_type] || '📦'}</span>
                               <span className="font-semibold text-gray-900">{quote.quote_number}</span>
                             </div>
                           </td>
-                          <td className="px-3 py-2 overflow-hidden">
+                          <td className="px-3 py-2.5 overflow-hidden align-top">
                             <p className="font-medium text-gray-900 truncate">{quote.client_name}</p>
                             <p className="text-xs text-muted truncate">{quote.client_company || '—'}</p>
                           </td>
-                          <td className="px-3 py-2 overflow-hidden">
-                            <p className="text-gray-700 truncate" title={project || undefined}>
+                          <td className="px-3 py-2.5 align-top">
+                            <p className="text-gray-700 whitespace-pre-wrap break-words leading-snug">
                               {project || '—'}
                             </p>
                           </td>
-                          <td className="px-3 py-2 whitespace-nowrap text-gray-700">{formatDate(quote.created_at)}</td>
-                          <td className="px-3 py-2 text-right whitespace-nowrap font-semibold text-brand">
+                          <td className="px-3 py-2.5 whitespace-nowrap text-gray-700 align-top">{formatDate(quote.created_at)}</td>
+                          <td className="px-3 py-2.5 text-right whitespace-nowrap font-semibold text-brand align-top">
                             {formatCurrency(quote.total_amount)}
                           </td>
-                          <td className="px-2 py-2">
+                          <td className="px-2 py-2.5 align-top">
                             <QuoteRowMenu
                               quoteId={quote.id}
                               open={actionsOpen === quote.id}
@@ -521,7 +521,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                           {quote.client_name}
                           {quote.client_company ? <span className="text-muted"> · {quote.client_company}</span> : null}
                         </p>
-                        <p className="text-xs text-muted truncate" title={project || undefined}>
+                        <p className="text-xs text-muted whitespace-pre-wrap break-words leading-snug">
                           {project || 'Sin descripción'}
                         </p>
                         <p className="text-[11px] text-muted-light">
