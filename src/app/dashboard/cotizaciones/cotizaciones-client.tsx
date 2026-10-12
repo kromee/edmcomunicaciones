@@ -359,7 +359,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
-              <div className="flex items-center gap-3 mb-1">
+              <div className="flex items-center gap-3">
                 <a href="/dashboard" className="p-2 rounded-xl hover:bg-white/50 transition-colors">
                   <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -367,7 +367,6 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 </a>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cotizaciones</h1>
               </div>
-              <p className="text-muted ml-11 sm:ml-0">{filteredQuotes.length} cotización{filteredQuotes.length !== 1 ? 'es' : ''} encontrada{filteredQuotes.length !== 1 ? 's' : ''}</p>
             </div>
             <a
               href="/cotizador"
@@ -482,7 +481,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                             </div>
                           </td>
                           <td className="px-3 py-2.5 overflow-hidden align-top">
-                            <p className="font-medium text-gray-900 truncate">{quote.client_name}</p>
+                            <p className="font-medium text-gray-900 truncate uppercase">{quote.client_name}</p>
                             <p className="text-xs text-muted truncate">{quote.client_company || '—'}</p>
                           </td>
                           <td className="px-3 py-2.5 align-top">
@@ -526,7 +525,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                           <span className="ml-auto text-sm font-semibold text-brand whitespace-nowrap">{formatCurrency(quote.total_amount)}</span>
                         </div>
                         <p className="text-sm text-gray-900 truncate">
-                          {quote.client_name}
+                          <span className="uppercase">{quote.client_name}</span>
                           {quote.client_company ? <span className="text-muted"> · {quote.client_company}</span> : null}
                         </p>
                         <p className="text-xs text-muted whitespace-pre-wrap break-words leading-snug">
