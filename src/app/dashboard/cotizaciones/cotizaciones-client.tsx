@@ -411,7 +411,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
 
           {/* Quotes Grid */}
           {filteredQuotes.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 shadow-card text-center">
+            <div className="bg-white rounded-xl p-12 shadow-card text-center">
               {searchTerm || statusFilter !== 'all' ? (
                 <>
                   <div className="w-16 h-16 rounded-2xl bg-surface-secondary flex items-center justify-center mx-auto mb-4">
@@ -448,7 +448,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
             </div>
           ) : (
             <>
-              <div className="hidden md:block bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
+              <div className="hidden md:block bg-white rounded-xl shadow-card border border-gray-100 overflow-hidden">
                 <table className="w-full table-fixed text-sm">
                   <thead className="text-[11px] uppercase tracking-wider">
                     <tr>
@@ -515,7 +515,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 </table>
               </div>
 
-              <div className="md:hidden bg-white rounded-2xl shadow-card border border-gray-100 divide-y divide-gray-100 overflow-hidden">
+              <div className="md:hidden bg-white rounded-xl shadow-card border border-gray-100 divide-y divide-gray-100 overflow-hidden">
                 {paginatedQuotes.map((quote, index) => {
                   const project = projectListText(quote.description);
                   return (
@@ -564,7 +564,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl p-3 shadow-card">
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-xl p-3 shadow-card">
               <p className="text-sm text-muted">
                 Mostrando {startIndex + 1} - {Math.min(endIndex, filteredQuotes.length)} de {filteredQuotes.length}
               </p>
