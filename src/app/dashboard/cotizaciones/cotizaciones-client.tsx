@@ -59,6 +59,22 @@ function projectListText(description: string | null | undefined): string {
   return (description ?? '').trim().replace(PROJECT_INTRO, '').trim();
 }
 
+function totalSearchText(amount: number): string {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return '';
+  const fixed = value.toFixed(2);
+  const grouped = new Intl.NumberFormat('es-MX', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  const currency = new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    minimumFractionDigits: 2,
+  }).format(value);
+  return [String(value), fixed, grouped, currency].join(' ');
+}
+
 const serviceIcons: Record<string, React.ReactNode> = {
   cctv: '📹',
   cableado: '🔌',
@@ -199,6 +215,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
       quote.client_phone,
       quote.service_type,
       quote.description,
+      totalSearchText(quote.total_amount),
     ];
 
     if (Array.isArray(quote.quote_items)) {
@@ -217,7 +234,10 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
       filtered = filtered.filter(quote => quote.status === status);
     }
 
-    const tokens = normalizeText(searchTerm).split(/\s+/).filter(Boolean);
+    const tokens = normalizeText(searchTerm)
+      .replace(/[$,]/g, '')
+      .split(/\s+/)
+      .filter(Boolean);
     if (tokens.length > 0) {
       filtered = filtered.filter(quote => {
         const haystack = buildSearchHaystack(quote);
@@ -346,7 +366,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
         sidebarCollapsed={sidebarCollapsed}
         searchValue={searchTerm}
         onSearchChange={setSearchTerm}
-        searchPlaceholder="Buscar por número, cliente, empresa, proyecto..."
+        searchPlaceholder="Buscar por número, cliente, empresa, proyecto o total..."
       />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
