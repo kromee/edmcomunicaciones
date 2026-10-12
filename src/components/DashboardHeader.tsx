@@ -120,7 +120,7 @@ export function DashboardHeader({
                     w-full pl-12 pr-10 py-2.5
                     bg-surface-secondary
                     border border-transparent
-                    rounded-xl
+                    rounded-md
                     text-sm text-gray-700
                     placeholder:text-muted-light
                     focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
@@ -150,7 +150,7 @@ export function DashboardHeader({
               <button
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className="
-                  relative p-2.5 rounded-xl
+                  relative p-2.5 rounded-md
                   text-muted hover:text-gray-700
                   bg-surface-secondary hover:bg-gray-100
                   transition-all duration-200
@@ -239,12 +239,12 @@ export function DashboardHeader({
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="
                   flex items-center gap-3 p-1.5 pr-3
-                  rounded-xl
+                  rounded-md
                   hover:bg-surface-secondary
                   transition-all duration-200
                 "
               >
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-semibold text-sm shadow-soft">
+                <div className="w-9 h-9 rounded-md bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-semibold text-sm shadow-soft">
                   {getInitials(user.name)}
                 </div>
                 <div className="hidden sm:block text-left">
@@ -262,7 +262,7 @@ export function DashboardHeader({
                   {/* User Info */}
                   <div className="px-4 py-4 bg-gradient-to-r from-brand to-brand-light">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold text-lg backdrop-blur-sm">
+                      <div className="w-12 h-12 rounded-md bg-white/20 flex items-center justify-center text-white font-bold text-lg backdrop-blur-sm">
                         {getInitials(user.name)}
                       </div>
                       <div>

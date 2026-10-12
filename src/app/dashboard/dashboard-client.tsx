@@ -119,47 +119,6 @@ function StatCard({ title, value, subtitle, icon, trend, color }: StatCardProps)
   );
 }
 
-interface QuickActionProps {
-  title: string;
-  description: string;
-  href: string;
-  icon: React.ReactNode;
-  gradient: string;
-  hoverBorder: string;
-}
-
-function QuickAction({ title, description, href, icon, gradient, hoverBorder }: QuickActionProps) {
-  return (
-    <a
-      href={href}
-      className={`
-        group relative flex items-center gap-4 p-4 sm:p-5
-        bg-white rounded-2xl shadow-card
-        border-2 border-transparent
-        hover:border-transparent hover:shadow-elevated
-        transition-all duration-300
-        overflow-hidden
-      `}
-    >
-      <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-      <div className={`absolute inset-0 border-2 border-transparent group-hover:${hoverBorder} rounded-2xl`} />
-      
-      <div className="relative z-10 flex items-center gap-4">
-        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-soft group-hover:scale-110 transition-transform duration-300`}>
-          {icon}
-        </div>
-        <div className="flex-1">
-          <p className="font-semibold text-gray-900 group-hover:text-brand transition-colors">{title}</p>
-          <p className="text-sm text-muted">{description}</p>
-        </div>
-        <svg className="w-5 h-5 text-muted-light group-hover:text-brand group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
-    </a>
-  );
-}
-
 const statusStyles = {
   pending: { bg: 'bg-warning/10', text: 'text-warning-dark', label: 'Pendiente' },
   approved: { bg: 'bg-success/10', text: 'text-success-dark', label: 'Aprobada' },
@@ -282,63 +241,6 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
             />
           </div>
 
-          {/* Quick Actions */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Acciones Rápidas</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <QuickAction
-                title="Nueva Cotización"
-                description="Crear cotización para un nuevo cliente"
-                href="/cotizador"
-                gradient="from-sky-500 to-blue-600"
-                hoverBorder="border-sky-500"
-                icon={
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                }
-              />
-              <QuickAction
-                title="Ver Cotizaciones"
-                description="Gestionar todas las cotizaciones"
-                href="/dashboard/cotizaciones"
-                gradient="from-purple-500 to-pink-500"
-                hoverBorder="border-purple-500"
-                icon={
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                }
-              />
-              <QuickAction
-                title="Gestionar Clientes"
-                description="Administrar base de datos de clientes"
-                href="/dashboard/clientes"
-                gradient="from-emerald-500 to-teal-500"
-                hoverBorder="border-emerald-500"
-                icon={
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                }
-              />
-              <QuickAction
-                title="Revisar Contactos"
-                description="Ver mensajes y leads recibidos"
-                href="/dashboard/contactos"
-                gradient="from-orange-500 to-amber-500"
-                hoverBorder="border-orange-500"
-                icon={
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                }
-              />
-            </div>
-          </div>
-
           {/* Recent Activity */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Quotes */}
@@ -364,7 +266,7 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
                       href={`/dashboard/cotizaciones/detalles/${quote.id}`}
                       className="flex items-center gap-4 px-5 py-4 hover:bg-surface-secondary transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0">
                         <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -452,19 +354,19 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
                       </div>
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-                      <div className="p-3 bg-warning/10 rounded-xl">
+                      <div className="p-3 bg-warning/10 rounded-md">
                         <p className="text-lg font-bold text-warning">
                           {stats.chartData.reduce((sum, d) => sum + d.pending, 0)}
                         </p>
                         <p className="text-xs text-muted">Pendientes</p>
                       </div>
-                      <div className="p-3 bg-[#0f1e48]/10 rounded-xl">
+                      <div className="p-3 bg-[#0f1e48]/10 rounded-md">
                         <p className="text-lg font-bold text-brand">
                           {stats.chartData.reduce((sum, d) => sum + d.paid, 0)}
                         </p>
                         <p className="text-xs text-muted">Pagadas</p>
                       </div>
-                      <div className="p-3 bg-success/10 rounded-xl">
+                      <div className="p-3 bg-success/10 rounded-md">
                         <p className="text-lg font-bold text-success">
                           {stats.chartData.reduce((sum, d) => sum + d.approved, 0)}
                         </p>

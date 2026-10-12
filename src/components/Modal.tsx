@@ -108,7 +108,7 @@ export function Modal({
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 transform transition-all">
+      <div className="relative bg-white rounded-md shadow-xl max-w-md w-full mx-4 transform transition-all">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">

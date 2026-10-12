@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { SessionUser } from '@/types/session';
 import { Sidebar } from '@/components/DashboardSidebar';
@@ -10,7 +10,7 @@ import { generateQuotePDF } from '@/lib/pdf-generator';
 import type { QuoteItemUnit } from '@/lib/quote-item-units';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 
 type Quote = {
   id: string;
@@ -42,14 +42,38 @@ type Quote = {
 
 type StatusFilter = 'all' | 'pending' | 'sent' | 'approved' | 'rejected' | 'paid';
 
-const statusConfig: Record<StatusFilter, { label: string; bg: string; text: string; icon: React.ReactNode }> = {
-  all: { label: 'Todas', bg: 'bg-gray-100', text: 'text-gray-700', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> },
-  pending: { label: 'Pendientes', bg: 'bg-warning/10', text: 'text-warning-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  sent: { label: 'Enviadas', bg: 'bg-accent/10', text: 'text-accent-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> },
-  approved: { label: 'Aprobadas', bg: 'bg-success/10', text: 'text-success-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  rejected: { label: 'Rechazadas', bg: 'bg-danger/10', text: 'text-danger-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  paid: { label: 'Pagadas', bg: 'bg-green-100', text: 'text-green-700', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg> },
+const statusConfig: Record<StatusFilter, { label: string }> = {
+  all: { label: 'Todas' },
+  pending: { label: 'Pendientes' },
+  sent: { label: 'Enviadas' },
+  approved: { label: 'Aprobadas' },
+  rejected: { label: 'Rechazadas' },
+  paid: { label: 'Pagadas' },
 };
+
+/** Intro fija del cotizador. En el listado solo se muestra lo que sigue. */
+const PROJECT_INTRO =
+  /^a continuaci[oó]n presento la propuesta econ[oó]mica solicitada por concepto(?:\s+de)?\s*[:\-–—]?\s*/i;
+
+function projectListText(description: string | null | undefined): string {
+  return (description ?? '').trim().replace(PROJECT_INTRO, '').trim();
+}
+
+function totalSearchText(amount: number): string {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return '';
+  const fixed = value.toFixed(2);
+  const grouped = new Intl.NumberFormat('es-MX', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  const currency = new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    minimumFractionDigits: 2,
+  }).format(value);
+  return [String(value), fixed, grouped, currency].join(' ');
+}
 
 const serviceIcons: Record<string, React.ReactNode> = {
   cctv: '📹',
@@ -61,6 +85,108 @@ const serviceIcons: Record<string, React.ReactNode> = {
   mixto: '🏗️',
   otro: '📦',
 };
+
+function QuoteRowMenu({
+  quoteId,
+  open,
+  openUpward,
+  onToggle,
+  onDownload,
+  onDelete,
+}: {
+  quoteId: string;
+  open: boolean;
+  openUpward: boolean;
+  onToggle: () => void;
+  onDownload: () => void;
+  onDelete: () => void;
+}) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number; upward: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!open || !buttonRef.current) {
+      setCoords(null);
+      return;
+    }
+
+    const place = () => {
+      const rect = buttonRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const upward = openUpward || rect.bottom + 220 > window.innerHeight;
+      setCoords({
+        top: upward ? rect.top - 4 : rect.bottom + 4,
+        left: rect.right,
+        upward,
+      });
+    };
+
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [open, openUpward]);
+
+  return (
+    <div onClick={(e) => e.stopPropagation()}>
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={onToggle}
+        className="p-1.5 rounded-lg hover:bg-surface-secondary transition-colors text-muted hover:text-gray-900"
+        aria-label="Acciones"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+        </svg>
+      </button>
+
+      {open && coords && (
+        <div
+          className="fixed z-50 w-48 bg-white rounded-md shadow-elevated border border-gray-100 py-1.5"
+          style={{
+            top: coords.top,
+            left: coords.left,
+            transform: coords.upward ? 'translate(-100%, -100%)' : 'translateX(-100%)',
+          }}
+        >
+          <a
+            href={`/dashboard/cotizaciones/detalles/${quoteId}`}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Ver detalles
+          </a>
+          <a
+            href={`/dashboard/cotizaciones/editar/${quoteId}`}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Editar
+          </a>
+          <a
+            href={`/cotizador?duplicateQuoteId=${quoteId}`}
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Duplicar
+          </a>
+          <button
+            type="button"
+            onClick={onDownload}
+            className="flex items-center gap-3 px-4 py-2 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+          >
+            Descargar PDF
+          </button>
+          <div className="border-t border-gray-100 my-1" />
+          <button
+            type="button"
+            onClick={onDelete}
+            className="flex items-center gap-3 px-4 py-2 w-full text-sm text-danger hover:bg-danger/5 transition-colors"
+          >
+            Eliminar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; user: SessionUser }) {
   const router = useRouter();
@@ -89,6 +215,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
       quote.client_phone,
       quote.service_type,
       quote.description,
+      totalSearchText(quote.total_amount),
     ];
 
     if (Array.isArray(quote.quote_items)) {
@@ -107,7 +234,10 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
       filtered = filtered.filter(quote => quote.status === status);
     }
 
-    const tokens = normalizeText(searchTerm).split(/\s+/).filter(Boolean);
+    const tokens = normalizeText(searchTerm)
+      .replace(/[$,]/g, '')
+      .split(/\s+/)
+      .filter(Boolean);
     if (tokens.length > 0) {
       filtered = filtered.filter(quote => {
         const haystack = buildSearchHaystack(quote);
@@ -124,11 +254,6 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
     setFilteredQuotes(filtered);
     setCurrentPage(1);
   }, [searchTerm, statusFilter, quotes]);
-
-  const getStatusCount = (status: StatusFilter) => {
-    if (status === 'all') return quotes.length;
-    return quotes.filter(q => q.status === status).length;
-  };
 
   const totalPages = Math.ceil(filteredQuotes.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -241,73 +366,52 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
         sidebarCollapsed={sidebarCollapsed}
         searchValue={searchTerm}
         onSearchChange={setSearchTerm}
-        searchPlaceholder="Buscar por número, cliente, empresa, proyecto..."
+        searchPlaceholder="Buscar por número, cliente, empresa, proyecto o total..."
       />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
-        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
           {/* Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
-              <div className="flex items-center gap-3 mb-1">
-                <a href="/dashboard" className="p-2 rounded-xl hover:bg-white/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <a href="/dashboard" className="p-2 rounded-md hover:bg-white/50 transition-colors">
                   <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
                 </a>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cotizaciones</h1>
               </div>
-              <p className="text-muted ml-11 sm:ml-0">{filteredQuotes.length} cotización{filteredQuotes.length !== 1 ? 'es' : ''} encontrada{filteredQuotes.length !== 1 ? 's' : ''}</p>
             </div>
-            <a
-              href="/cotizador"
-              className="btn-accent"
-            >
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <label className="sr-only" htmlFor="quote-status-filter">Estado</label>
+              <select
+                id="quote-status-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                className="flex-1 sm:flex-none bg-white border border-gray-200 rounded-md px-3 py-2.5 text-sm font-medium text-gray-900 shadow-card focus:outline-none focus:ring-2 focus:ring-accent/30"
+              >
+                {(Object.keys(statusConfig) as StatusFilter[]).map((status) => (
+                  <option key={status} value={status}>
+                    {statusConfig[status].label}
+                  </option>
+                ))}
+              </select>
+              <a
+                href="/cotizador"
+                className="btn-primary"
+              >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Nueva Cotización
-            </a>
-          </div>
-
-          {/* Status Filters */}
-          <div className="mb-6 overflow-x-auto pb-2">
-            <div className="flex gap-2 min-w-max">
-              {(Object.keys(statusConfig) as StatusFilter[]).map((status) => {
-                const config = statusConfig[status];
-                const isActive = statusFilter === status;
-                return (
-                  <button
-                    key={status}
-                    onClick={() => setStatusFilter(status)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
-                      transition-all duration-200
-                      ${isActive 
-                        ? 'bg-brand text-white shadow-soft' 
-                        : 'bg-white text-muted hover:bg-surface-secondary border border-gray-100'
-                      }
-                    `}
-                  >
-                    <span className={isActive ? 'text-white/80' : config.text}>
-                      {config.icon}
-                    </span>
-                    {config.label}
-                    <span className={`
-                      ml-1 px-2 py-0.5 rounded-full text-xs
-                      ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}
-                    `}>
-                      {getStatusCount(status)}
-                    </span>
-                  </button>
-                );
-              })}
+                Nueva Cotización
+              </a>
             </div>
           </div>
 
           {/* Quotes Grid */}
           {filteredQuotes.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 shadow-card text-center">
+            <div className="bg-white rounded-xl p-12 shadow-card text-center">
               {searchTerm || statusFilter !== 'all' ? (
                 <>
                   <div className="w-16 h-16 rounded-2xl bg-surface-secondary flex items-center justify-center mx-auto mb-4">
@@ -333,7 +437,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay cotizaciones</h3>
                   <p className="text-muted mb-6">Crea tu primera cotización para comenzar</p>
-                  <a href="/cotizador" className="btn-accent">
+                  <a href="/cotizador" className="btn-primary">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
@@ -343,145 +447,118 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
               )}
             </div>
           ) : (
-            <div className="grid gap-4">
-              {paginatedQuotes.map((quote) => {
-                const statusStyle = statusConfig[quote.status as StatusFilter] ?? statusConfig.pending;
-                return (
-                  <div 
-                    key={quote.id} 
-                    className="bg-white rounded-2xl shadow-card hover:shadow-elevated transition-all duration-200 group"
-                  >
-                    <div className="p-5 sm:p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                        {/* Left: Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start gap-4">
-                            <div className="hidden sm:flex w-12 h-12 rounded-xl bg-gradient-to-br from-brand to-accent items-center justify-center text-2xl flex-shrink-0">
-                              {serviceIcons[quote.service_type] || '📦'}
+            <>
+              <div className="hidden md:block overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+                <table className="w-full table-fixed text-sm">
+                  <thead className="border-b border-gray-100 bg-surface-secondary/60 text-[11px] uppercase tracking-wider text-muted">
+                    <tr>
+                      <th className="text-left font-semibold px-4 py-2 w-[16%]">Cotización</th>
+                      <th className="text-left font-semibold px-3 py-2 w-[16%]">Cliente</th>
+                      <th className="text-left font-semibold px-3 py-2">Proyecto</th>
+                      <th className="text-left font-semibold px-3 py-2 w-[9%]">Fecha</th>
+                      <th className="text-right font-semibold px-3 py-2 w-[11%]">Total</th>
+                      <th className="px-2 py-2 w-[4%]"><span className="sr-only">Acciones</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedQuotes.map((quote, index) => {
+                      const project = projectListText(quote.description);
+                      return (
+                        <tr
+                          key={quote.id}
+                          onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
+                          className="cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors hover:bg-accent/[0.04]"
+                        >
+                          <td className="px-4 py-3 align-top">
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-base" aria-hidden>
+                                {serviceIcons[quote.service_type] || '📦'}
+                              </span>
+                              <span className="font-semibold text-brand leading-snug break-all">{quote.quote_number}</span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-1">
-                                <h3 className="text-lg font-bold text-gray-900 truncate">{quote.quote_number}</h3>
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                                  {statusStyle.icon}
-                                  {statusStyle.label}
-                                </span>
-                              </div>
-                              <p className="font-medium text-gray-900 truncate">{quote.client_name}</p>
-                              {quote.client_company && (
-                                <p className="text-sm text-muted truncate">{quote.client_company}</p>
-                              )}
-                              {quote.description && quote.description.trim() && (
-                                <p
-                                  className="mt-1.5 text-sm text-muted-light line-clamp-2 break-words"
-                                  title={quote.description}
-                                >
-                                  <span className="font-medium text-muted">Proyecto: </span>
-                                  {quote.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                          </td>
+                          <td className="px-3 py-3 overflow-hidden align-top">
+                            <p className="font-semibold text-gray-900 truncate uppercase tracking-wide">{quote.client_name}</p>
+                            {quote.client_company ? (
+                              <p className="mt-0.5 text-xs text-muted truncate">{quote.client_company}</p>
+                            ) : null}
+                          </td>
+                          <td className="px-3 py-3 align-top">
+                            <p className="text-gray-700 whitespace-pre-wrap break-words leading-snug">
+                              {project || '—'}
+                            </p>
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-muted align-top">{formatDate(quote.created_at)}</td>
+                          <td className="px-3 py-3 text-right align-top">
+                            <span className="inline-flex rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-white whitespace-nowrap">
+                              {formatCurrency(quote.total_amount)}
+                            </span>
+                          </td>
+                          <td className="px-2 py-3 align-top">
+                            <QuoteRowMenu
+                              quoteId={quote.id}
+                              open={actionsOpen === quote.id}
+                              openUpward={index >= paginatedQuotes.length - 3}
+                              onToggle={() => setActionsOpen(actionsOpen === quote.id ? null : quote.id)}
+                              onDownload={() => downloadPDF(quote)}
+                              onDelete={() => deleteQuote(quote.id, quote.quote_number)}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
-                        {/* Center: Details */}
-                        <div className="hidden md:flex items-center gap-6 lg:gap-8">
-                          <div className="text-center">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Fecha</p>
-                            <p className="text-sm font-medium text-gray-900">{formatDate(quote.created_at)}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Válida hasta</p>
-                            <p className="text-sm font-medium text-gray-900">{formatDate(quote.valid_until)}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Items</p>
-                            <p className="text-sm font-medium text-gray-900">{quote.quote_items?.length || 0}</p>
-                          </div>
+              <div className="md:hidden overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm divide-y divide-gray-100">
+                {paginatedQuotes.map((quote, index) => {
+                  const project = projectListText(quote.description);
+                  return (
+                    <div
+                      key={quote.id}
+                      onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
+                      className="flex cursor-pointer items-start gap-3 px-3 py-3 transition-colors active:bg-accent/[0.04]"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-sm" aria-hidden>
+                            {serviceIcons[quote.service_type] || '📦'}
+                          </span>
+                          <span className="text-sm font-semibold text-brand truncate">{quote.quote_number}</span>
+                          <span className="ml-auto inline-flex rounded-lg bg-brand px-2 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
+                            {formatCurrency(quote.total_amount)}
+                          </span>
                         </div>
-
-                        {/* Right: Total & Actions */}
-                        <div className="flex items-center justify-between lg:justify-end gap-4">
-                          <div className="text-right">
-                            <p className="text-xs text-muted-light uppercase tracking-wide mb-1">Total</p>
-                            <p className="text-xl font-bold text-brand">{formatCurrency(quote.total_amount)}</p>
-                          </div>
-                          
-                          {/* Actions Dropdown */}
-                          <div className="relative">
-                            <button
-                              onClick={() => setActionsOpen(actionsOpen === quote.id ? null : quote.id)}
-                              className="p-2 rounded-xl hover:bg-surface-secondary transition-colors text-muted hover:text-gray-900"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 12a1 1 0 110-2 1 1 0 010 2zm6 0a1 1 0 110-2 1 1 0 010 2z" />
-                              </svg>
-                            </button>
-                            
-                            {actionsOpen === quote.id && (
-                              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-elevated border border-gray-100 py-2 z-20 animate-slide-up">
-                                <a
-                                  href={`/dashboard/cotizaciones/detalles/${quote.id}`}
-                                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                  </svg>
-                                  Ver Detalles
-                                </a>
-                                <a
-                                  href={`/dashboard/cotizaciones/editar/${quote.id}`}
-                                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                  </svg>
-                                  Editar
-                                </a>
-                                <a
-                                  href={`/cotizador?duplicateQuoteId=${quote.id}`}
-                                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16h8M8 12h8m-8-4h8m3 12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2h8l4 4v12z" />
-                                  </svg>
-                                  Duplicar
-                                </a>
-                                <button
-                                  onClick={() => downloadPDF(quote)}
-                                  className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                >
-                                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  Descargar PDF
-                                </button>
-                                <div className="border-t border-gray-100 my-2" />
-                                <button
-                                  onClick={() => deleteQuote(quote.id, quote.quote_number)}
-                                  className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-danger hover:bg-danger/5 transition-colors"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                  </svg>
-                                  Eliminar
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <p className="mt-1.5 text-sm font-semibold text-gray-900 truncate uppercase tracking-wide">
+                          {quote.client_name}
+                          {quote.client_company ? <span className="font-normal normal-case tracking-normal text-muted"> · {quote.client_company}</span> : null}
+                        </p>
+                        <p className="mt-1 text-xs text-muted whitespace-pre-wrap break-words leading-snug">
+                          {project || 'Sin descripción'}
+                        </p>
+                        <p className="mt-1 text-[11px] text-muted">
+                          {formatDate(quote.created_at)}
+                        </p>
                       </div>
+                      <QuoteRowMenu
+                        quoteId={quote.id}
+                        open={actionsOpen === quote.id}
+                        openUpward={index >= paginatedQuotes.length - 2}
+                        onToggle={() => setActionsOpen(actionsOpen === quote.id ? null : quote.id)}
+                        onDownload={() => downloadPDF(quote)}
+                        onDelete={() => deleteQuote(quote.id, quote.quote_number)}
+                      />
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl p-4 shadow-card">
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
               <p className="text-sm text-muted">
                 Mostrando {startIndex + 1} - {Math.min(endIndex, filteredQuotes.length)} de {filteredQuotes.length}
               </p>
@@ -489,7 +566,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-xl hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -507,7 +584,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                       <button
                         key={pageNumber}
                         onClick={() => goToPage(pageNumber)}
-                        className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${
+                        className={`w-10 h-10 rounded-md text-sm font-medium transition-all ${
                           currentPage === pageNumber
                             ? 'bg-brand text-white'
                             : 'bg-surface-secondary text-gray-700 hover:bg-gray-100'
@@ -525,7 +602,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-xl hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
