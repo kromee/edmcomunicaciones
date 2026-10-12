@@ -369,7 +369,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 id="quote-status-filter"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="flex-1 sm:flex-none bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-900 shadow-card focus:outline-none focus:ring-2 focus:ring-accent/30"
+                className="flex-1 sm:flex-none bg-white border border-gray-200 rounded-md px-3 py-2.5 text-sm font-medium text-gray-900 shadow-card focus:outline-none focus:ring-2 focus:ring-accent/30"
               >
                 {(Object.keys(statusConfig) as StatusFilter[]).map((status) => (
                   <option key={status} value={status}>
@@ -379,7 +379,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
               </select>
               <a
                 href="/cotizador"
-                className="btn-accent"
+                className="btn-accent !rounded-md"
               >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -417,7 +417,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay cotizaciones</h3>
                   <p className="text-muted mb-6">Crea tu primera cotización para comenzar</p>
-                  <a href="/cotizador" className="btn-accent">
+                  <a href="/cotizador" className="btn-accent !rounded-md">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
@@ -535,7 +535,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-xl hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -553,7 +553,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                       <button
                         key={pageNumber}
                         onClick={() => goToPage(pageNumber)}
-                        className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${
+                        className={`w-10 h-10 rounded-md text-sm font-medium transition-all ${
                           currentPage === pageNumber
                             ? 'bg-brand text-white'
                             : 'bg-surface-secondary text-gray-700 hover:bg-gray-100'
@@ -571,7 +571,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-xl hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
