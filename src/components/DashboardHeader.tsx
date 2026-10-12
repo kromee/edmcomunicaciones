@@ -244,7 +244,7 @@ export function DashboardHeader({
                   transition-all duration-200
                 "
               >
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-semibold text-sm shadow-soft">
+                <div className="w-9 h-9 rounded-md bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-semibold text-sm shadow-soft">
                   {getInitials(user.name)}
                 </div>
                 <div className="hidden sm:block text-left">
@@ -262,7 +262,7 @@ export function DashboardHeader({
                   {/* User Info */}
                   <div className="px-4 py-4 bg-gradient-to-r from-brand to-brand-light">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold text-lg backdrop-blur-sm">
+                      <div className="w-12 h-12 rounded-md bg-white/20 flex items-center justify-center text-white font-bold text-lg backdrop-blur-sm">
                         {getInitials(user.name)}
                       </div>
                       <div>

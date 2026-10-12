@@ -297,7 +297,7 @@ export default function ClientesClient({ clients, user }: { clients: Client[]; u
         </div>
 
         {/* Barra de búsqueda y filtros */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+        <div className="bg-white rounded-md p-6 shadow-sm border border-gray-100 mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
@@ -363,7 +363,7 @@ export default function ClientesClient({ clients, user }: { clients: Client[]; u
 
         {/* Lista de clientes */}
         {filteredClients.length === 0 ? (
-          <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-100 text-center">
+          <div className="bg-white rounded-md p-12 shadow-sm border border-gray-100 text-center">
             {searchTerm || statusFilter !== 'all' ? (
               <>
                 <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -400,7 +400,7 @@ export default function ClientesClient({ clients, user }: { clients: Client[]; u
           <div className="space-y-4">
             {filteredClients.map((client, index) => (
               <Reveal key={client.id} delay={index * 0.05}>
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div className="bg-white rounded-md p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-3">
@@ -510,7 +510,7 @@ export default function ClientesClient({ clients, user }: { clients: Client[]; u
       {/* Modal para crear/editar cliente */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-md p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-gray-900 mb-4">
               {editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
             </h3>

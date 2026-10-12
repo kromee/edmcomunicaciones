@@ -249,7 +249,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <a href="/dashboard" className="p-2 rounded-xl hover:bg-white/50 transition-colors">
+                <a href="/dashboard" className="p-2 rounded-md hover:bg-white/50 transition-colors">
                   <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
@@ -276,7 +276,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-2xl p-4 shadow-card">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-md bg-accent/10 flex items-center justify-center">
                   <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
@@ -289,7 +289,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
             </div>
             <div className="bg-white rounded-2xl p-4 shadow-card">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-md bg-success/10 flex items-center justify-center">
                   <svg className="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -302,7 +302,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
             </div>
             <div className="bg-white rounded-2xl p-4 shadow-card">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-md bg-accent/10 flex items-center justify-center">
                   <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
@@ -326,7 +326,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                     key={status}
                     onClick={() => setStatusFilter(status)}
                     className={`
-                      flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
+                      flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium
                       transition-all duration-200
                       ${isActive 
                         ? 'bg-brand text-white shadow-soft' 
@@ -427,7 +427,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                         <div className="flex items-center gap-2">
                           <a
                             href={`/cotizador?clientId=${client.id}`}
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-accent text-white text-sm font-medium rounded-xl hover:bg-accent-dark transition-colors"
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-dark transition-colors"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -439,7 +439,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                           <div className="relative">
                             <button
                               onClick={() => setActionsOpen(actionsOpen === client.id ? null : client.id)}
-                              className="p-2 rounded-xl hover:bg-surface-secondary transition-colors text-muted hover:text-gray-900"
+                              className="p-2 rounded-md hover:bg-surface-secondary transition-colors text-muted hover:text-gray-900"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 12a1 1 0 110-2 1 1 0 010 2zm6 0a1 1 0 110-2 1 1 0 010 2z" />
@@ -447,7 +447,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                             </button>
                             
                             {actionsOpen === client.id && (
-                              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-elevated border border-gray-100 py-2 z-20 animate-slide-up">
+                              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-elevated border border-gray-100 py-2 z-20 animate-slide-up">
                                 <a
                                   href={`/dashboard/clientes/detalle/${client.id}`}
                                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
@@ -521,7 +521,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-xl hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -539,7 +539,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                       <button
                         key={pageNumber}
                         onClick={() => goToPage(pageNumber)}
-                        className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${
+                        className={`w-10 h-10 rounded-md text-sm font-medium transition-all ${
                           currentPage === pageNumber
                             ? 'bg-brand text-white'
                             : 'bg-surface-secondary text-gray-700 hover:bg-gray-100'
@@ -557,7 +557,7 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-xl hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -364,7 +364,7 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
                       href={`/dashboard/cotizaciones/detalles/${quote.id}`}
                       className="flex items-center gap-4 px-5 py-4 hover:bg-surface-secondary transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0">
                         <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -452,19 +452,19 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
                       </div>
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-                      <div className="p-3 bg-warning/10 rounded-xl">
+                      <div className="p-3 bg-warning/10 rounded-md">
                         <p className="text-lg font-bold text-warning">
                           {stats.chartData.reduce((sum, d) => sum + d.pending, 0)}
                         </p>
                         <p className="text-xs text-muted">Pendientes</p>
                       </div>
-                      <div className="p-3 bg-[#0f1e48]/10 rounded-xl">
+                      <div className="p-3 bg-[#0f1e48]/10 rounded-md">
                         <p className="text-lg font-bold text-brand">
                           {stats.chartData.reduce((sum, d) => sum + d.paid, 0)}
                         </p>
                         <p className="text-xs text-muted">Pagadas</p>
                       </div>
-                      <div className="p-3 bg-success/10 rounded-xl">
+                      <div className="p-3 bg-success/10 rounded-md">
                         <p className="text-lg font-bold text-success">
                           {stats.chartData.reduce((sum, d) => sum + d.approved, 0)}
                         </p>

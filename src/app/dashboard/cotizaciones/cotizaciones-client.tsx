@@ -126,7 +126,7 @@ function QuoteRowMenu({
 
       {open && coords && (
         <div
-          className="fixed z-50 w-48 bg-white rounded-xl shadow-elevated border border-gray-100 py-1.5"
+          className="fixed z-50 w-48 bg-white rounded-md shadow-elevated border border-gray-100 py-1.5"
           style={{
             top: coords.top,
             left: coords.left,
@@ -355,7 +355,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
               <div className="flex items-center gap-3">
-                <a href="/dashboard" className="p-2 rounded-xl hover:bg-white/50 transition-colors">
+                <a href="/dashboard" className="p-2 rounded-md hover:bg-white/50 transition-colors">
                   <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
@@ -379,7 +379,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
               </select>
               <a
                 href="/cotizador"
-                className="btn-accent !rounded-md"
+                className="btn-accent"
               >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -417,7 +417,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay cotizaciones</h3>
                   <p className="text-muted mb-6">Crea tu primera cotización para comenzar</p>
-                  <a href="/cotizador" className="btn-accent !rounded-md">
+                  <a href="/cotizador" className="btn-accent">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>

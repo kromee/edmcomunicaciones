@@ -480,7 +480,7 @@ function CotizadorContent() {
           {/* Page Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <a href="/dashboard" className="p-2 rounded-xl hover:bg-white/50 transition-colors">
+              <a href="/dashboard" className="p-2 rounded-md hover:bg-white/50 transition-colors">
                 <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -506,7 +506,7 @@ function CotizadorContent() {
 
           {submitStatus === 'success' && (
             <div className="mb-6 p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center gap-3 animate-slide-up">
-              <div className="w-10 h-10 rounded-xl bg-success flex items-center justify-center">
+              <div className="w-10 h-10 rounded-md bg-success flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
@@ -520,7 +520,7 @@ function CotizadorContent() {
 
           {submitStatus === 'error' && (
             <div className="mb-6 p-4 bg-danger/10 border border-danger/20 rounded-2xl flex items-center gap-3 animate-slide-up">
-              <div className="w-10 h-10 rounded-xl bg-danger flex items-center justify-center">
+              <div className="w-10 h-10 rounded-md bg-danger flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -539,7 +539,7 @@ function CotizadorContent() {
                 <div key={step.number} className="flex items-center">
                   <div className="flex items-center">
                     <div className={`
-                      w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-sm
+                      w-10 h-10 rounded-md flex items-center justify-center font-semibold text-sm
                       transition-all duration-300
                       ${currentStep > step.number 
                         ? 'bg-success text-white' 
@@ -579,7 +579,7 @@ function CotizadorContent() {
             <div className={`bg-white rounded-2xl shadow-card overflow-hidden transition-all duration-300 mb-6 ${currentStep === 1 ? 'block' : 'hidden sm:block'}`}>
               <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-brand to-brand-light">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-md bg-white/20 flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -622,7 +622,7 @@ function CotizadorContent() {
 
                       {/* Results */}
                       {searchResults.length > 0 && (
-                        <div className="absolute z-20 w-full mt-2 bg-white rounded-xl shadow-elevated border border-gray-100 max-h-72 overflow-y-auto">
+                        <div className="absolute z-20 w-full mt-2 bg-white rounded-md shadow-elevated border border-gray-100 max-h-72 overflow-y-auto">
                           {searchResults.map((client) => (
                             <button
                               key={client.id}
@@ -631,7 +631,7 @@ function CotizadorContent() {
                               className="w-full text-left px-4 py-3 hover:bg-surface-secondary transition-colors border-b border-gray-50 last:border-0"
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent font-semibold">
+                                <div className="w-10 h-10 rounded-md bg-accent/10 flex items-center justify-center text-accent font-semibold">
                                   {client.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -661,9 +661,9 @@ function CotizadorContent() {
                     <button
                       type="button"
                       onClick={() => setShowNewClientForm(!showNewClientForm)}
-                      className="w-full p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-accent hover:bg-accent/5 transition-all duration-200 flex items-center justify-center gap-3"
+                      className="w-full p-4 border-2 border-dashed border-gray-300 rounded-md hover:border-accent hover:bg-accent/5 transition-all duration-200 flex items-center justify-center gap-3"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-md bg-accent/10 flex items-center justify-center">
                         <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
@@ -676,7 +676,7 @@ function CotizadorContent() {
 
                     {/* New Client Form */}
                     {showNewClientForm && (
-                      <div className="p-5 bg-gradient-to-br from-accent/5 to-accent/10 rounded-xl border border-accent/20 space-y-4 animate-slide-up">
+                      <div className="p-5 bg-gradient-to-br from-accent/5 to-accent/10 rounded-md border border-accent/20 space-y-4 animate-slide-up">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1.5">Nombre completo *</label>
@@ -761,7 +761,7 @@ function CotizadorContent() {
                 ) : (
                   <div className="animate-fade-in">
                     {/* Selected Client Card */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gradient-to-r from-success/10 to-success/5 rounded-xl border border-success/20">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gradient-to-r from-success/10 to-success/5 rounded-md border border-success/20">
                       <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-bold text-xl shadow-soft">
                           {selectedClient.name.charAt(0).toUpperCase()}
@@ -782,7 +782,7 @@ function CotizadorContent() {
                       <button
                         type="button"
                         onClick={clearClient}
-                        className="text-sm font-medium text-danger hover:bg-danger/10 px-4 py-2 rounded-xl transition-colors"
+                        className="text-sm font-medium text-danger hover:bg-danger/10 px-4 py-2 rounded-md transition-colors"
                       >
                         Cambiar cliente
                       </button>
@@ -811,7 +811,7 @@ function CotizadorContent() {
             <div className={`bg-white rounded-2xl shadow-card overflow-hidden transition-all duration-300 mb-6 ${currentStep === 2 ? 'block' : 'hidden sm:block'}`}>
               <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-brand to-brand-light">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-md bg-white/20 flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -834,7 +834,7 @@ function CotizadorContent() {
                         type="button"
                         onClick={() => setFormData({ ...formData, service_type: service.value })}
                         className={`
-                          p-4 rounded-xl border-2 text-left transition-all duration-200
+                          p-4 rounded-md border-2 text-left transition-all duration-200
                           ${formData.service_type === service.value
                             ? 'border-accent bg-accent/5 shadow-soft'
                             : 'border-gray-200 hover:border-accent/50 hover:bg-surface-secondary'
@@ -934,7 +934,7 @@ function CotizadorContent() {
               <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-brand to-brand-light">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-md bg-white/20 flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
@@ -965,7 +965,7 @@ function CotizadorContent() {
                       onDragStart={() => handleItemDragStart(index)}
                       onDragOver={(e) => handleItemDragOver(e, index)}
                       onDragEnd={handleItemDragEnd}
-                      className={`group relative rounded-xl p-4 sm:p-5 border-2 transition-all duration-200 ${
+                      className={`group relative rounded-md p-4 sm:p-5 border-2 transition-all duration-200 ${
                         dragIndex === index
                           ? 'border-accent shadow-soft opacity-90 bg-surface-secondary'
                           : isEmptyCorrida
@@ -1148,7 +1148,7 @@ function CotizadorContent() {
                 <button
                   type="button"
                   onClick={addItem}
-                  className="w-full mt-4 p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-accent hover:bg-accent/5 transition-all duration-200 flex items-center justify-center gap-2 text-muted hover:text-accent"
+                  className="w-full mt-4 p-4 border-2 border-dashed border-gray-300 rounded-md hover:border-accent hover:bg-accent/5 transition-all duration-200 flex items-center justify-center gap-2 text-muted hover:text-accent"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -1157,7 +1157,7 @@ function CotizadorContent() {
                 </button>
 
                 {/* Grand Total */}
-                <div className="mt-6 p-4 bg-gradient-to-r from-brand/5 to-accent/5 rounded-xl border border-brand/10">
+                <div className="mt-6 p-4 bg-gradient-to-r from-brand/5 to-accent/5 rounded-md border border-brand/10">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 font-medium">Total de la Cotización</span>
                     <span className="text-2xl font-bold text-brand">{formatCurrency(total)}</span>
@@ -1178,7 +1178,7 @@ function CotizadorContent() {
                 </div>
 
                 {/* Commercial Terms */}
-                <div className="mt-4 p-4 bg-surface-secondary rounded-xl">
+                <div className="mt-4 p-4 bg-surface-secondary rounded-md">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Condiciones comerciales
                   </label>
@@ -1219,7 +1219,7 @@ function CotizadorContent() {
             <div className={`bg-white rounded-2xl shadow-card overflow-hidden transition-all duration-300 mb-6 ${currentStep === 4 ? 'block' : 'hidden sm:block'}`}>
               <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-brand to-brand-light">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-md bg-white/20 flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -1235,10 +1235,10 @@ function CotizadorContent() {
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   {/* Client Card */}
-                  <div className="p-4 bg-surface-secondary rounded-xl">
+                  <div className="p-4 bg-surface-secondary rounded-md">
                     <p className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Cliente</p>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-bold">
+                      <div className="w-10 h-10 rounded-md bg-gradient-to-br from-brand to-accent flex items-center justify-center text-white font-bold">
                         {selectedClient?.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -1249,7 +1249,7 @@ function CotizadorContent() {
                   </div>
 
                   {/* Service Card */}
-                  <div className="p-4 bg-surface-secondary rounded-xl">
+                  <div className="p-4 bg-surface-secondary rounded-md">
                     <p className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Servicio</p>
                     <p className="font-semibold text-gray-900">
                       {serviceTypes.find(s => s.value === formData.service_type)?.label || '-'}
@@ -1263,7 +1263,7 @@ function CotizadorContent() {
                   </div>
 
                   {/* Total Card */}
-                  <div className="p-4 bg-gradient-to-br from-brand/10 to-accent/10 rounded-xl border border-brand/10">
+                  <div className="p-4 bg-gradient-to-br from-brand/10 to-accent/10 rounded-md border border-brand/10">
                     <p className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Total</p>
                     <p className="text-2xl font-bold text-brand">{formatCurrency(total)}</p>
                     <p className="text-sm text-muted">{items.length} corridas</p>
@@ -1273,7 +1273,7 @@ function CotizadorContent() {
                 {/* Items Summary */}
                 <div className="mb-6">
                   <h3 className="text-sm font-semibold text-gray-900 mb-3">Items Incluidos</h3>
-                  <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="border border-gray-200 rounded-md overflow-hidden">
                     <table className="w-full">
                       <thead className="bg-surface-secondary">
                         <tr>

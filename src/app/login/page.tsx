@@ -91,7 +91,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-fade-in">
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md animate-fade-in">
                 <div className="flex items-center gap-3">
                   <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -118,7 +118,7 @@ export default function LoginPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                    className="w-full pl-12 pr-4 py-3.5 rounded-md border border-gray-200 bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
                     placeholder="admin@edm.com"
                   />
                 </div>
@@ -138,7 +138,7 @@ export default function LoginPage() {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
-                    className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                    className="w-full pl-12 pr-12 py-3.5 rounded-md border border-gray-200 bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
                     placeholder="••••••••"
                   />
                   <button
@@ -195,7 +195,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-8 p-4 bg-gradient-to-r from-accent/5 to-brand/5 rounded-xl border border-accent/10">
+            <div className="mt-8 p-4 bg-gradient-to-r from-accent/5 to-brand/5 rounded-md border border-accent/10">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
                   <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">

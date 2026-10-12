@@ -344,7 +344,7 @@ export default function EditarCotizacionClient({
           <div className="flex items-start gap-4 mb-8">
             <button 
               onClick={handleCancel}
-              className="p-2.5 rounded-xl hover:bg-white/50 transition-colors mt-1"
+              className="p-2.5 rounded-md hover:bg-white/50 transition-colors mt-1"
             >
               <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -424,7 +424,7 @@ export default function EditarCotizacionClient({
                       </div>
                     )}
                     {clientSearchResults.length > 0 && (
-                      <div className="absolute left-0 right-0 z-20 mt-2 bg-white rounded-xl shadow-elevated border border-gray-100 max-h-64 overflow-y-auto">
+                      <div className="absolute left-0 right-0 z-20 mt-2 bg-white rounded-md shadow-elevated border border-gray-100 max-h-64 overflow-y-auto">
                         {clientSearchResults.map((c) => (
                           <button
                             key={c.id}
@@ -624,7 +624,7 @@ export default function EditarCotizacionClient({
                     onDragStart={() => handleItemDragStart(index)}
                     onDragOver={(e) => handleItemDragOver(e, index)}
                     onDragEnd={handleItemDragEnd}
-                    className={`group relative rounded-xl p-5 border-2 transition-all ${
+                    className={`group relative rounded-md p-5 border-2 transition-all ${
                       dragIndex === index
                         ? 'border-accent shadow-soft opacity-90 bg-surface-secondary'
                         : isEmptyCorrida
@@ -798,7 +798,7 @@ export default function EditarCotizacionClient({
                 <button
                   type="button"
                   onClick={addItem}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-accent/30 bg-accent/5 text-accent text-sm font-medium rounded-xl hover:bg-accent/10 hover:border-accent/50 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-accent/30 bg-accent/5 text-accent text-sm font-medium rounded-md hover:bg-accent/10 hover:border-accent/50 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

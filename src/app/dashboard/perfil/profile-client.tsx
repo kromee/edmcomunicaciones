@@ -108,7 +108,7 @@ export default function ProfileClient({ user }: { user: User }) {
           <div className="flex items-start gap-4 mb-8">
             <a 
               href="/dashboard" 
-              className="p-2.5 rounded-xl hover:bg-white/50 transition-colors mt-1"
+              className="p-2.5 rounded-md hover:bg-white/50 transition-colors mt-1"
             >
               <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -154,8 +154,8 @@ export default function ProfileClient({ user }: { user: User }) {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4 p-4 bg-surface-secondary rounded-xl">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
+                  <div className="flex items-center gap-4 p-4 bg-surface-secondary rounded-md">
+                    <div className="w-10 h-10 rounded-md bg-white flex items-center justify-center">
                       <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
@@ -166,8 +166,8 @@ export default function ProfileClient({ user }: { user: User }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 p-4 bg-surface-secondary rounded-xl">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
+                  <div className="flex items-center gap-4 p-4 bg-surface-secondary rounded-md">
+                    <div className="w-10 h-10 rounded-md bg-white flex items-center justify-center">
                       <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
@@ -301,7 +301,7 @@ export default function ProfileClient({ user }: { user: User }) {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-danger border border-danger/30 text-sm font-medium rounded-xl hover:bg-danger/5 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-danger border border-danger/30 text-sm font-medium rounded-md hover:bg-danger/5 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
