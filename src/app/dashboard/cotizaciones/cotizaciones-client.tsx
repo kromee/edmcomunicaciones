@@ -399,7 +399,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
               </select>
               <a
                 href="/cotizador"
-                className="btn-accent"
+                className="btn-primary"
               >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -437,7 +437,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay cotizaciones</h3>
                   <p className="text-muted mb-6">Crea tu primera cotización para comenzar</p>
-                  <a href="/cotizador" className="btn-accent">
+                  <a href="/cotizador" className="btn-primary">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
