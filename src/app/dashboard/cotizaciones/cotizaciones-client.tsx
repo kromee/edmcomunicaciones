@@ -42,13 +42,13 @@ type Quote = {
 
 type StatusFilter = 'all' | 'pending' | 'sent' | 'approved' | 'rejected' | 'paid';
 
-const statusConfig: Record<StatusFilter, { label: string; bg: string; text: string; icon: React.ReactNode }> = {
-  all: { label: 'Todas', bg: 'bg-gray-100', text: 'text-gray-700', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> },
-  pending: { label: 'Pendientes', bg: 'bg-warning/10', text: 'text-warning-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  sent: { label: 'Enviadas', bg: 'bg-accent/10', text: 'text-accent-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> },
-  approved: { label: 'Aprobadas', bg: 'bg-success/10', text: 'text-success-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  rejected: { label: 'Rechazadas', bg: 'bg-danger/10', text: 'text-danger-dark', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  paid: { label: 'Pagadas', bg: 'bg-green-100', text: 'text-green-700', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg> },
+const statusConfig: Record<StatusFilter, { label: string }> = {
+  all: { label: 'Todas' },
+  pending: { label: 'Pendientes' },
+  sent: { label: 'Enviadas' },
+  approved: { label: 'Aprobadas' },
+  rejected: { label: 'Rechazadas' },
+  paid: { label: 'Pagadas' },
 };
 
 /** Intro fija del cotizador. En el listado solo se muestra lo que sigue. */
@@ -235,11 +235,6 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
     setCurrentPage(1);
   }, [searchTerm, statusFilter, quotes]);
 
-  const getStatusCount = (status: StatusFilter) => {
-    if (status === 'all') return quotes.length;
-    return quotes.filter(q => q.status === status).length;
-  };
-
   const totalPages = Math.ceil(filteredQuotes.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -368,49 +363,29 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cotizaciones</h1>
               </div>
             </div>
-            <a
-              href="/cotizador"
-              className="btn-accent"
-            >
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <label className="sr-only" htmlFor="quote-status-filter">Estado</label>
+              <select
+                id="quote-status-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                className="flex-1 sm:flex-none bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-900 shadow-card focus:outline-none focus:ring-2 focus:ring-accent/30"
+              >
+                {(Object.keys(statusConfig) as StatusFilter[]).map((status) => (
+                  <option key={status} value={status}>
+                    {statusConfig[status].label}
+                  </option>
+                ))}
+              </select>
+              <a
+                href="/cotizador"
+                className="btn-accent"
+              >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Nueva Cotización
-            </a>
-          </div>
-
-          {/* Status Filters */}
-          <div className="mb-3 overflow-x-auto pb-1">
-            <div className="flex gap-2 min-w-max">
-              {(Object.keys(statusConfig) as StatusFilter[]).map((status) => {
-                const config = statusConfig[status];
-                const isActive = statusFilter === status;
-                return (
-                  <button
-                    key={status}
-                    onClick={() => setStatusFilter(status)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
-                      transition-all duration-200
-                      ${isActive 
-                        ? 'bg-brand text-white shadow-soft' 
-                        : 'bg-white text-muted hover:bg-surface-secondary border border-gray-100'
-                      }
-                    `}
-                  >
-                    <span className={isActive ? 'text-white/80' : config.text}>
-                      {config.icon}
-                    </span>
-                    {config.label}
-                    <span className={`
-                      ml-1 px-2 py-0.5 rounded-full text-xs
-                      ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}
-                    `}>
-                      {getStatusCount(status)}
-                    </span>
-                  </button>
-                );
-              })}
+                Nueva Cotización
+              </a>
             </div>
           </div>
 
