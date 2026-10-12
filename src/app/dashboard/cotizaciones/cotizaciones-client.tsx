@@ -486,10 +486,8 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                             ) : null}
                           </td>
                           <td className="px-3 py-3 align-top">
-                            <p className={`rounded-md px-2.5 py-1.5 text-[13px] text-gray-800 whitespace-pre-wrap break-words leading-snug ring-1 ring-gray-100 ${
-                              index % 2 === 1 ? 'bg-white' : 'bg-surface-secondary'
-                            }`}>
-                              {project || 'Sin descripción'}
+                            <p className="text-gray-700 whitespace-pre-wrap break-words leading-snug">
+                              {project || '—'}
                             </p>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap text-sm text-muted align-top">{formatDate(quote.created_at)}</td>
@@ -540,7 +538,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                           {quote.client_name}
                           {quote.client_company ? <span className="font-normal normal-case tracking-normal text-muted"> · {quote.client_company}</span> : null}
                         </p>
-                        <p className="mt-1 rounded-md bg-surface-secondary px-2.5 py-1.5 text-xs text-gray-800 whitespace-pre-wrap break-words leading-snug ring-1 ring-gray-100">
+                        <p className="mt-1 text-xs text-muted whitespace-pre-wrap break-words leading-snug">
                           {project || 'Sin descripción'}
                         </p>
                         <p className="mt-1 text-[11px] text-muted">
