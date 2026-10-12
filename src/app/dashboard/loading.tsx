@@ -1,13 +1,17 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/DashboardSidebar';
 
 export default function Loading() {
+  const pathname = usePathname();
+  const collapsed = pathname.startsWith('/dashboard/cotizaciones');
+
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed={collapsed} />
       
-      <main className="lg:ml-64 transition-all duration-300">
+      <main className={`transition-all duration-300 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Header Skeleton */}
           <div className="mb-8 flex items-start gap-4">

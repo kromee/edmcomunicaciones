@@ -69,7 +69,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [filteredQuotes, setFilteredQuotes] = useState<Quote[]>(quotes);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [actionsOpen, setActionsOpen] = useState<string | null>(null);
 
   // Normaliza texto: minúsculas y sin acentos/diacríticos, para búsquedas tolerantes
@@ -234,7 +234,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader
         user={user}
         onLogout={handleLogout}

@@ -55,7 +55,7 @@ export default function EditarCotizacionClient({
 }) {
   const router = useRouter();
   const { modal, showSuccess, showError, showConfirm, hideModal } = useModal();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
   
   const [formData, setFormData] = useState<QuoteFormData>({
@@ -335,7 +335,7 @@ export default function EditarCotizacionClient({
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
