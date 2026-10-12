@@ -448,47 +448,57 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
             </div>
           ) : (
             <>
-              <div className="hidden md:block bg-white rounded-2xl shadow-card border border-gray-100">
+              <div className="hidden md:block bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
                 <table className="w-full table-fixed text-sm">
-                  <thead className="sticky top-16 sm:top-20 z-20 bg-gray-50 text-[11px] uppercase tracking-wide text-muted">
-                    <tr className="border-b border-gray-100">
-                      <th className="text-left font-semibold px-4 py-2.5 w-[13%] rounded-tl-2xl">Cotización</th>
-                      <th className="text-left font-semibold px-3 py-2.5 w-[14%]">Cliente</th>
-                      <th className="text-left font-semibold px-3 py-2.5">Proyecto</th>
-                      <th className="text-left font-semibold px-3 py-2.5 w-[8%]">Fecha</th>
-                      <th className="text-right font-semibold px-3 py-2.5 w-[9%]">Total</th>
-                      <th className="px-2 py-2.5 w-[4%] rounded-tr-2xl"><span className="sr-only">Acciones</span></th>
+                  <thead className="text-[11px] uppercase tracking-wider">
+                    <tr>
+                      <th className="bg-brand text-left font-semibold text-white/80 px-4 py-3 w-[16%]">Cotización</th>
+                      <th className="bg-brand text-left font-semibold text-white/80 px-3 py-3 w-[16%]">Cliente</th>
+                      <th className="bg-brand text-left font-semibold text-white/80 px-3 py-3">Proyecto</th>
+                      <th className="bg-brand text-left font-semibold text-white/80 px-3 py-3 w-[9%]">Fecha</th>
+                      <th className="bg-brand text-right font-semibold text-white/80 px-3 py-3 w-[11%]">Total</th>
+                      <th className="bg-brand px-2 py-3 w-[4%]"><span className="sr-only">Acciones</span></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody>
                     {paginatedQuotes.map((quote, index) => {
                       const project = projectListText(quote.description);
                       return (
                         <tr
                           key={quote.id}
                           onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
-                          className="hover:bg-surface-secondary/70 cursor-pointer transition-colors"
+                          className={`cursor-pointer border-b border-gray-100 transition-colors ${
+                            index % 2 === 1 ? 'bg-surface-secondary/80' : 'bg-white'
+                          } hover:bg-accent/5`}
                         >
-                          <td className="px-4 py-2.5 whitespace-nowrap align-top">
-                            <div className="flex items-center gap-2">
-                              <span className="text-base leading-none" aria-hidden>{serviceIcons[quote.service_type] || '📦'}</span>
-                              <span className="font-semibold text-gray-900">{quote.quote_number}</span>
+                          <td className="px-4 py-3 align-top">
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand/5 text-base" aria-hidden>
+                                {serviceIcons[quote.service_type] || '📦'}
+                              </span>
+                              <span className="font-semibold text-brand leading-snug break-all">{quote.quote_number}</span>
                             </div>
                           </td>
-                          <td className="px-3 py-2.5 overflow-hidden align-top">
-                            <p className="font-medium text-gray-900 truncate uppercase">{quote.client_name}</p>
-                            <p className="text-xs text-muted truncate">{quote.client_company || '—'}</p>
+                          <td className="px-3 py-3 overflow-hidden align-top">
+                            <p className="font-semibold text-gray-900 truncate uppercase tracking-wide">{quote.client_name}</p>
+                            {quote.client_company ? (
+                              <p className="mt-0.5 text-xs text-muted truncate">{quote.client_company}</p>
+                            ) : null}
                           </td>
-                          <td className="px-3 py-2.5 align-top">
-                            <p className="text-gray-700 whitespace-pre-wrap break-words leading-snug">
-                              {project || '—'}
+                          <td className="px-3 py-3 align-top">
+                            <p className={`rounded-md px-2.5 py-1.5 text-[13px] text-gray-800 whitespace-pre-wrap break-words leading-snug ring-1 ring-gray-100 ${
+                              index % 2 === 1 ? 'bg-white' : 'bg-surface-secondary'
+                            }`}>
+                              {project || 'Sin descripción'}
                             </p>
                           </td>
-                          <td className="px-3 py-2.5 whitespace-nowrap text-gray-700 align-top">{formatDate(quote.created_at)}</td>
-                          <td className="px-3 py-2.5 text-right whitespace-nowrap font-semibold text-brand align-top">
-                            {formatCurrency(quote.total_amount)}
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-muted align-top">{formatDate(quote.created_at)}</td>
+                          <td className="px-3 py-3 text-right align-top">
+                            <span className="inline-flex rounded-md bg-brand px-2 py-1 text-xs font-semibold text-white whitespace-nowrap">
+                              {formatCurrency(quote.total_amount)}
+                            </span>
                           </td>
-                          <td className="px-2 py-2.5 align-top">
+                          <td className="px-2 py-3 align-top">
                             <QuoteRowMenu
                               quoteId={quote.id}
                               open={actionsOpen === quote.id}
@@ -505,28 +515,35 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 </table>
               </div>
 
-              <div className="md:hidden bg-white rounded-2xl shadow-card border border-gray-100 divide-y divide-gray-100">
+              <div className="md:hidden bg-white rounded-2xl shadow-card border border-gray-100 divide-y divide-gray-100 overflow-hidden">
                 {paginatedQuotes.map((quote, index) => {
                   const project = projectListText(quote.description);
                   return (
                     <div
                       key={quote.id}
                       onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
-                      className="px-3 py-2.5 flex items-start gap-2 cursor-pointer active:bg-surface-secondary"
+                      className={`px-3 py-3 flex items-start gap-2 cursor-pointer ${
+                        index % 2 === 1 ? 'bg-surface-secondary/80' : 'bg-white'
+                      }`}
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-900 truncate">{quote.quote_number}</span>
-                          <span className="ml-auto text-sm font-semibold text-brand whitespace-nowrap">{formatCurrency(quote.total_amount)}</span>
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand/5 text-sm" aria-hidden>
+                            {serviceIcons[quote.service_type] || '📦'}
+                          </span>
+                          <span className="text-sm font-semibold text-brand truncate">{quote.quote_number}</span>
+                          <span className="ml-auto inline-flex rounded-md bg-brand px-2 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
+                            {formatCurrency(quote.total_amount)}
+                          </span>
                         </div>
-                        <p className="text-sm text-gray-900 truncate">
-                          <span className="uppercase">{quote.client_name}</span>
-                          {quote.client_company ? <span className="text-muted"> · {quote.client_company}</span> : null}
+                        <p className="mt-1.5 text-sm font-semibold text-gray-900 truncate uppercase tracking-wide">
+                          {quote.client_name}
+                          {quote.client_company ? <span className="font-normal normal-case tracking-normal text-muted"> · {quote.client_company}</span> : null}
                         </p>
-                        <p className="text-xs text-muted whitespace-pre-wrap break-words leading-snug">
+                        <p className="mt-1 rounded-md bg-surface-secondary px-2.5 py-1.5 text-xs text-gray-800 whitespace-pre-wrap break-words leading-snug ring-1 ring-gray-100">
                           {project || 'Sin descripción'}
                         </p>
-                        <p className="text-[11px] text-muted-light">
+                        <p className="mt-1 text-[11px] text-muted">
                           {formatDate(quote.created_at)}
                         </p>
                       </div>
