@@ -3,59 +3,82 @@
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/DashboardSidebar';
 
-export default function Loading() {
-  const pathname = usePathname();
-  const collapsed = pathname.startsWith('/dashboard/cotizaciones');
+function ListRouteLoading({ collapsed }: { collapsed: boolean }) {
+  const offset = collapsed ? 'lg:ml-20' : 'lg:ml-64';
 
   return (
-    <div className="min-h-screen bg-surface-secondary">
-      <Sidebar defaultCollapsed={collapsed} />
-      
-      <main className={`transition-all duration-300 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
-        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {/* Header Skeleton */}
-          <div className="mb-8 flex items-start gap-4">
-            <div className="w-10 h-10 bg-gray-200 rounded-md animate-pulse" />
-            <div className="space-y-2">
-              <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse" />
-              <div className="h-4 w-64 bg-gray-200 rounded-lg animate-pulse" />
+    <>
+      <div className={`sticky top-0 z-30 h-16 border-b border-gray-100 bg-white sm:h-20 ${offset}`}>
+        <div className="flex h-full items-center px-4 sm:px-6 lg:px-8">
+          <div className="h-10 w-full max-w-md rounded-md bg-surface-secondary" />
+        </div>
+      </div>
+
+      <main className={offset}>
+        <div className="px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="h-8 w-44 rounded-md bg-gray-200/80" />
+            <div className="flex items-center gap-2">
+              <div className="h-10 w-28 rounded-md border border-gray-200 bg-white" />
+              <div className="h-10 w-40 rounded-md bg-brand/90" />
             </div>
           </div>
 
-          {/* Cards Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-2xl p-5 sm:p-6 shadow-card">
-                <div className="flex items-start justify-between">
-                  <div className="w-12 h-12 bg-gray-200 rounded-2xl animate-pulse" />
-                  <div className="w-16 h-6 bg-gray-200 rounded-full animate-pulse" />
-                </div>
-                <div className="mt-4 space-y-2">
-                  <div className="h-8 w-24 bg-gray-200 rounded-lg animate-pulse" />
-                  <div className="h-4 w-32 bg-gray-200 rounded-lg animate-pulse" />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Content Skeleton */}
-          <div className="bg-white rounded-2xl shadow-card p-6">
-            <div className="h-6 w-48 bg-gray-200 rounded-lg animate-pulse mb-6" />
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center gap-4 p-4 border-b border-gray-100 last:border-0">
-                  <div className="w-12 h-12 bg-gray-200 rounded-md animate-pulse" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-3 w-32 bg-gray-200 rounded animate-pulse" />
-                  </div>
-                  <div className="w-20 h-6 bg-gray-200 rounded-full animate-pulse" />
+          <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
+            <div className="hidden border-b border-gray-100 bg-surface-secondary/60 px-4 py-3 md:block">
+              <div className="h-3 w-full rounded bg-gray-200/70" />
+            </div>
+            <div className="divide-y divide-gray-100">
+              {Array.from({ length: 8 }, (_, index) => (
+                <div key={index} className="flex items-center gap-4 px-4 py-3">
+                  <div className="h-8 w-8 shrink-0 rounded-lg bg-brand/10" />
+                  <div className="h-3.5 flex-1 rounded bg-gray-100" />
+                  <div className="hidden h-3.5 w-28 rounded bg-gray-100 sm:block" />
+                  <div className="hidden h-6 w-20 rounded-lg bg-brand/80 md:block" />
                 </div>
               ))}
             </div>
           </div>
         </div>
       </main>
+    </>
+  );
+}
+
+function DashboardHomeLoading({ collapsed }: { collapsed: boolean }) {
+  const offset = collapsed ? 'lg:ml-20' : 'lg:ml-64';
+
+  return (
+    <main className={offset}>
+      <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="mb-8 h-8 w-64 rounded-md bg-gray-200/80" />
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="rounded-xl border border-gray-100 bg-white p-5">
+              <div className="h-4 w-24 rounded bg-gray-200/80" />
+              <div className="mt-4 h-8 w-20 rounded bg-gray-200/80" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function Loading() {
+  const pathname = usePathname();
+  const isQuotes = pathname.startsWith('/dashboard/cotizaciones');
+  const isClients = pathname.startsWith('/dashboard/clientes');
+  const collapsed = isQuotes;
+
+  return (
+    <div className="min-h-screen bg-surface-secondary">
+      <Sidebar defaultCollapsed={collapsed} />
+      {isQuotes || isClients ? (
+        <ListRouteLoading collapsed={collapsed} />
+      ) : (
+        <DashboardHomeLoading collapsed={collapsed} />
+      )}
     </div>
   );
 }
