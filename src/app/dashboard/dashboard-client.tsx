@@ -138,7 +138,7 @@ function StatusBadge({ status }: { status: Quote['status'] }) {
 
 export default function DashboardClient({ user, stats }: { user: SessionUser; stats: DashboardStats }) {
   const router = useRouter();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   const handleLogout = async () => {
     const response = await fetch('/api/auth/logout', {
@@ -184,7 +184,7 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar badges={{ cotizaciones: stats.pendingQuotes, contactos: stats.newContacts }} />
+      <Sidebar badges={{ cotizaciones: stats.pendingQuotes, contactos: stats.newContacts }} defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader 
         user={user} 
         onLogout={handleLogout} 

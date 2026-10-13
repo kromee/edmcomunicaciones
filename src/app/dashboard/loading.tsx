@@ -19,8 +19,8 @@ function ListRouteLoading({ collapsed }: { collapsed: boolean }) {
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="h-8 w-44 rounded-md bg-gray-200/80" />
             <div className="flex items-center gap-2">
-              <div className="h-10 w-28 rounded-md border border-gray-200 bg-white" />
-              <div className="h-10 w-40 rounded-md bg-brand/90" />
+              <div className="h-8 w-28 rounded-md border border-gray-200 bg-white" />
+              <div className="h-8 w-36 rounded-md bg-brand/90" />
             </div>
           </div>
 
@@ -69,7 +69,7 @@ export default function Loading() {
   const pathname = usePathname();
   const isQuotes = pathname.startsWith('/dashboard/cotizaciones');
   const isClients = pathname.startsWith('/dashboard/clientes');
-  const collapsed = isQuotes;
+  const collapsed = true;
 
   return (
     <div className="min-h-screen bg-surface-secondary">

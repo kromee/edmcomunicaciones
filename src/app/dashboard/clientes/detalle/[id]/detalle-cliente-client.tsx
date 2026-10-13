@@ -56,7 +56,7 @@ const statusConfig: Record<string, { bg: string; text: string; label: string }> 
 export default function DetalleClienteClient({ client, user, quotes }: Props) {
   const router = useRouter();
   const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
     name: client.name,
@@ -158,7 +158,7 @@ export default function DetalleClienteClient({ client, user, quotes }: Props) {
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>

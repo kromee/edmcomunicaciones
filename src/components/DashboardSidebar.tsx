@@ -73,7 +73,7 @@ const secondaryNavItems: NavItem[] = [
   },
 ];
 
-export function Sidebar({ badges, defaultCollapsed = false, onCollapsedChange }: SidebarProps) {
+export function Sidebar({ badges, defaultCollapsed = true, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -100,6 +100,11 @@ export function Sidebar({ badges, defaultCollapsed = false, onCollapsedChange }:
     return (
       <Link
         href={item.href}
+        onClick={() => {
+          setIsMobileOpen(false);
+          setIsCollapsed(true);
+          onCollapsedChange?.(true);
+        }}
         className={`
           group relative flex items-center gap-3 px-3 py-2.5 rounded-md
           transition-all duration-200 ease-out

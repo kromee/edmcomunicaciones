@@ -389,7 +389,7 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 id="quote-status-filter"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="flex-1 sm:flex-none bg-white border border-gray-200 rounded-md px-3 py-2.5 text-sm font-medium text-gray-900 shadow-card focus:outline-none focus:ring-2 focus:ring-accent/30"
+                className="h-8 flex-1 sm:flex-none bg-white border border-gray-200 rounded-md px-2.5 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
               >
                 {(Object.keys(statusConfig) as StatusFilter[]).map((status) => (
                   <option key={status} value={status}>
@@ -399,9 +399,9 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
               </select>
               <a
                 href="/cotizador"
-                className="btn-primary"
+                className="btn-primary h-8 px-3 py-0 text-sm"
               >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
                 Nueva Cotización
