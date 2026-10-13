@@ -18,10 +18,8 @@ type Quote = {
 
 type ChartData = {
   month: string;
-  total: number;
-  approved: number;
-  paid: number;
-  pending: number;
+  count: number;
+  amount: number;
 };
 
 type Notification = {
@@ -180,7 +178,19 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
     return formatDate(date);
   };
 
-  const maxChartValue = Math.max(...stats.chartData.map(d => d.total), 1);
+  const formatCompactCurrency = (value: number) => {
+    if (value >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(1)}M`;
+    }
+    if (value >= 1_000) {
+      return `$${Math.round(value / 1_000)}k`;
+    }
+    return formatCurrency(value);
+  };
+
+  const maxChartValue = Math.max(...stats.chartData.map(d => d.amount), 1);
+  const periodAmount = stats.chartData.reduce((sum, item) => sum + item.amount, 0);
+  const periodCount = stats.chartData.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <div className="min-h-screen bg-surface-secondary">
@@ -289,90 +299,49 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
             {/* Monthly Summary Chart */}
             <div className="bg-white rounded-2xl shadow-card overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100">
-                <h2 className="font-semibold text-gray-900">Resumen del Mes</h2>
-                <p className="text-sm text-muted">Cotizaciones de los últimos 6 meses</p>
+                <h2 className="font-semibold text-gray-900">Resumen del mes</h2>
+                <p className="text-sm text-muted">Monto cotizado en los últimos 6 meses</p>
               </div>
               <div className="p-5">
-                {stats.chartData.every(d => d.total === 0) ? (
+                {periodCount === 0 ? (
                   <div className="flex flex-col items-center justify-center h-40 text-center">
                     <svg className="w-12 h-12 mb-3 text-muted-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    <p className="text-sm text-muted">No hay datos para mostrar</p>
+                    <p className="text-sm text-muted">No hay cotizaciones en este periodo</p>
                   </div>
                 ) : (
                   <>
-                    <div className="flex items-end justify-between h-40 gap-2 mb-4">
-                      {stats.chartData.map((item, index) => {
-                        const totalHeight = item.approved + item.paid + item.pending;
-                        const approvedHeight = maxChartValue > 0 ? (item.approved / maxChartValue) * 100 : 0;
-                        const paidHeight = maxChartValue > 0 ? (item.paid / maxChartValue) * 100 : 0;
-                        const pendingHeight = maxChartValue > 0 ? (item.pending / maxChartValue) * 100 : 0;
-                        
+                    <div className="flex items-end gap-2">
+                      {stats.chartData.map((item) => {
+                        const height = item.amount > 0
+                          ? Math.max((item.amount / maxChartValue) * 100, 8)
+                          : 0;
+
                         return (
-                          <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                            <div className="w-full flex flex-col-reverse gap-0.5 items-center">
-                              {totalHeight === 0 ? (
-                                <div className="w-full h-1 bg-gray-100 rounded" />
-                              ) : (
-                                <>
-                                  <div 
-                                    className="w-full bg-success rounded-t-sm transition-all duration-500 hover:opacity-80"
-                                    style={{ height: `${Math.max(approvedHeight, 0.5)}%` }}
-                                    title={`Aprobadas: ${item.approved}`}
-                                  />
-                                  <div 
-                                    className="w-full bg-[#0f1e48] rounded-t-sm transition-all duration-500 hover:opacity-80"
-                                    style={{ height: `${Math.max(paidHeight, 0.5)}%` }}
-                                    title={`Pagadas: ${item.paid}`}
-                                  />
-                                  <div 
-                                    className="w-full bg-warning rounded-t-sm transition-all duration-500 hover:opacity-80"
-                                    style={{ height: `${Math.max(pendingHeight, 0.5)}%` }}
-                                    title={`Pendientes: ${item.pending}`}
-                                  />
-                                </>
-                              )}
+                          <div key={item.month} className="flex min-w-0 flex-1 flex-col items-center">
+                            <p className="mb-1 h-4 truncate text-center text-[11px] font-semibold text-brand">
+                              {item.amount > 0 ? formatCompactCurrency(item.amount) : ''}
+                            </p>
+                            <div className="flex h-32 w-full items-end">
+                              <div
+                                className="w-full rounded-t-md bg-brand"
+                                style={{ height: `${height}%` }}
+                                title={`${item.count} cotización${item.count === 1 ? '' : 'es'} · ${formatCurrency(item.amount)}`}
+                              />
                             </div>
-                            <span className="text-xs text-muted-light capitalize">{item.month}</span>
+                            <p className="mt-2 text-center text-xs capitalize text-muted">{item.month}</p>
+                            <p className="text-center text-[11px] text-muted-light">
+                              {item.count} {item.count === 1 ? 'cotización' : 'cotizaciones'}
+                            </p>
                           </div>
                         );
                       })}
                     </div>
-                    <div className="flex items-center justify-center gap-6 pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-warning" />
-                        <span className="text-sm text-muted">Pendientes</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-[#0f1e48]" />
-                        <span className="text-sm text-muted">Pagadas</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-success" />
-                        <span className="text-sm text-muted">Aprobadas</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-                      <div className="p-3 bg-warning/10 rounded-md">
-                        <p className="text-lg font-bold text-warning">
-                          {stats.chartData.reduce((sum, d) => sum + d.pending, 0)}
-                        </p>
-                        <p className="text-xs text-muted">Pendientes</p>
-                      </div>
-                      <div className="p-3 bg-[#0f1e48]/10 rounded-md">
-                        <p className="text-lg font-bold text-brand">
-                          {stats.chartData.reduce((sum, d) => sum + d.paid, 0)}
-                        </p>
-                        <p className="text-xs text-muted">Pagadas</p>
-                      </div>
-                      <div className="p-3 bg-success/10 rounded-md">
-                        <p className="text-lg font-bold text-success">
-                          {stats.chartData.reduce((sum, d) => sum + d.approved, 0)}
-                        </p>
-                        <p className="text-xs text-muted">Aprobadas</p>
-                      </div>
-                    </div>
+                    <p className="mt-4 border-t border-gray-100 pt-4 text-center text-sm text-muted">
+                      <span className="font-semibold text-gray-900">{formatCurrency(periodAmount)}</span>
+                      {' '}en {periodCount} {periodCount === 1 ? 'cotización' : 'cotizaciones'}
+                    </p>
                   </>
                 )}
               </div>

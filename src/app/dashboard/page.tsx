@@ -42,39 +42,30 @@ export default async function DashboardPage() {
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
     const monthlyQuotesResult = await supabase
       .from('quotes')
-      .select('created_at, status')
+      .select('created_at, total_amount')
       .gte('created_at', sixMonthsAgo.toISOString())
       .order('created_at', { ascending: true });
 
-    // Procesar datos mensuales
-    const monthlyData: Record<string, { total: number; approved: number; paid: number; pending: number }> = {};
+    const monthlyData: Record<string, { count: number; amount: number }> = {};
     for (let i = 0; i < 6; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
       const key = date.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '');
-      monthlyData[key] = { total: 0, approved: 0, paid: 0, pending: 0 };
+      monthlyData[key] = { count: 0, amount: 0 };
     }
 
     monthlyQuotesResult.data?.forEach(quote => {
       const date = new Date(quote.created_at);
       const key = date.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '');
       if (monthlyData[key]) {
-        monthlyData[key].total += 1;
-        if (quote.status === 'approved') {
-          monthlyData[key].approved += 1;
-        } else if (quote.status === 'paid') {
-          monthlyData[key].paid += 1;
-        } else if (quote.status === 'pending') {
-          monthlyData[key].pending += 1;
-        }
+        monthlyData[key].count += 1;
+        monthlyData[key].amount += Number(quote.total_amount) || 0;
       }
     });
 
     const chartData = Object.entries(monthlyData).map(([month, data]) => ({
       month,
-      total: data.total,
-      approved: data.approved,
-      paid: data.paid,
-      pending: data.pending
+      count: data.count,
+      amount: data.amount,
     }));
 
     // Obtener notificaciones reales
