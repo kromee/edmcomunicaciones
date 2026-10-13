@@ -52,7 +52,7 @@ const statusConfig: Record<StatusFilter, { label: string; bg: string; text: stri
 export default function ContactosClient({ contacts, user }: { contacts: Contact[]; user: SessionUser }) {
   const router = useRouter();
   const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -153,7 +153,7 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>

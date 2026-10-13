@@ -111,7 +111,7 @@ function CotizadorContent() {
   const [searchResults, setSearchResults] = useState<Client[]>([]);
   const [showNewClientForm, setShowNewClientForm] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   const [formData, setFormData] = useState<QuoteFormData>({
     client_name: '',
@@ -472,7 +472,7 @@ function CotizadorContent() {
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>

@@ -28,7 +28,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ 
   user, 
   onLogout, 
-  sidebarCollapsed = false,
+  sidebarCollapsed = true,
   notifications = [],
   unreadCount = 0,
   searchValue,

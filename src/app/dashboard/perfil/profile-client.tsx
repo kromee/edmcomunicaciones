@@ -17,7 +17,7 @@ type User = {
 export default function ProfileClient({ user }: { user: User }) {
   const router = useRouter();
   const { modal, hideModal, showSuccess, showError } = useModal();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwords, setPasswords] = useState({
@@ -99,7 +99,7 @@ export default function ProfileClient({ user }: { user: User }) {
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar />
+      <Sidebar defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader user={user} onLogout={handleLogout} sidebarCollapsed={sidebarCollapsed} />
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
