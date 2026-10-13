@@ -13,13 +13,11 @@ export default async function DashboardPage() {
 
     const supabase = await createClient();
     const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
     // Obtener estadísticas básicas
-    const [quotesResult, clientsResult, pendingQuotesResult, newContactsResult] = await Promise.all([
-      supabase.from('quotes').select('total_amount, status, created_at', { count: 'exact' }),
+    const [quotesResult, clientsResult, newContactsResult] = await Promise.all([
+      supabase.from('quotes').select('client_name, total_amount, created_at', { count: 'exact' }),
       supabase.from('clients').select('id', { count: 'exact' }),
-      supabase.from('quotes').select('id', { count: 'exact' }).eq('status', 'pending'),
       supabase.from('contacts').select('id', { count: 'exact' }).eq('status', 'new')
     ]);
 
@@ -32,7 +30,6 @@ export default async function DashboardPage() {
         client_name,
         client_company,
         total_amount,
-        status,
         created_at
       `)
       .order('created_at', { ascending: false })
@@ -68,10 +65,24 @@ export default async function DashboardPage() {
       amount: data.amount,
     }));
 
-    // Obtener notificaciones reales
+    const clientTotals = new Map<string, { name: string; count: number; amount: number }>();
+    quotesResult.data?.forEach(quote => {
+      const name = String(quote.client_name || 'Sin cliente').trim();
+      const key = name.toLocaleUpperCase('es-MX');
+      const current = clientTotals.get(key) || { name, count: 0, amount: 0 };
+      current.count += 1;
+      current.amount += Number(quote.total_amount) || 0;
+      clientTotals.set(key, current);
+    });
+
+    const topClients = Array.from(clientTotals.values())
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5);
+
+    // Actividad reciente basada en nuevas cotizaciones, sin depender de estados manuales.
     const notificationsResult = await supabase
       .from('quotes')
-      .select('id, quote_number, status, created_at')
+      .select('id, quote_number, client_name, created_at')
       .order('created_at', { ascending: false })
       .limit(10);
 
@@ -95,14 +106,10 @@ export default async function DashboardPage() {
       return {
         id: quote.id,
         title: `Cotización ${quote.quote_number}`,
-        message: quote.status === 'approved' 
-          ? `La cotización ha sido aprobada`
-          : quote.status === 'pending'
-          ? `Cotización pendiente de revisión`
-          : `Estado: ${quote.status}`,
+        message: `Creada para ${quote.client_name}`,
         time: timeStr,
-        type: quote.status === 'approved' ? 'success' as const : quote.status === 'pending' ? 'warning' as const : 'info' as const,
-        read: quote.status !== 'pending'
+        type: 'info' as const,
+        read: diffHours >= 24
       };
     }) || [];
 
@@ -112,10 +119,10 @@ export default async function DashboardPage() {
       totalQuotes: quotesResult.count || 0,
       totalClients: clientsResult.count || 0,
       totalQuoted: quotesResult.data?.reduce((sum, quote) => sum + (quote.total_amount || 0), 0) || 0,
-      pendingQuotes: pendingQuotesResult.count || 0,
       newContacts: newContactsResult.count || 0,
       recentQuotes: recentQuotesResult.data || [],
       chartData,
+      topClients,
       notifications,
       unreadCount
     };

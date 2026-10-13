@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SessionUser } from '@/types/session';
 import { Sidebar } from '@/components/DashboardSidebar';
@@ -12,12 +13,17 @@ type Quote = {
   client_name: string;
   client_company: string | null;
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'sent' | 'paid';
   created_at: string;
 };
 
 type ChartData = {
   month: string;
+  count: number;
+  amount: number;
+};
+
+type TopClient = {
+  name: string;
   count: number;
   amount: number;
 };
@@ -35,10 +41,10 @@ type DashboardStats = {
   totalQuotes: number;
   totalClients: number;
   totalQuoted: number;
-  pendingQuotes: number;
   newContacts: number;
   recentQuotes: Quote[];
   chartData: ChartData[];
+  topClients: TopClient[];
   notifications: Notification[];
   unreadCount: number;
 };
@@ -48,10 +54,6 @@ interface StatCardProps {
   value: string | number;
   subtitle: string;
   icon: React.ReactNode;
-  trend?: {
-    value: number;
-    label: string;
-  };
   color: 'blue' | 'green' | 'purple' | 'orange';
 }
 
@@ -78,7 +80,7 @@ const colorClasses = {
   },
 };
 
-function StatCard({ title, value, subtitle, icon, trend, color }: StatCardProps) {
+function StatCard({ title, value, subtitle, icon, color }: StatCardProps) {
   const colors = colorClasses[color];
   
   return (
@@ -86,20 +88,10 @@ function StatCard({ title, value, subtitle, icon, trend, color }: StatCardProps)
       <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${colors.gradient} rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:opacity-100 transition-opacity`} />
       
       <div className="relative">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start">
           <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${colors.bg} flex items-center justify-center ${colors.icon} group-hover:scale-110 transition-transform duration-300`}>
             {icon}
           </div>
-          {trend && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-              trend.value >= 0 ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
-            }`}>
-              <svg className={`w-3 h-3 ${trend.value < 0 ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-              {Math.abs(trend.value)}%
-            </div>
-          )}
         </div>
 
         <div className="mt-4">
@@ -114,23 +106,6 @@ function StatCard({ title, value, subtitle, icon, trend, color }: StatCardProps)
         )}
       </div>
     </div>
-  );
-}
-
-const statusStyles = {
-  pending: { bg: 'bg-warning/10', text: 'text-warning-dark', label: 'Pendiente' },
-  approved: { bg: 'bg-success/10', text: 'text-success-dark', label: 'Aprobada' },
-  rejected: { bg: 'bg-danger/10', text: 'text-danger-dark', label: 'Rechazada' },
-  sent: { bg: 'bg-accent/10', text: 'text-accent-dark', label: 'Enviada' },
-  paid: { bg: 'bg-green-100', text: 'text-green-700', label: 'Pagada' },
-};
-
-function StatusBadge({ status }: { status: Quote['status'] }) {
-  const styles = statusStyles[status] || statusStyles.pending;
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${styles.bg} ${styles.text}`}>
-      {styles.label}
-    </span>
   );
 }
 
@@ -194,7 +169,7 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <Sidebar badges={{ cotizaciones: stats.pendingQuotes, contactos: stats.newContacts }} defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
+      <Sidebar badges={{ contactos: stats.newContacts }} defaultCollapsed onCollapsedChange={setSidebarCollapsed} />
       <DashboardHeader 
         user={user} 
         onLogout={handleLogout} 
@@ -218,7 +193,6 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
               value={stats.totalQuotes}
               subtitle="Total de cotizaciones creadas"
               color="blue"
-              trend={{ value: 12, label: 'vs mes anterior' }}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -230,7 +204,6 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
               value={stats.totalClients}
               subtitle="Clientes registrados en el sistema"
               color="green"
-              trend={{ value: 8, label: 'vs mes anterior' }}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -242,7 +215,6 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
               value={formatCurrency(stats.totalQuoted)}
               subtitle="Monto total de todas las cotizaciones"
               color="purple"
-              trend={{ value: 23, label: 'vs mes anterior' }}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -257,9 +229,9 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
             <div className="bg-white rounded-2xl shadow-card overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h2 className="font-semibold text-gray-900">Cotizaciones Recientes</h2>
-                <a href="/dashboard/cotizaciones" className="text-sm font-medium text-accent hover:text-accent-dark transition-colors">
+                <Link href="/dashboard/cotizaciones" className="text-sm font-medium text-accent hover:text-accent-dark transition-colors">
                   Ver todas
-                </a>
+                </Link>
               </div>
               <div className="divide-y divide-gray-50">
                 {stats.recentQuotes.length === 0 ? (
@@ -271,7 +243,7 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
                   </div>
                 ) : (
                   stats.recentQuotes.map((quote) => (
-                    <a
+                    <Link
                       key={quote.id}
                       href={`/dashboard/cotizaciones/detalles/${quote.id}`}
                       className="flex items-center gap-4 px-5 py-4 hover:bg-surface-secondary transition-colors"
@@ -289,8 +261,7 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
                         <p className="font-semibold text-gray-900">{formatCurrency(quote.total_amount)}</p>
                         <p className="text-xs text-muted-light">{formatRelativeTime(quote.created_at)}</p>
                       </div>
-                      <StatusBadge status={quote.status} />
-                    </a>
+                    </Link>
                   ))
                 )}
               </div>
@@ -346,6 +317,42 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
                 )}
               </div>
             </div>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-card">
+            <div className="border-b border-gray-100 px-5 py-4">
+              <h2 className="font-semibold text-gray-900">Clientes principales</h2>
+              <p className="text-sm text-muted">Ordenados por monto total cotizado</p>
+            </div>
+            {stats.topClients.length === 0 ? (
+              <p className="px-5 py-8 text-center text-sm text-muted">Aún no hay información para mostrar</p>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {stats.topClients.map((client, index) => {
+                  const share = stats.totalQuoted > 0 ? (client.amount / stats.totalQuoted) * 100 : 0;
+                  return (
+                    <div key={client.name} className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3">
+                      <span className="text-sm font-semibold text-muted-light">{index + 1}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="truncate text-sm font-semibold uppercase tracking-wide text-gray-900">{client.name}</p>
+                          <p className="shrink-0 text-xs text-muted">
+                            {client.count} {client.count === 1 ? 'cotización' : 'cotizaciones'}
+                          </p>
+                        </div>
+                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-tertiary">
+                          <div className="h-full rounded-full bg-brand" style={{ width: `${share}%` }} />
+                        </div>
+                      </div>
+                      <div className="min-w-[7rem] text-right">
+                        <p className="text-sm font-semibold text-brand">{formatCurrency(client.amount)}</p>
+                        <p className="text-[11px] text-muted-light">{share.toFixed(1)}% del total</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </main>
