@@ -52,22 +52,23 @@ export async function POST(request: NextRequest) {
 
     // Buscar usuario por email (bypassing RLS with service role)
     console.log('Searching for user in database...');
+    const emailNorm = String(email).trim().toLowerCase();
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email)
-      .single();
+      .ilike('email', emailNorm)
+      .maybeSingle();
 
     if (error) {
       console.error('Database error:', error);
       return NextResponse.json(
-        { success: false, error: 'Error de base de datos' },
+        { success: false, error: 'Error de base de datos', code: 'DB_ERROR' },
         { status: 500 }
       );
     }
 
     if (!user) {
-      console.log('User not found for email:', email);
+      console.log('User not found for email:', emailNorm);
       return NextResponse.json(
         { success: false, error: 'Credenciales inválidas' },
         { status: 401 }
@@ -78,7 +79,26 @@ export async function POST(request: NextRequest) {
 
     // Verificar contraseña
     console.log('Verifying password...');
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    const passwordHash =
+      typeof user.password_hash === 'string' ? user.password_hash : '';
+    if (!passwordHash) {
+      console.error('User has no password_hash:', user.email);
+      return NextResponse.json(
+        { success: false, error: 'Usuario mal configurado en BD', code: 'NO_PASSWORD_HASH' },
+        { status: 500 }
+      );
+    }
+
+    let isValidPassword = false;
+    try {
+      isValidPassword = await bcrypt.compare(password, passwordHash);
+    } catch (bcryptError) {
+      console.error('bcrypt error:', bcryptError);
+      return NextResponse.json(
+        { success: false, error: 'Error al verificar contraseña', code: 'BCRYPT_ERROR' },
+        { status: 500 }
+      );
+    }
 
     if (!isValidPassword) {
       console.log('Invalid password for user:', email);
@@ -110,7 +130,10 @@ export async function POST(request: NextRequest) {
         detail.includes('SESSION_SECRET') ?
           'No se pudo firmar la sesión: revisa SESSION_SECRET en Vercel y redeploy.'
         : 'Error al crear sesión';
-      return NextResponse.json({ success: false, error }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error, code: 'SESSION_SIGN_FAILED' },
+        { status: 500 }
+      );
     }
 
     console.log('Login successful for user:', email);
@@ -119,19 +142,37 @@ export async function POST(request: NextRequest) {
       user: sessionData,
     });
 
-    response.cookies.set('session', signedSession, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: sessionCookieMaxAge,
-      path: '/',
-    });
+    try {
+      response.cookies.set('session', signedSession, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: sessionCookieMaxAge,
+        path: '/',
+      });
+    } catch (cookieSetError) {
+      console.error('response.cookies.set failed:', cookieSetError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No se pudo guardar la cookie de sesión',
+          code: 'COOKIE_SET_FAILED',
+        },
+        { status: 500 }
+      );
+    }
 
     return response;
   } catch (error) {
     console.error('Login error:', error);
+    const detail = error instanceof Error ? error.message : 'Error del servidor';
     return NextResponse.json(
-      { success: false, error: 'Error del servidor' },
+      {
+        success: false,
+        error: 'Error del servidor',
+        code: 'UNHANDLED',
+        detail: process.env.NODE_ENV === 'production' ? undefined : detail,
+      },
       { status: 500 }
     );
   }
