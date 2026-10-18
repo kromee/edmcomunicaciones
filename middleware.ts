@@ -21,9 +21,15 @@ function isPublicApi(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionValue = request.cookies.get('session')?.value;
-  const session = sessionValue
-    ? await decodeSessionCookie(sessionValue)
-    : null;
+  let session = null;
+  if (sessionValue) {
+    try {
+      session = await decodeSessionCookie(sessionValue);
+    } catch (err) {
+      console.error('Middleware session decode failed:', err);
+      session = null;
+    }
+  }
 
   if (pathname.startsWith('/api/debug')) {
     if (process.env.NODE_ENV === 'production') {

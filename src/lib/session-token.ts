@@ -16,6 +16,13 @@ function getSessionSecret(): string {
 }
 
 function toBase64Url(bytes: Uint8Array): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(bytes)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  }
   let binary = '';
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i]);
@@ -27,7 +34,11 @@ function fromBase64Url(value: string): Uint8Array | null {
   try {
     const padded = value.replace(/-/g, '+').replace(/_/g, '/');
     const pad = padded.length % 4 === 0 ? '' : '='.repeat(4 - (padded.length % 4));
-    const binary = atob(padded + pad);
+    const base64 = padded + pad;
+    if (typeof Buffer !== 'undefined') {
+      return new Uint8Array(Buffer.from(base64, 'base64'));
+    }
+    const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
@@ -38,8 +49,15 @@ function fromBase64Url(value: string): Uint8Array | null {
   }
 }
 
+function getSubtleCrypto(): SubtleCrypto {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    return crypto.subtle;
+  }
+  throw new Error('Web Crypto no disponible en este entorno');
+}
+
 async function importHmacKey(): Promise<CryptoKey> {
-  return crypto.subtle.importKey(
+  return getSubtleCrypto().importKey(
     'raw',
     encoder.encode(getSessionSecret()),
     { name: 'HMAC', hash: 'SHA-256' },
@@ -50,7 +68,7 @@ async function importHmacKey(): Promise<CryptoKey> {
 
 async function signPayload(payload: string): Promise<string> {
   const key = await importHmacKey();
-  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+  const signature = await getSubtleCrypto().sign('HMAC', key, encoder.encode(payload));
   return toBase64Url(new Uint8Array(signature));
 }
 
