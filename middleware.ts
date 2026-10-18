@@ -64,6 +64,10 @@ export const config = {
     '/dashboard/:path*',
     '/cotizador/:path*',
     '/login',
-    '/api/:path*',
+    /*
+     * No ejecutar middleware en login/logout: evita Edge + crypto en la ruta de auth
+     * y deja que el Route Handler fije la cookie con NextResponse.
+     */
+    '/api/((?!auth/login|auth/logout).*)',
   ],
 };
