@@ -21,3 +21,9 @@ CREATE INDEX IF NOT EXISTS idx_catalog_items_active ON catalog_items(is_active);
 CREATE INDEX IF NOT EXISTS idx_catalog_items_sort ON catalog_items(sort_order, title);
 
 COMMENT ON TABLE catalog_items IS 'Partidas reutilizables para el cotizador';
+
+ALTER TABLE catalog_items ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "App access catalog_items" ON catalog_items;
+CREATE POLICY "App access catalog_items" ON catalog_items
+  FOR ALL USING (true) WITH CHECK (true);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { requireAuthenticatedApi } from '@/lib/api-security';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
+import { catalogApiErrorMessage } from '@/lib/catalog-api-errors';
 
 export async function PUT(request: NextRequest) {
   const auth = await requireAuthenticatedApi();
@@ -42,7 +43,7 @@ export async function PUT(request: NextRequest) {
     update.sort_order = parseInt(body.sort_order, 10) || 0;
   }
 
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('catalog_items')
     .update(update)
@@ -53,7 +54,10 @@ export async function PUT(request: NextRequest) {
   if (error) {
     console.error('Error updating catalog item:', error);
     return NextResponse.json(
-      { success: false, error: 'No se pudo actualizar' },
+      {
+        success: false,
+        error: catalogApiErrorMessage(error, 'No se pudo actualizar'),
+      },
       { status: 500 }
     );
   }
