@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { requireAuthenticatedApi } from '@/lib/api-security';
 
 export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireAuthenticatedApi();
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const quoteId = searchParams.get('id');
 
@@ -17,16 +20,6 @@ export async function DELETE(request: NextRequest) {
     console.log('🗑️ Intentando eliminar cotización:', quoteId);
 
     const supabase = await createClient();
-    const cookieStore = await cookies();
-
-    // Verificar autenticación
-    const sessionCookie = cookieStore.get('session');
-    if (!sessionCookie?.value) {
-      return NextResponse.json(
-        { success: false, error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
 
     // Eliminar items de la cotización primero (por foreign key constraint)
     console.log('🗑️ Eliminando items de la cotización...');

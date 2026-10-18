@@ -26,7 +26,7 @@ export default async function DetalleClientePage({ params }: { params: { id: str
   const { data: quotes } = await supabase
     .from('quotes')
     .select('id, quote_number, total_amount, status, created_at, service_type')
-    .eq('client_email', client.email)
+    .or(`client_id.eq.${client.id},client_email.eq.${client.email}`)
     .order('created_at', { ascending: false });
 
   return (

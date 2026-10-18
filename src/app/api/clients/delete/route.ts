@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getSession } from '@/lib/session';
+import { requireAuthenticatedApi } from '@/lib/api-security';
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
+    const auth = await requireAuthenticatedApi();
+    if (auth instanceof NextResponse) return auth;
 
     const { id } = await request.json();
 

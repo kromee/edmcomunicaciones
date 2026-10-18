@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { guardDebugRoute } from '@/lib/api-security';
 
 export async function GET() {
+  const blocked = await guardDebugRoute();
+  if (blocked) return blocked;
+
   try {
     console.log('Testing Supabase connection...');
     

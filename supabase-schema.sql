@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS contacts (
   status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'closed')),
   notes TEXT,
   assigned_to UUID REFERENCES users(id),
+  client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -125,6 +126,7 @@ CREATE TABLE IF NOT EXISTS contacts (
 CREATE INDEX idx_contacts_status ON contacts(status);
 CREATE INDEX idx_contacts_email ON contacts(email);
 CREATE INDEX idx_contacts_created_at ON contacts(created_at DESC);
+CREATE INDEX idx_contacts_client_id ON contacts(client_id);
 
 -- =====================================================
 -- Funciones y Triggers

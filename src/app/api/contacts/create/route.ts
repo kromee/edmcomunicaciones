@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { rejectUntrustedContactOrigin } from '@/lib/api-security';
 
 export async function POST(request: NextRequest) {
   try {
+    const originBlock = rejectUntrustedContactOrigin(request);
+    if (originBlock) return originBlock;
+
     const body = await request.json();
     const { name, email, phone, company, service, message } = body;
 

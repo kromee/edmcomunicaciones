@@ -3,9 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateQuotePDF } from '@/lib/pdf-generator';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { sortQuoteItems } from '@/lib/quote-item-order';
+import { requireAuthenticatedApi } from '@/lib/api-security';
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAuthenticatedApi();
+    if (auth instanceof NextResponse) return auth;
+
     const supabase = await createClient();
     const body = await request.json();
     const { quoteId } = body;

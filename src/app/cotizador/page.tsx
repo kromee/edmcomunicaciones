@@ -24,6 +24,10 @@ import { CommercialTermsEditor } from '@/components/CommercialTermsEditor';
 import { PdfPreviewModal } from '@/components/PdfPreviewModal';
 import { reorderList } from '@/lib/quote-item-order';
 import type { QuotePDFData } from '@/lib/pdf-generator';
+import {
+  contactLeadDescription,
+  inferServiceTypeFromContact,
+} from '@/lib/contact-to-quote';
 
 type QuoteItem = {
   id: string;
@@ -112,6 +116,7 @@ function CotizadorContent() {
   const [showNewClientForm, setShowNewClientForm] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [sourceContactId, setSourceContactId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<QuoteFormData>({
     client_name: '',
@@ -182,6 +187,41 @@ function CotizadorContent() {
       };
       loadClient();
     }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const contactId = searchParams.get('contactId');
+    if (!contactId) return;
+
+    setSourceContactId(contactId);
+
+    const loadContact = async () => {
+      try {
+        const response = await fetch(`/api/contacts/get?id=${contactId}`);
+        const data = await response.json();
+        if (!data.success || !data.contact) return;
+
+        const contact = data.contact;
+        const serviceType = inferServiceTypeFromContact(contact.service);
+
+        setFormData((prev) => ({
+          ...prev,
+          client_name: prev.client_name || contact.name || '',
+          client_email: prev.client_email || contact.email || '',
+          client_phone: prev.client_phone || contact.phone || '',
+          client_company: prev.client_company || contact.company || '',
+          service_type: prev.service_type || serviceType,
+          description: prev.description?.trim()
+            ? prev.description
+            : contactLeadDescription(contact.message, contact.service),
+          notes: prev.notes || (contact.service ? `Lead: ${contact.service}` : prev.notes),
+        }));
+      } catch (error) {
+        console.error('Error loading contact for cotizador:', error);
+      }
+    };
+
+    loadContact();
   }, [searchParams]);
 
   useEffect(() => {
@@ -414,7 +454,9 @@ function CotizadorContent() {
           items,
           subtotal,
           tax,
-          total_amount: total
+          total_amount: total,
+          client_id: selectedClient?.id ?? null,
+          contact_id: sourceContactId,
         }),
       });
 

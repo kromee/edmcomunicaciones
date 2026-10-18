@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
       items,
       subtotal,
       tax,
-      total_amount
+      total_amount,
+      client_id: bodyClientId,
+      contact_id: contactId,
     } = body;
 
     const supabase = await createClient();
@@ -42,36 +44,40 @@ export async function POST(request: NextRequest) {
     console.log('Creating quote for user:', session.id);
     console.log('Request body:', { client_name, client_email, service_type });
 
-    // Verificar si el cliente existe, si no, crearlo
-    if (client_email) {
+    let resolvedClientId: string | null =
+      typeof bodyClientId === 'string' && bodyClientId ? bodyClientId : null;
+
+    if (!resolvedClientId && client_email) {
       const { data: existingClient } = await supabase
         .from('clients')
         .select('id')
-        .eq('email', client_email)
-        .single();
+        .ilike('email', client_email.trim())
+        .maybeSingle();
 
-      if (!existingClient) {
+      if (existingClient) {
+        resolvedClientId = existingClient.id;
+      } else {
         console.log('Client not found, creating new client...');
-        const { error: clientError } = await supabase
+        const { data: newClient, error: clientError } = await supabase
           .from('clients')
           .insert({
             name: client_name,
-            email: client_email,
+            email: client_email.trim(),
             phone: client_phone || null,
             company: client_company || null,
             country: 'México',
             status: 'active',
-            created_by: session.id
-          });
+            created_by: session.id,
+          })
+          .select('id')
+          .single();
 
         if (clientError) {
           console.error('Error creating client:', clientError);
-          // Continuar aunque falle la creación del cliente
-        } else {
+        } else if (newClient) {
+          resolvedClientId = newClient.id;
           console.log('New client created successfully');
         }
-      } else {
-        console.log('Client already exists:', existingClient.id);
       }
     }
 
@@ -100,8 +106,12 @@ export async function POST(request: NextRequest) {
         custom_commercial_terms: custom_commercial_terms || null,
         show_valid_until: show_valid_until !== undefined ? show_valid_until : true,
         status: 'pending',
-        created_by: session.id
+        created_by: session.id,
       };
+
+    if (resolvedClientId) {
+      insertPayload.client_id = resolvedClientId;
+    }
 
     if (typeof quote_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(quote_date)) {
       insertPayload.created_at = dateInputToISO(quote_date);
@@ -122,6 +132,17 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Quote created successfully:', quote.id);
+
+    if (contactId && resolvedClientId) {
+      await supabase
+        .from('contacts')
+        .update({
+          client_id: resolvedClientId,
+          status: 'contacted',
+          assigned_to: session.id,
+        })
+        .eq('id', contactId);
+    }
 
     // Crear items de cotización (incluye corridas vacías; orden = posición)
     const quoteItems = items.map((item: any, index: number) => ({

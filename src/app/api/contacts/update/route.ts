@@ -12,15 +12,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { id, status, notes } = await request.json();
+    const { id, status, notes, client_id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'id es requerido' },
+        { status: 400 }
+      );
+    }
 
     const supabase = await createClient();
 
-    const updateData: any = { status };
-    if (notes !== undefined) {
-      updateData.notes = notes;
+    const updateData: Record<string, unknown> = { assigned_to: session.id };
+    if (status !== undefined) updateData.status = status;
+    if (notes !== undefined) updateData.notes = notes;
+    if (client_id !== undefined) updateData.client_id = client_id;
+
+    if (Object.keys(updateData).length <= 1) {
+      return NextResponse.json(
+        { success: false, error: 'Nada que actualizar' },
+        { status: 400 }
+      );
     }
-    updateData.assigned_to = session.id;
 
     const { error } = await supabase
       .from('contacts')
