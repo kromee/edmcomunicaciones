@@ -28,6 +28,8 @@ import {
   contactLeadDescription,
   inferServiceTypeFromContact,
 } from '@/lib/contact-to-quote';
+import { CatalogPickerModal, type CatalogItemRecord } from '@/components/CatalogPickerModal';
+import { computeQuoteLineTotal } from '@/lib/catalog-item-totals';
 
 type QuoteItem = {
   id: string;
@@ -117,6 +119,7 @@ function CotizadorContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [sourceContactId, setSourceContactId] = useState<string | null>(null);
+  const [catalogOpen, setCatalogOpen] = useState(false);
 
   const [formData, setFormData] = useState<QuoteFormData>({
     client_name: '',
@@ -365,6 +368,24 @@ function CotizadorContent() {
       }
       return item;
     }));
+  };
+
+  const addItemFromCatalog = (record: CatalogItemRecord) => {
+    const quantity = record.default_quantity || 1;
+    const unit_price = Number(record.default_unit_price) || 0;
+    const percentage = Number(record.default_percentage) || 0;
+    const unit = normalizeQuoteItemUnit(record.unit);
+    const description = record.description?.trim() || record.title;
+    const newItem: QuoteItem = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      description,
+      quantity,
+      unit,
+      unit_price,
+      percentage,
+      total: computeQuoteLineTotal(quantity, unit_price, percentage),
+    };
+    setItems([...items, newItem]);
   };
 
   const addItem = () => {
@@ -1186,17 +1207,31 @@ function CotizadorContent() {
                   })}
                 </div>
 
-                {/* Add Item Button */}
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="w-full mt-4 p-4 border-2 border-dashed border-gray-300 rounded-md hover:border-accent hover:bg-accent/5 transition-all duration-200 flex items-center justify-center gap-2 text-muted hover:text-accent"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Agregar corrida / item
-                </button>
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCatalogOpen(true)}
+                    className="p-4 border-2 border-dashed border-brand/30 rounded-md hover:border-brand hover:bg-brand/5 transition-all flex items-center justify-center gap-2 text-brand font-medium"
+                  >
+                    Del catálogo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="p-4 border-2 border-dashed border-gray-300 rounded-md hover:border-accent hover:bg-accent/5 transition-all flex items-center justify-center gap-2 text-muted hover:text-accent"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Corrida vacía
+                  </button>
+                </div>
+
+                <CatalogPickerModal
+                  open={catalogOpen}
+                  onClose={() => setCatalogOpen(false)}
+                  onSelect={addItemFromCatalog}
+                />
 
                 {/* Grand Total */}
                 <div className="mt-6 p-4 bg-gradient-to-r from-brand/5 to-accent/5 rounded-md border border-brand/10">

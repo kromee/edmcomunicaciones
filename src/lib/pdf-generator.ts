@@ -4,6 +4,18 @@ import { normalizeQuoteItemUnit, type QuoteItemUnit } from '@/lib/quote-item-uni
 
 // Función para cargar el logo como base64 desde URL pública
 async function loadLogoAsBase64(): Promise<string> {
+  if (typeof window === 'undefined') {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+      const buf = await fs.readFile(logoPath);
+      return `data:image/png;base64,${buf.toString('base64')}`;
+    } catch (error) {
+      console.error('Error loading logo from disk:', error);
+    }
+  }
+
   try {
     const response = await fetch('/logo.png');
     const blob = await response.blob();

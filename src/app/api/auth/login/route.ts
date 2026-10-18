@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import bcrypt from 'bcryptjs';
-import { cookies } from 'next/headers';
 import {
   encodeSessionCookie,
   sessionCookieMaxAge,
 } from '@/lib/session-token';
+import type { SessionUser } from '@/types/session';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +19,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Email y contraseña son requeridos' },
         { status: 400 }
+      );
+    }
+
+    if (
+      process.env.NODE_ENV === 'production' &&
+      !process.env.SESSION_SECRET?.trim()
+    ) {
+      console.error('SESSION_SECRET missing in production');
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Falta SESSION_SECRET en Vercel (Settings → Environment Variables). Genera una clave larga aleatoria, guarda y redeploy.',
+        },
+        { status: 500 }
       );
     }
 
@@ -37,22 +52,23 @@ export async function POST(request: NextRequest) {
 
     // Buscar usuario por email (bypassing RLS with service role)
     console.log('Searching for user in database...');
+    const emailNorm = String(email).trim().toLowerCase();
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email)
-      .single();
+      .ilike('email', emailNorm)
+      .maybeSingle();
 
     if (error) {
       console.error('Database error:', error);
       return NextResponse.json(
-        { success: false, error: 'Error de base de datos' },
+        { success: false, error: 'Error de base de datos', code: 'DB_ERROR' },
         { status: 500 }
       );
     }
 
     if (!user) {
-      console.log('User not found for email:', email);
+      console.log('User not found for email:', emailNorm);
       return NextResponse.json(
         { success: false, error: 'Credenciales inválidas' },
         { status: 401 }
@@ -63,7 +79,26 @@ export async function POST(request: NextRequest) {
 
     // Verificar contraseña
     console.log('Verifying password...');
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    const passwordHash =
+      typeof user.password_hash === 'string' ? user.password_hash : '';
+    if (!passwordHash) {
+      console.error('User has no password_hash:', user.email);
+      return NextResponse.json(
+        { success: false, error: 'Usuario mal configurado en BD', code: 'NO_PASSWORD_HASH' },
+        { status: 500 }
+      );
+    }
+
+    let isValidPassword = false;
+    try {
+      isValidPassword = await bcrypt.compare(password, passwordHash);
+    } catch (bcryptError) {
+      console.error('bcrypt error:', bcryptError);
+      return NextResponse.json(
+        { success: false, error: 'Error al verificar contraseña', code: 'BCRYPT_ERROR' },
+        { status: 500 }
+      );
+    }
 
     if (!isValidPassword) {
       console.log('Invalid password for user:', email);
@@ -77,47 +112,67 @@ export async function POST(request: NextRequest) {
 
     // Crear sesión (guardar en cookie)
     console.log('Creating session...');
-    const sessionData = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
+    const sessionData: SessionUser = {
+      id: String(user.id),
+      email: String(user.email),
+      name: typeof user.name === 'string' && user.name.trim() ? user.name.trim() : String(user.email),
+      role: user.role === 'admin' ? 'admin' : 'viewer',
     };
 
-    // Guardar sesión en cookie firmada
+    let signedSession: string;
     try {
-      const cookieStore = await cookies();
-      const signedSession = await encodeSessionCookie(sessionData);
-      cookieStore.set('session', signedSession, {
+      signedSession = await encodeSessionCookie(sessionData);
+    } catch (signError) {
+      console.error('Error signing session:', signError);
+      const detail =
+        signError instanceof Error ? signError.message : String(signError);
+      const error =
+        detail.includes('SESSION_SECRET') ?
+          'No se pudo firmar la sesión: revisa SESSION_SECRET en Vercel y redeploy.'
+        : 'Error al crear sesión';
+      return NextResponse.json(
+        { success: false, error, code: 'SESSION_SIGN_FAILED' },
+        { status: 500 }
+      );
+    }
+
+    console.log('Login successful for user:', email);
+    const response = NextResponse.json({
+      success: true,
+      user: sessionData,
+    });
+
+    try {
+      response.cookies.set('session', signedSession, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: sessionCookieMaxAge,
         path: '/',
       });
-      console.log('Session cookie set successfully');
-    } catch (cookieError) {
-      console.error('Error setting session cookie:', cookieError);
+    } catch (cookieSetError) {
+      console.error('response.cookies.set failed:', cookieSetError);
       return NextResponse.json(
-        { success: false, error: 'Error al crear sesión' },
+        {
+          success: false,
+          error: 'No se pudo guardar la cookie de sesión',
+          code: 'COOKIE_SET_FAILED',
+        },
         { status: 500 }
       );
     }
 
-    console.log('Login successful for user:', email);
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-    });
+    return response;
   } catch (error) {
     console.error('Login error:', error);
+    const detail = error instanceof Error ? error.message : 'Error del servidor';
     return NextResponse.json(
-      { success: false, error: 'Error del servidor' },
+      {
+        success: false,
+        error: 'Error del servidor',
+        code: 'UNHANDLED',
+        detail: process.env.NODE_ENV === 'production' ? undefined : detail,
+      },
       { status: 500 }
     );
   }

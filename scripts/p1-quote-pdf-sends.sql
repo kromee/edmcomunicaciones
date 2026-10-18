@@ -1,0 +1,5 @@
+-- DEPRECATED: ya no guardamos PDF en Storage.
+-- Ejecuta: scripts/p1-quote-send-logs.sql
+--
+-- Si corriste una versión anterior de este script, puedes borrar en Supabase
+-- el bucket "quote-pdfs" y la tabla quote_pdf_files si no los usas.

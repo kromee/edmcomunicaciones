@@ -72,11 +72,42 @@ export default async function DetallesCotizacionPage({ params }: { params: { id:
     }
   }
 
+  const { data: sendLogs } = await supabase
+    .from('quote_send_logs')
+    .select(
+      'id, recipient_email, channel, status, error_message, sent_at, sent_by'
+    )
+    .eq('quote_id', params.id)
+    .order('sent_at', { ascending: false });
+
+  const senderIds = [
+    ...new Set(
+      (sendLogs || [])
+        .map((l) => l.sent_by)
+        .filter((id): id is string => Boolean(id))
+    ),
+  ];
+
+  let senderNames: Record<string, string> = {};
+  if (senderIds.length > 0) {
+    const { data: senders } = await supabase
+      .from('users')
+      .select('id, name')
+      .in('id', senderIds);
+    if (senders) {
+      senderNames = Object.fromEntries(senders.map((u) => [u.id, u.name]));
+    }
+  }
+
   return (
     <DetallesCotizacionClient 
       quote={quoteOrdered as QuoteData} 
       creator={creator}
       user={session}
+      sendLogs={(sendLogs || []).map((log) => ({
+        ...log,
+        sent_by_name: log.sent_by ? senderNames[log.sent_by] || null : null,
+      }))}
     />
   );
 }

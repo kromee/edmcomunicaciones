@@ -12,7 +12,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { id, status, notes, client_id } = await request.json();
+    const { id, status, notes, client_id, follow_up_date, next_action } =
+      await request.json();
 
     if (!id) {
       return NextResponse.json(
@@ -27,6 +28,18 @@ export async function POST(request: NextRequest) {
     if (status !== undefined) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
     if (client_id !== undefined) updateData.client_id = client_id;
+    if (follow_up_date !== undefined) {
+      updateData.follow_up_date =
+        follow_up_date === null || follow_up_date === ''
+          ? null
+          : follow_up_date;
+    }
+    if (next_action !== undefined) {
+      updateData.next_action =
+        typeof next_action === 'string' && next_action.trim()
+          ? next_action.trim()
+          : null;
+    }
 
     if (Object.keys(updateData).length <= 1) {
       return NextResponse.json(

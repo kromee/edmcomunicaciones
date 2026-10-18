@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateQuotePDF } from '@/lib/pdf-generator';
-import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
-import { sortQuoteItems } from '@/lib/quote-item-order';
+import { buildQuotePDFDataFromRecord } from '@/lib/quote-pdf-payload';
 import { requireAuthenticatedApi } from '@/lib/api-security';
 
 export async function POST(request: NextRequest) {
@@ -32,36 +31,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const orderedItems = sortQuoteItems(quote.quote_items || []);
+    const quoteForPDF = buildQuotePDFDataFromRecord(quote);
 
-    // Preparar datos para el PDF (incluye corridas vacías en su posición)
-    const quoteForPDF = {
-      quote_number: quote.quote_number,
-      client_name: quote.client_name,
-      client_email: quote.client_email,
-      client_phone: quote.client_phone,
-      client_company: quote.client_company,
-      service_type: quote.service_type,
-      description: quote.description,
-      valid_until: quote.valid_until,
-      custom_commercial_terms: quote.custom_commercial_terms,
-      show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
-      items: orderedItems.map((item: any) => ({
-        item_name: item.item_name,
-        description: item.description,
-        quantity: item.quantity,
-        unit: normalizeQuoteItemUnit(item.unit),
-        unit_price: item.unit_price,
-        percentage: item.percentage,
-        total: item.total
-      })),
-      subtotal: quote.total_amount,
-      tax: 0,
-      total_amount: quote.total_amount,
-      created_at: quote.created_at
-    };
-
-    // Generar PDF
     const pdfDoc = await generateQuotePDF(quoteForPDF);
     const pdfArrayBuffer = pdfDoc.output('arraybuffer');
 

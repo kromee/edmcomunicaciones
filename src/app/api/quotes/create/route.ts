@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getSession } from '@/lib/session';
-import { generateQuotePDF } from '@/lib/pdf-generator';
-import emailjs from '@emailjs/browser';
-import { config } from '@/lib/config';
+import {
+  sendQuotePdfByEmail,
+  quoteSendLogsTableHint,
+} from '@/lib/quote-pdf-send';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { dateInputToISO } from '@/lib/quote-dates';
 
@@ -173,43 +174,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generar PDF
-    const pdf = await generateQuotePDF({
-      ...quote,
-      show_valid_until: quote.show_valid_until !== undefined ? quote.show_valid_until : true,
-      items
-    });
-
-    // Convertir PDF a base64 para enviar por email
-    const pdfBase64 = pdf.output('datauristring').split(',')[1];
-
-    // Enviar cotización por email
     try {
-      const { serviceId, templateId, publicKey } = config.emailjs;
-
-      if (serviceId && templateId && publicKey) {
-        await emailjs.send(
-          serviceId,
-          'template_cotizacion', // Crear este template en EmailJS
-          {
-            to_email: client_email,
-            client_name,
-            quote_number,
-            total_amount: `$${total_amount.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
-            pdf_attachment: pdfBase64
-          },
-          publicKey
+      const sendResult = await sendQuotePdfByEmail(
+        supabase,
+        quote.id,
+        session.id,
+        client_email
+      );
+      if (!sendResult.ok) {
+        console.error(
+          'Error envío al crear cotización:',
+          sendResult.error,
+          quoteSendLogsTableHint(sendResult.error || '')
         );
-
-        // Actualizar estado de la cotización
-        await supabase
-          .from('quotes')
-          .update({ status: 'sent' })
-          .eq('id', quote.id);
       }
-    } catch (emailError) {
-      console.error('Error sending email:', emailError);
-      // No falla la creación de la cotización si el email falla
+    } catch (sendError) {
+      console.error('Error en envío al crear cotización:', sendError);
     }
 
     return NextResponse.json({

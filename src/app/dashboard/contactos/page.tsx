@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
+import { Suspense } from 'react';
 import ContactosClient from './contactos-client';
 
 export default async function ContactosPage() {
@@ -22,5 +23,15 @@ export default async function ContactosPage() {
     console.error('Error fetching contacts:', error);
   }
 
-  return <ContactosClient contacts={contacts || []} user={session} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-surface-secondary text-muted">
+          Cargando contactos…
+        </div>
+      }
+    >
+      <ContactosClient contacts={contacts || []} user={session} />
+    </Suspense>
+  );
 }

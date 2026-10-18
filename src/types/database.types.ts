@@ -160,6 +160,8 @@ export interface Database {
           notes: string | null
           assigned_to: string | null
           client_id: string | null
+          follow_up_date: string | null
+          next_action: string | null
           created_at: string
           updated_at: string
         }
@@ -175,6 +177,8 @@ export interface Database {
           notes?: string | null
           assigned_to?: string | null
           client_id?: string | null
+          follow_up_date?: string | null
+          next_action?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -190,6 +194,8 @@ export interface Database {
           notes?: string | null
           assigned_to?: string | null
           client_id?: string | null
+          follow_up_date?: string | null
+          next_action?: string | null
           created_at?: string
           updated_at?: string
         }
