@@ -1,12 +1,17 @@
 "use client";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { Route } from 'next';
 import { useState, useEffect } from 'react';
+import {
+  contactNeedsAttention,
+  countContactsNeedingAttention,
+} from '@/lib/contact-follow-up';
 import { SessionUser } from '@/types/session';
 import { Modal } from '@/components/Modal';
 import { useModal } from '@/hooks/useModal';
 import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
+import { ContactosList } from './contactos-list';
 
 type Contact = {
   id: string;
@@ -19,6 +24,8 @@ type Contact = {
   status: 'new' | 'contacted' | 'closed';
   notes: string | null;
   client_id: string | null;
+  follow_up_date: string | null;
+  next_action: string | null;
   created_at: string;
 };
 
@@ -53,7 +60,8 @@ const statusConfig: Record<StatusFilter, { label: string; bg: string; text: stri
 
 export default function ContactosClient({ contacts, user }: { contacts: Contact[]; user: SessionUser }) {
   const router = useRouter();
-  const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
+  const searchParams = useSearchParams();
+  const { modal, hideModal, showSuccess, showError } = useModal();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -61,11 +69,25 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
   const [filteredContacts, setFilteredContacts] = useState<Contact[]>(contacts);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesText, setNotesText] = useState('');
+  const [followUpDate, setFollowUpDate] = useState('');
+  const [nextAction, setNextAction] = useState('');
   const [actionsOpen, setActionsOpen] = useState<string | null>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
+  const [attentionFilter, setAttentionFilter] = useState(false);
+  const [messageModalContact, setMessageModalContact] = useState<Contact | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get('atencion') === '1') {
+      setAttentionFilter(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let filtered = contacts;
+
+    if (attentionFilter) {
+      filtered = filtered.filter(contactNeedsAttention);
+    }
     
     if (statusFilter !== 'all') {
       filtered = filtered.filter(contact => contact.status === statusFilter);
@@ -85,7 +107,7 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
     }
     
     setFilteredContacts(filtered);
-  }, [searchTerm, statusFilter, contacts]);
+  }, [searchTerm, statusFilter, attentionFilter, contacts]);
 
   const getStatusCount = (status: StatusFilter) => {
     if (status === 'all') return contacts.length;
@@ -108,41 +130,56 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
 
       if (response.ok) {
         router.refresh();
+        showSuccess('Estado actualizado', 'El contacto se actualizó correctamente');
+      } else {
+        showError('Error', 'No se pudo actualizar el estado');
       }
     } catch (error) {
       console.error('Error updating contact:', error);
+      showError('Error', 'No se pudo actualizar el estado');
     }
   };
 
-  const updateNotes = async (contactId: string, notes: string) => {
+  const saveContactFollowUp = async (contactId: string) => {
     try {
       const response = await fetch('/api/contacts/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: contactId, notes }),
+        body: JSON.stringify({
+          id: contactId,
+          notes: notesText,
+          follow_up_date: followUpDate || null,
+          next_action: nextAction || null,
+        }),
       });
 
       if (response.ok) {
-        showSuccess('Notas Actualizadas', 'Las notas se han guardado exitosamente');
+        showSuccess('Seguimiento guardado', 'Notas y próxima acción actualizadas');
         setEditingNotes(false);
         setNotesText('');
+        setFollowUpDate('');
+        setNextAction('');
         setSelectedContact(null);
         router.refresh();
       } else {
-        showError('Error', 'No se pudieron guardar las notas');
+        showError('Error', 'No se pudo guardar el seguimiento');
       }
     } catch (error) {
-      console.error('Error updating notes:', error);
-      showError('Error', 'Error al guardar las notas');
+      console.error('Error updating contact follow-up:', error);
+      showError('Error', 'Error al guardar el seguimiento');
     }
   };
 
   const startEditingNotes = (contact: Contact) => {
     setSelectedContact(contact);
     setNotesText(contact.notes || '');
+    setFollowUpDate(contact.follow_up_date || '');
+    setNextAction(contact.next_action || '');
     setEditingNotes(true);
     setActionsOpen(null);
   };
+
+  const attentionCount = countContactsNeedingAttention(contacts);
 
   const buildCotizadorUrl = (contact: Contact, clientId?: string | null): Route => {
     const params = new URLSearchParams({ contactId: contact.id });
@@ -276,14 +313,14 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
             </div>
             <div className="bg-white rounded-2xl p-4 shadow-card">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md bg-gray-100 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <div className="w-10 h-10 rounded-md bg-warning/10 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-warning-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{getStatusCount('closed')}</p>
-                  <p className="text-xs text-muted">Cerrados</p>
+                  <p className="text-2xl font-bold text-gray-900">{attentionCount}</p>
+                  <p className="text-xs text-muted">Por atender</p>
                 </div>
               </div>
             </div>
@@ -292,6 +329,23 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
           {/* Status Filters */}
           <div className="mb-6 overflow-x-auto pb-2">
             <div className="flex gap-2 min-w-max">
+              <button
+                type="button"
+                onClick={() => setAttentionFilter((v) => !v)}
+                className={`
+                  flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium
+                  transition-all duration-200
+                  ${attentionFilter
+                    ? 'bg-warning text-white shadow-soft'
+                    : 'bg-white text-muted hover:bg-surface-secondary border border-gray-100'
+                  }
+                `}
+              >
+                Por atender
+                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${attentionFilter ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                  {attentionCount}
+                </span>
+              </button>
               {(Object.keys(statusConfig) as StatusFilter[]).map((status) => {
                 const config = statusConfig[status];
                 const isActive = statusFilter === status;
@@ -352,218 +406,40 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
 
           {/* Contacts List */}
           {filteredContacts.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 shadow-card text-center">
+            <div className="rounded-xl border border-gray-100 bg-white p-12 shadow-sm text-center">
               <div className="w-16 h-16 rounded-2xl bg-surface-secondary flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-muted-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {searchTerm || statusFilter !== 'all' ? 'Sin resultados' : 'No hay contactos'}
+                {searchTerm || statusFilter !== 'all' || attentionFilter ? 'Sin resultados' : 'No hay contactos'}
               </h3>
               <p className="text-muted mb-6">
-                {searchTerm || statusFilter !== 'all' 
+                {searchTerm || statusFilter !== 'all' || attentionFilter
                   ? 'No hay contactos que coincidan con los filtros aplicados.'
                   : 'Los mensajes del formulario de contacto aparecerán aquí.'}
               </p>
               <button
-                onClick={() => { setSearchTerm(''); setStatusFilter('all'); }}
+                onClick={() => { setSearchTerm(''); setStatusFilter('all'); setAttentionFilter(false); }}
                 className="btn-secondary"
               >
-                {searchTerm || statusFilter !== 'all' ? 'Limpiar filtros' : 'Cerrar'}
+                {searchTerm || statusFilter !== 'all' || attentionFilter ? 'Limpiar filtros' : 'Cerrar'}
               </button>
             </div>
           ) : (
-            <div className="grid gap-4">
-              {filteredContacts.map((contact) => {
-                const statusStyle = statusConfig[contact.status as StatusFilter] || statusConfig.new;
-                return (
-                  <div 
-                    key={contact.id} 
-                    className="bg-white rounded-2xl shadow-card hover:shadow-elevated transition-all duration-200 group"
-                  >
-                    <div className="p-5 sm:p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-                        {/* Left: Avatar & Info */}
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="hidden sm:flex w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-accent items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                            {contact.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-gray-900">{contact.name}</h3>
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                                {statusStyle.icon}
-                                {statusStyle.label}
-                              </span>
-                              {contact.client_id && (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand/10 text-brand">
-                                  Cliente vinculado
-                                </span>
-                              )}
-                              {contact.service && (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                  </svg>
-                                  {contact.service}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted">{contact.email}</p>
-                            {contact.phone && (
-                              <p className="text-sm text-muted-light">{contact.phone}</p>
-                            )}
-                            {contact.company && (
-                              <p className="text-sm text-muted-light flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                                {contact.company}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Message Preview */}
-                        <div className="hidden lg:block max-w-md">
-                          <p className="text-sm text-gray-700 line-clamp-2">{contact.message}</p>
-                          {contact.notes && (
-                            <div className="mt-2 flex items-start gap-2 p-2 bg-warning/5 rounded-lg border border-warning/20">
-                              <svg className="w-4 h-4 text-warning-dark mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                              <p className="text-xs text-warning-dark line-clamp-1">{contact.notes}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Right: Date & Actions */}
-                        <div className="flex flex-col items-end gap-3">
-                          <p className="text-xs text-muted-light">
-                            {formatDate(contact.created_at)}
-                          </p>
-                          
-                          <div className="flex items-center gap-2 flex-wrap justify-end">
-                            <button
-                              type="button"
-                              disabled={convertingId === contact.id}
-                              onClick={() => handleCotizar(contact)}
-                              className="inline-flex items-center gap-2 px-3 py-2 btn-primary text-sm font-medium rounded-md disabled:opacity-60"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              {convertingId === contact.id ? 'Preparando…' : 'Cotizar'}
-                            </button>
-                            <a
-                              href={`mailto:${contact.email}`}
-                              className="inline-flex items-center gap-2 px-3 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-dark transition-colors"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                              </svg>
-                              <span className="hidden sm:inline">Email</span>
-                            </a>
-
-                            {contact.phone && (
-                              <a
-                                href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, '')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-3 py-2 bg-[#25D366] text-white text-sm font-medium rounded-md hover:bg-[#20BD5A] transition-colors"
-                              >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                                </svg>
-                                <span className="hidden sm:inline">WhatsApp</span>
-                              </a>
-                            )}
-
-                            {/* Actions Dropdown */}
-                            <div className="relative">
-                              <button
-                                onClick={() => setActionsOpen(actionsOpen === contact.id ? null : contact.id)}
-                                className="p-2 rounded-md hover:bg-surface-secondary transition-colors text-muted hover:text-gray-900"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 12a1 1 0 110-2 1 1 0 010 2zm6 0a1 1 0 110-2 1 1 0 010 2z" />
-                                </svg>
-                              </button>
-                              
-                              {actionsOpen === contact.id && (
-                                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-md shadow-elevated border border-gray-100 py-2 z-20 animate-slide-up">
-                                  <div className="px-4 py-2 border-b border-gray-100">
-                                    <p className="text-xs font-medium text-muted-light uppercase tracking-wide">Cambiar estado</p>
-                                  </div>
-                                  {(['new', 'contacted', 'closed'] as const).map((status) => (
-                                    <button
-                                      key={status}
-                                      onClick={() => {
-                                        updateStatus(contact.id, status);
-                                        setActionsOpen(null);
-                                      }}
-                                      className={`flex items-center gap-3 px-4 py-2.5 w-full text-sm transition-colors ${
-                                        contact.status === status 
-                                          ? 'bg-surface-secondary text-gray-900 font-medium' 
-                                          : 'text-gray-700 hover:bg-surface-secondary'
-                                      }`}
-                                    >
-                                      {statusConfig[status].icon}
-                                      <span className={statusConfig[status].text}>
-                                        {statusConfig[status].label}
-                                      </span>
-                                      {contact.status === status && (
-                                        <svg className="w-4 h-4 ml-auto text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                      )}
-                                    </button>
-                                  ))}
-                                  <div className="border-t border-gray-100 my-2" />
-                                  <button
-                                    onClick={() => handleRegisterClient(contact)}
-                                    className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                  >
-                                    <svg className="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                                    </svg>
-                                    {contact.client_id ? 'Ver cliente' : 'Registrar como cliente'}
-                                  </button>
-                                  <div className="border-t border-gray-100 my-2" />
-                                  <button
-                                    onClick={() => startEditingNotes(contact)}
-                                    className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
-                                  >
-                                    <svg className="w-4 h-4 text-warning-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                    {contact.notes ? 'Editar notas' : 'Agregar notas'}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Mobile Message Preview */}
-                      <div className="mt-4 lg:hidden">
-                        <p className="text-sm text-gray-700 line-clamp-2">{contact.message}</p>
-                        {contact.notes && (
-                          <div className="mt-2 flex items-start gap-2 p-2 bg-warning/5 rounded-lg border border-warning/20">
-                            <svg className="w-4 h-4 text-warning-dark mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <p className="text-xs text-warning-dark line-clamp-2">{contact.notes}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <ContactosList
+              contacts={filteredContacts}
+              actionsOpen={actionsOpen}
+              setActionsOpen={setActionsOpen}
+              convertingId={convertingId}
+              onViewMessage={setMessageModalContact}
+              onCotizar={handleCotizar}
+              onRegisterClient={handleRegisterClient}
+              onFollowUp={startEditingNotes}
+              onStatusChange={updateStatus}
+              formatDate={formatDate}
+            />
           )}
         </div>
       </main>
@@ -576,35 +452,115 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
         />
       )}
 
+      {messageModalContact && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-elevated animate-slide-up max-h-[90vh] flex flex-col">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">{messageModalContact.name}</h3>
+                <p className="text-sm text-muted">{messageModalContact.email}</p>
+                {messageModalContact.service && (
+                  <p className="text-xs text-purple-700 mt-1">{messageModalContact.service}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setMessageModalContact(null)}
+                className="p-2 rounded-md hover:bg-surface-secondary text-muted"
+                aria-label="Cerrar"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">Mensaje del formulario</p>
+              <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{messageModalContact.message}</p>
+              {messageModalContact.next_action && (
+                <div className="mt-4 p-3 rounded-lg bg-surface-secondary">
+                  <p className="text-xs font-semibold text-muted mb-1">Próxima acción</p>
+                  <p className="text-sm text-gray-800">{messageModalContact.next_action}</p>
+                </div>
+              )}
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMessageModalContact(null);
+                  handleCotizar(messageModalContact);
+                }}
+                className="btn-primary text-sm px-4 py-2"
+              >
+                Cotizar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMessageModalContact(null);
+                  startEditingNotes(messageModalContact);
+                }}
+                className="btn-secondary text-sm px-4 py-2"
+              >
+                Seguimiento
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Notes Modal */}
       {editingNotes && selectedContact && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-elevated animate-slide-up">
             <div className="px-6 py-4 bg-gradient-to-r from-brand to-brand-light">
               <h3 className="text-lg font-semibold text-white">
-                Notas para {selectedContact.name}
+                Seguimiento — {selectedContact.name}
               </h3>
               <p className="text-sm text-white/70">
-                {selectedContact.notes ? 'Edita las notas internas' : 'Agrega notas internas sobre este contacto'}
+                Próxima acción, fecha y notas internas del lead
               </p>
             </div>
 
-            <div className="p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Notas internas</label>
-              <textarea
-                value={notesText}
-                onChange={(e) => setNotesText(e.target.value)}
-                placeholder="Agrega notas sobre este contacto..."
-                className="input resize-none h-32"
-              />
-              <p className="mt-2 text-xs text-muted">Las notas son solo visibles para ti y tu equipo.</p>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Próxima acción</label>
+                <input
+                  type="text"
+                  value={nextAction}
+                  onChange={(e) => setNextAction(e.target.value)}
+                  placeholder="Ej. Llamar, enviar cotización, visita..."
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Fecha de seguimiento</label>
+                <input
+                  type="date"
+                  value={followUpDate}
+                  onChange={(e) => setFollowUpDate(e.target.value)}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Notas internas</label>
+                <textarea
+                  value={notesText}
+                  onChange={(e) => setNotesText(e.target.value)}
+                  placeholder="Contexto del lead, acuerdos, etc."
+                  className="input resize-none h-28"
+                />
+              </div>
 
-              <div className="flex gap-3 pt-6 mt-4 border-t border-gray-100">
+              <div className="flex gap-3 pt-2 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => {
                     setEditingNotes(false);
                     setNotesText('');
+                    setFollowUpDate('');
+                    setNextAction('');
                     setSelectedContact(null);
                   }}
                   className="flex-1 btn-secondary"
@@ -612,7 +568,7 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
                   Cancelar
                 </button>
                 <button
-                  onClick={() => updateNotes(selectedContact.id, notesText)}
+                  onClick={() => saveContactFollowUp(selectedContact.id)}
                   className="flex-1 btn-accent"
                 >
                   Guardar

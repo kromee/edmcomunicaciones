@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { SessionUser } from '@/types/session';
 import { Sidebar } from '@/components/DashboardSidebar';
@@ -37,6 +38,15 @@ type Notification = {
   read: boolean;
 };
 
+type FollowUpTask = {
+  id: string;
+  kind: 'lead_new' | 'lead_follow_up' | 'quote_expiring';
+  title: string;
+  message: string;
+  href: Route;
+  dueLabel: string;
+};
+
 type DashboardStats = {
   totalQuotes: number;
   totalClients: number;
@@ -47,6 +57,8 @@ type DashboardStats = {
   topClients: TopClient[];
   notifications: Notification[];
   unreadCount: number;
+  followUpTasks: FollowUpTask[];
+  followUpCount: number;
 };
 
 interface StatCardProps {
@@ -185,6 +197,56 @@ export default function DashboardClient({ user, stats }: { user: SessionUser; st
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Bienvenido de vuelta, {user.name.split(' ')[0]}</h1>
             <p className="mt-1 text-muted">Este es el resumen de tu actividad reciente</p>
           </div>
+
+          {stats.followUpTasks.length > 0 && (
+            <div className="mb-8 overflow-hidden rounded-2xl border border-warning/20 bg-white shadow-card">
+              <div className="flex flex-col gap-1 border-b border-gray-100 bg-warning/5 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-semibold text-gray-900">Por atender</h2>
+                  <p className="text-sm text-muted">
+                    Leads nuevos, seguimientos vencidos y cotizaciones por vencer
+                  </p>
+                </div>
+                <span className="inline-flex w-fit items-center rounded-full bg-warning/15 px-3 py-1 text-xs font-semibold text-warning-dark">
+                  {stats.followUpCount} pendiente{stats.followUpCount !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="divide-y divide-gray-50">
+                {stats.followUpTasks.map((task) => (
+                  <Link
+                    key={task.id}
+                    href={task.href}
+                    className="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-secondary transition-colors"
+                  >
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                        task.kind === 'quote_expiring'
+                          ? 'bg-purple-100 text-purple-700'
+                          : task.kind === 'lead_new'
+                            ? 'bg-accent/10 text-accent'
+                            : 'bg-red-100 text-red-700'
+                      }`}
+                    >
+                      {task.kind === 'quote_expiring' ? (
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-gray-900">{task.title}</p>
+                      <p className="truncate text-sm text-muted">{task.message}</p>
+                    </div>
+                    <span className="shrink-0 text-xs font-semibold text-muted">{task.dueLabel}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">

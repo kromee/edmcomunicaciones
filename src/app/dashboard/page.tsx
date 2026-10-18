@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
+import type { Route } from 'next';
 import DashboardClient from './dashboard-client';
 
 export default async function DashboardPage() {
@@ -115,6 +116,93 @@ export default async function DashboardPage() {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
+    const todayStr = now.toISOString().slice(0, 10);
+    const inSevenDays = new Date(now);
+    inSevenDays.setDate(inSevenDays.getDate() + 7);
+    const inSevenStr = inSevenDays.toISOString().slice(0, 10);
+
+    const [newLeadsResult, followUpContactsResult, expiringQuotesResult] =
+      await Promise.all([
+        supabase
+          .from('contacts')
+          .select('id, name, created_at, service')
+          .eq('status', 'new')
+          .order('created_at', { ascending: false })
+          .limit(5),
+        supabase
+          .from('contacts')
+          .select('id, name, follow_up_date, next_action, status')
+          .neq('status', 'closed')
+          .not('follow_up_date', 'is', null)
+          .lte('follow_up_date', todayStr)
+          .order('follow_up_date', { ascending: true })
+          .limit(5),
+        supabase
+          .from('quotes')
+          .select('id, quote_number, client_name, valid_until')
+          .not('valid_until', 'is', null)
+          .lte('valid_until', inSevenStr)
+          .order('valid_until', { ascending: true })
+          .limit(5),
+      ]);
+
+    type FollowUpTask = {
+      id: string;
+      kind: 'lead_new' | 'lead_follow_up' | 'quote_expiring';
+      title: string;
+      message: string;
+      href: Route;
+      dueLabel: string;
+    };
+
+    if (followUpContactsResult.error) {
+      console.error('Error fetching follow-up contacts:', followUpContactsResult.error);
+    }
+
+    const followUpTasks: FollowUpTask[] = [];
+
+    newLeadsResult.data?.forEach((contact) => {
+      followUpTasks.push({
+        id: `lead-new-${contact.id}`,
+        kind: 'lead_new',
+        title: contact.name,
+        message: contact.service
+          ? `Lead nuevo · ${contact.service}`
+          : 'Lead nuevo sin atender',
+        href: '/dashboard/contactos?atencion=1' as Route,
+        dueLabel: 'Hoy',
+      });
+    });
+
+    followUpContactsResult.data?.forEach((contact) => {
+      const due = contact.follow_up_date
+        ? new Date(`${contact.follow_up_date}T12:00:00`)
+        : now;
+      followUpTasks.push({
+        id: `lead-follow-${contact.id}`,
+        kind: 'lead_follow_up',
+        title: contact.name,
+        message: contact.next_action || 'Seguimiento programado',
+        href: '/dashboard/contactos?atencion=1' as Route,
+        dueLabel: due.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }),
+      });
+    });
+
+    expiringQuotesResult.data?.forEach((quote) => {
+      const due = quote.valid_until
+        ? new Date(`${quote.valid_until}T12:00:00`)
+        : now;
+      const isPast = due.getTime() < new Date(todayStr + 'T12:00:00').getTime();
+      followUpTasks.push({
+        id: `quote-exp-${quote.id}`,
+        kind: 'quote_expiring',
+        title: quote.quote_number,
+        message: `Vigencia · ${quote.client_name}`,
+        href: `/dashboard/cotizaciones/detalles/${quote.id}` as Route,
+        dueLabel: isPast ? 'Vencida' : due.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }),
+      });
+    });
+
     const stats = {
       totalQuotes: quotesResult.count || 0,
       totalClients: clientsResult.count || 0,
@@ -124,7 +212,9 @@ export default async function DashboardPage() {
       chartData,
       topClients,
       notifications,
-      unreadCount
+      unreadCount,
+      followUpTasks: followUpTasks.slice(0, 8),
+      followUpCount: followUpTasks.length,
     };
 
     return <DashboardClient user={session} stats={stats} />;
