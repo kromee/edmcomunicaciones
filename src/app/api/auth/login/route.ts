@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import bcrypt from 'bcryptjs';
-import { cookies } from 'next/headers';
 import {
   encodeSessionCookie,
   sessionCookieMaxAge,
 } from '@/lib/session-token';
+import type { SessionUser } from '@/types/session';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +19,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Email y contraseña son requeridos' },
         { status: 400 }
+      );
+    }
+
+    if (
+      process.env.NODE_ENV === 'production' &&
+      !process.env.SESSION_SECRET?.trim()
+    ) {
+      console.error('SESSION_SECRET missing in production');
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Falta SESSION_SECRET en Vercel (Settings → Environment Variables). Genera una clave larga aleatoria, guarda y redeploy.',
+        },
+        { status: 500 }
       );
     }
 
@@ -77,43 +92,42 @@ export async function POST(request: NextRequest) {
 
     // Crear sesión (guardar en cookie)
     console.log('Creating session...');
-    const sessionData = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
+    const sessionData: SessionUser = {
+      id: String(user.id),
+      email: String(user.email),
+      name: typeof user.name === 'string' && user.name.trim() ? user.name.trim() : String(user.email),
+      role: user.role === 'admin' ? 'admin' : 'viewer',
     };
 
-    // Guardar sesión en cookie firmada
+    let signedSession: string;
     try {
-      const cookieStore = await cookies();
-      const signedSession = await encodeSessionCookie(sessionData);
-      cookieStore.set('session', signedSession, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: sessionCookieMaxAge,
-        path: '/',
-      });
-      console.log('Session cookie set successfully');
-    } catch (cookieError) {
-      console.error('Error setting session cookie:', cookieError);
-      return NextResponse.json(
-        { success: false, error: 'Error al crear sesión' },
-        { status: 500 }
-      );
+      signedSession = await encodeSessionCookie(sessionData);
+    } catch (signError) {
+      console.error('Error signing session:', signError);
+      const detail =
+        signError instanceof Error ? signError.message : String(signError);
+      const error =
+        detail.includes('SESSION_SECRET') ?
+          'No se pudo firmar la sesión: revisa SESSION_SECRET en Vercel y redeploy.'
+        : 'Error al crear sesión';
+      return NextResponse.json({ success: false, error }, { status: 500 });
     }
 
     console.log('Login successful for user:', email);
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: sessionData,
     });
+
+    response.cookies.set('session', signedSession, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: sessionCookieMaxAge,
+      path: '/',
+    });
+
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
