@@ -32,7 +32,8 @@ export async function PUT(request: NextRequest) {
       show_valid_until,
       status,
       items,
-      total_amount
+      total_amount,
+      client_id,
     } = body;
 
     console.log('Updating quote:', quoteId);
@@ -55,6 +56,9 @@ export async function PUT(request: NextRequest) {
     }
     if (typeof client_email === 'string' && client_email.trim()) {
       updateData.client_email = client_email.trim();
+    }
+    if (typeof client_id === 'string' && client_id) {
+      updateData.client_id = client_id;
     }
     if (client_phone !== undefined) {
       updateData.client_phone =

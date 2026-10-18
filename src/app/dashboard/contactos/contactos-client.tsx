@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from 'next/navigation';
+import type { Route } from 'next';
 import { useState, useEffect } from 'react';
 import { SessionUser } from '@/types/session';
 import { Modal } from '@/components/Modal';
@@ -17,6 +18,7 @@ type Contact = {
   message: string;
   status: 'new' | 'contacted' | 'closed';
   notes: string | null;
+  client_id: string | null;
   created_at: string;
 };
 
@@ -60,6 +62,7 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesText, setNotesText] = useState('');
   const [actionsOpen, setActionsOpen] = useState<string | null>(null);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
 
   useEffect(() => {
     let filtered = contacts;
@@ -139,6 +142,76 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
     setNotesText(contact.notes || '');
     setEditingNotes(true);
     setActionsOpen(null);
+  };
+
+  const buildCotizadorUrl = (contact: Contact, clientId?: string | null): Route => {
+    const params = new URLSearchParams({ contactId: contact.id });
+    const resolvedClientId = clientId ?? contact.client_id;
+    if (resolvedClientId) params.set('clientId', resolvedClientId);
+    return `/cotizador?${params.toString()}` as Route;
+  };
+
+  const handleCotizar = async (contact: Contact) => {
+    setActionsOpen(null);
+    if (contact.client_id) {
+      router.push(buildCotizadorUrl(contact));
+      return;
+    }
+
+    setConvertingId(contact.id);
+    try {
+      const response = await fetch('/api/contacts/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contactId: contact.id }),
+      });
+      const data = await response.json();
+      if (data.success && data.client?.id) {
+        router.push(buildCotizadorUrl(contact, data.client.id));
+        return;
+      }
+      showError('No se pudo preparar la cotización', data.error || 'Intenta registrar el cliente primero');
+    } catch (error) {
+      console.error('Error preparing quote from contact:', error);
+      showError('Error', 'No se pudo abrir el cotizador');
+    } finally {
+      setConvertingId(null);
+    }
+  };
+
+  const handleRegisterClient = async (contact: Contact) => {
+    setActionsOpen(null);
+    if (contact.client_id) {
+      router.push(`/dashboard/clientes/detalle/${contact.client_id}`);
+      return;
+    }
+
+    setConvertingId(contact.id);
+    try {
+      const response = await fetch('/api/contacts/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contactId: contact.id }),
+      });
+      const data = await response.json();
+      if (data.success && data.client?.id) {
+        showSuccess(
+          data.created ? 'Cliente creado' : 'Cliente vinculado',
+          data.created
+            ? `${contact.name} quedó registrado como prospecto.`
+            : `Ya existía un cliente con ese correo; el contacto quedó vinculado.`
+        );
+        router.refresh();
+        router.push(`/dashboard/clientes/detalle/${data.client.id}`);
+      } else {
+        showError('Error', data.error || 'No se pudo registrar el cliente');
+      }
+    } catch (error) {
+      console.error('Error converting contact:', error);
+      showError('Error', 'No se pudo registrar el cliente');
+    } finally {
+      setConvertingId(null);
+    }
   };
 
   const formatDate = (date: string) => {
@@ -323,6 +396,11 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
                                 {statusStyle.icon}
                                 {statusStyle.label}
                               </span>
+                              {contact.client_id && (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand/10 text-brand">
+                                  Cliente vinculado
+                                </span>
+                              )}
                               {contact.service && (
                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
                                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +444,18 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
                             {formatDate(contact.created_at)}
                           </p>
                           
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap justify-end">
+                            <button
+                              type="button"
+                              disabled={convertingId === contact.id}
+                              onClick={() => handleCotizar(contact)}
+                              className="inline-flex items-center gap-2 px-3 py-2 btn-primary text-sm font-medium rounded-md disabled:opacity-60"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              {convertingId === contact.id ? 'Preparando…' : 'Cotizar'}
+                            </button>
                             <a
                               href={`mailto:${contact.email}`}
                               className="inline-flex items-center gap-2 px-3 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-dark transition-colors"
@@ -431,6 +520,16 @@ export default function ContactosClient({ contacts, user }: { contacts: Contact[
                                       )}
                                     </button>
                                   ))}
+                                  <div className="border-t border-gray-100 my-2" />
+                                  <button
+                                    onClick={() => handleRegisterClient(contact)}
+                                    className="flex items-center gap-3 px-4 py-2.5 w-full text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
+                                  >
+                                    <svg className="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                    </svg>
+                                    {contact.client_id ? 'Ver cliente' : 'Registrar como cliente'}
+                                  </button>
                                   <div className="border-t border-gray-100 my-2" />
                                   <button
                                     onClick={() => startEditingNotes(contact)}

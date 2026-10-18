@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
+import { guardDebugRoute } from '@/lib/api-security';
 
 export async function GET() {
-  // Solo para debugging - NO usar en producción
+  const blocked = await guardDebugRoute();
+  if (blocked) return blocked;
+
   const envCheck = {
     hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
     hasSupabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,

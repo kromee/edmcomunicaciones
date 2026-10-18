@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
+import {
+  encodeSessionCookie,
+  sessionCookieMaxAge,
+} from '@/lib/session-token';
 
 export async function POST(request: NextRequest) {
   try {
@@ -80,14 +84,15 @@ export async function POST(request: NextRequest) {
       role: user.role,
     };
 
-    // Guardar sesión en cookie
+    // Guardar sesión en cookie firmada
     try {
       const cookieStore = await cookies();
-      cookieStore.set('session', JSON.stringify(sessionData), {
+      const signedSession = await encodeSessionCookie(sessionData);
+      cookieStore.set('session', signedSession, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 días
+        maxAge: sessionCookieMaxAge,
         path: '/',
       });
       console.log('Session cookie set successfully');

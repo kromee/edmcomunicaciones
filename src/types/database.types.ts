@@ -58,6 +58,7 @@ export interface Database {
           custom_commercial_terms: string | null
           show_valid_until: boolean | null
           created_by: string | null
+          client_id: string | null
           created_at: string
           updated_at: string
         }
@@ -80,6 +81,7 @@ export interface Database {
           custom_commercial_terms?: string | null
           show_valid_until?: boolean | null
           created_by?: string | null
+          client_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -102,6 +104,7 @@ export interface Database {
           custom_commercial_terms?: string | null
           show_valid_until?: boolean | null
           created_by?: string | null
+          client_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -156,6 +159,7 @@ export interface Database {
           status: 'new' | 'contacted' | 'closed'
           notes: string | null
           assigned_to: string | null
+          client_id: string | null
           created_at: string
           updated_at: string
         }
@@ -170,6 +174,7 @@ export interface Database {
           status?: 'new' | 'contacted' | 'closed'
           notes?: string | null
           assigned_to?: string | null
+          client_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -184,6 +189,7 @@ export interface Database {
           status?: 'new' | 'contacted' | 'closed'
           notes?: string | null
           assigned_to?: string | null
+          client_id?: string | null
           created_at?: string
           updated_at?: string
         }
