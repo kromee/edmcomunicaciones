@@ -63,8 +63,16 @@ export async function sendQuoteEmail(
     };
   }
 
+  const to = input.to_email.trim();
+  if (!to) {
+    return { ok: false, error: 'Falta el correo del destinatario' };
+  }
+
   const templateParams = {
-    to_email: input.to_email,
+    // Destinatario: la plantilla en EmailJS debe tener "To Email" = {{to_email}} (o {{email}} / {{user_email}})
+    to_email: to,
+    email: to,
+    user_email: to,
     client_name: input.client_name,
     quote_number: input.quote_number,
     total_amount: `$${input.total_amount.toLocaleString('es-MX', {
@@ -89,10 +97,12 @@ export async function sendQuoteEmail(
 
     if (!response.ok) {
       const text = await response.text().catch(() => '');
-      return {
-        ok: false,
-        error: text || `EmailJS respondió ${response.status}`,
-      };
+      const emptyRecipient =
+        text.toLowerCase().includes('recipient') && text.toLowerCase().includes('empty');
+      const error = emptyRecipient
+        ? `${text.trim()}. En EmailJS → plantilla de cotización → campo "To Email" pon exactamente {{to_email}} (o {{email}}) y guarda.`
+        : text || `EmailJS respondió ${response.status}`;
+      return { ok: false, error };
     }
 
     return { ok: true };
