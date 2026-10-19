@@ -156,7 +156,7 @@ function QuoteRowMenu({
             Ver detalles
           </a>
           <a
-            href={`/dashboard/cotizaciones/editar/${quoteId}`}
+            href={`/cotizador?quoteId=${quoteId}`}
             className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-surface-secondary transition-colors"
           >
             Editar

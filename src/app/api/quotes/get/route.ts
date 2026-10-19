@@ -29,10 +29,13 @@ export async function GET(request: NextRequest) {
       .select(`
         id,
         quote_number,
+        client_id,
         client_name,
         client_email,
         client_phone,
         client_company,
+        status,
+        created_at,
         service_type,
         description,
         valid_until,
