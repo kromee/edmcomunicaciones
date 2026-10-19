@@ -19,7 +19,7 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Intentando eliminar cotización:', quoteId);
 
-    const supabase = await createClient();
+    const supabase = createClient();
 
     // Eliminar items de la cotización primero (por foreign key constraint)
     console.log('🗑️ Eliminando items de la cotización...');

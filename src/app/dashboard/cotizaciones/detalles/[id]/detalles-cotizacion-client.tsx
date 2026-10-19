@@ -60,6 +60,22 @@ const statusConfig: Record<string, { bg: string; text: string; label: string; co
   paid: { bg: 'bg-brand/10', text: 'text-brand', label: 'Pagada', color: 'brand' },
 };
 
+type SendLogSummary = {
+  id: string;
+  recipient_email: string;
+  channel: string;
+  status: string;
+  error_message: string | null;
+  sent_at: string;
+  sent_by_name: string | null;
+};
+
+const sendStatusLabel: Record<string, { label: string; className: string }> = {
+  sent: { label: 'Enviado', className: 'text-success-dark bg-success/10' },
+  failed: { label: 'Fallido', className: 'text-danger-dark bg-danger/10' },
+  skipped: { label: 'Sin correo', className: 'text-muted bg-surface-secondary' },
+};
+
 const allStatuses: Array<{ key: string; label: string; bg: string; text: string; color: string }> = [
   { key: 'pending', label: 'Pendiente', bg: 'bg-warning/10', text: 'text-warning-dark', color: 'warning' },
   { key: 'sent', label: 'Enviada', bg: 'bg-accent/10', text: 'text-accent-dark', color: 'accent' },
@@ -72,10 +88,12 @@ export default function DetallesCotizacionClient({
   quote,
   creator,
   user,
+  sendLogs,
 }: {
   quote: QuoteData;
   creator: { name: string; email: string } | null;
   user: SessionUser;
+  sendLogs: SendLogSummary[];
 }) {
   const router = useRouter();
   const { modal, hideModal, showConfirm, showSuccess, showError } = useModal();
@@ -83,6 +101,7 @@ export default function DetallesCotizacionClient({
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const statusNormalized = normalizeQuoteStatus(quote.status);
   const statusInfo = statusConfig[statusNormalized] || statusConfig.pending;
   const currentStatusOption = allStatuses.find(s => s.key === statusNormalized) || allStatuses[0];
@@ -150,6 +169,42 @@ export default function DetallesCotizacionClient({
       showError('Error', 'Error al generar el PDF');
     }
   };
+
+  const sendByEmail = async () => {
+    setSendingEmail(true);
+    try {
+      const response = await fetch('/api/quotes/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteId: quote.id }),
+      });
+      const data = await response.json();
+      if (!data.success) {
+        showError(
+          data.emailStatus === 'failed' ? 'Envío fallido' : 'Error',
+          data.hint ? `${data.error}\n${data.hint}` : data.error || 'No se pudo enviar'
+        );
+        if (data.emailStatus === 'failed') router.refresh();
+        return;
+      }
+      if (data.emailStatus === 'sent') {
+        showSuccess('Correo enviado', `Cotización enviada a ${quote.client_email}`);
+      } else if (data.emailStatus === 'skipped') {
+        showSuccess('Sin envío', 'EmailJS no está configurado; no se envió correo.');
+      }
+      router.refresh();
+    } catch {
+      showError('Error', 'No se pudo completar el envío');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const formatDateTime = (iso: string) =>
+    new Date(iso).toLocaleString('es-MX', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
 
   const updateStatus = async (newStatus: string) => {
     if (statusNormalized === newStatus) return;
@@ -325,6 +380,16 @@ export default function DetallesCotizacionClient({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Descargar PDF
+                </button>
+                <button
+                  onClick={sendByEmail}
+                  disabled={sendingEmail}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-brand text-white text-sm font-medium rounded-md hover:bg-brand/90 transition-colors disabled:opacity-60"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  {sendingEmail ? 'Enviando…' : 'Enviar por correo'}
                 </button>
                 <button
                   onClick={() => router.push(`/dashboard/cotizaciones/editar/${quote.id}`)}
@@ -510,6 +575,50 @@ export default function DetallesCotizacionClient({
                     </tr>
                   </tfoot>
                 </table>
+              </div>
+            </div>
+
+            {/* Historial de envíos (sin guardar PDF en disco) */}
+            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Historial de envíos
+                </h3>
+                <p className="text-xs text-muted mt-1">
+                  El PDF se genera al enviar o al descargar; no se almacena en Supabase Storage.
+                </p>
+              </div>
+
+              <div className="p-6">
+                {sendLogs.length === 0 ? (
+                  <p className="text-sm text-muted">Sin registros. Usa Enviar por correo al crear o desde aquí.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {sendLogs.map((log) => {
+                      const st = sendStatusLabel[log.status] || sendStatusLabel.skipped;
+                      return (
+                        <li key={log.id} className="p-3 rounded-lg border border-gray-100">
+                          <div className="flex flex-wrap items-center gap-2 justify-between">
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded ${st.className}`}>
+                              {st.label}
+                            </span>
+                            <span className="text-xs text-muted">{formatDateTime(log.sent_at)}</span>
+                          </div>
+                          <p className="text-sm text-gray-900 mt-1">{log.recipient_email}</p>
+                          {log.sent_by_name && (
+                            <p className="text-xs text-muted mt-0.5">Por {log.sent_by_name}</p>
+                          )}
+                          {log.error_message && log.status === 'failed' && (
+                            <p className="text-xs text-danger mt-1">{log.error_message}</p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
             </div>
 
