@@ -327,7 +327,7 @@ export default function DetallesCotizacionClient({
                   Descargar PDF
                 </button>
                 <button
-                  onClick={() => router.push(`/dashboard/cotizaciones/editar/${quote.id}`)}
+                  onClick={() => router.push(`/cotizador?quoteId=${quote.id}`)}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-surface-secondary text-gray-700 text-sm font-medium rounded-md hover:bg-gray-100 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
