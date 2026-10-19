@@ -7,6 +7,7 @@ import {
 } from '@/lib/quote-pdf-send';
 import { normalizeQuoteItemUnit } from '@/lib/quote-item-units';
 import { dateInputToISO } from '@/lib/quote-dates';
+import { allocateQuoteNumber } from '@/lib/quote-number';
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,11 +83,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generar número de cotización simple
-    const now = new Date();
-    const yearMonth = now.toISOString().slice(0, 7).replace('-', '');
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    const quote_number = `COT-${yearMonth}-${random}`;
+    const allocated = await allocateQuoteNumber(supabase);
+    if ('error' in allocated) {
+      console.error('Quote number allocation failed:', allocated.error);
+      return NextResponse.json(
+        { success: false, error: allocated.error },
+        { status: 500 }
+      );
+    }
+    const quote_number = allocated.quote_number;
 
     console.log('Generated quote number:', quote_number);
 
