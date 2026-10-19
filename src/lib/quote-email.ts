@@ -5,7 +5,8 @@ export type SendQuoteEmailInput = {
   client_name: string;
   quote_number: string;
   total_amount: number;
-  pdfBase64: string;
+  /** Enlace público temporal para descargar PDF (plan EmailJS sin adjuntos). */
+  download_url: string;
 };
 
 const EMAILJS_SEND_URL = 'https://api.emailjs.com/api/v1.0/email/send';
@@ -14,7 +15,6 @@ function getEmailJsPrivateKey(): string {
   return process.env.EMAILJS_PRIVATE_KEY?.trim() || '';
 }
 
-/** Plantilla EmailJS para cotizaciones (ID real tipo template_xxxx). */
 export function getQuoteEmailTemplateId(): string {
   const quoteSpecific = process.env.NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID?.trim();
   if (quoteSpecific) return quoteSpecific;
@@ -51,7 +51,7 @@ export async function sendQuoteEmail(
     return {
       ok: false,
       error:
-        'Falta plantilla de cotización. En Vercel define NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID (ID de EmailJS → Templates) o usa NEXT_PUBLIC_EMAILJS_TEMPLATE_ID si es la misma plantilla.',
+        'Falta plantilla de cotización. Define NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID en Vercel.',
     };
   }
 
@@ -62,7 +62,8 @@ export async function sendQuoteEmail(
     total_amount: `$${input.total_amount.toLocaleString('es-MX', {
       minimumFractionDigits: 2,
     })}`,
-    pdf_attachment: input.pdfBase64,
+    download_url: input.download_url,
+    pdf_link: input.download_url,
   };
 
   try {

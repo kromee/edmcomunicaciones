@@ -8,6 +8,7 @@ const PUBLIC_API_PREFIXES = [
   '/api/auth/login',
   '/api/auth/logout',
   '/api/contacts/create',
+  '/api/quotes/public-download',
 ];
 
 function isProtectedPage(pathname: string): boolean {

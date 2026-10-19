@@ -1,10 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { generateQuotePDF } from '@/lib/pdf-generator';
-import {
-  buildQuotePDFDataFromRecord,
-  type QuoteWithItemsRow,
-} from '@/lib/quote-pdf-payload';
+import { type QuoteWithItemsRow } from '@/lib/quote-pdf-payload';
 import { sendQuoteEmail, isQuoteEmailConfigured } from '@/lib/quote-email';
+import { createQuoteDownloadToken } from '@/lib/quote-download-token';
+import { buildQuotePublicDownloadUrl } from '@/lib/site-url';
 
 export async function fetchQuoteWithItems(
   supabase: SupabaseClient,
@@ -19,14 +17,6 @@ export async function fetchQuoteWithItems(
 
   if (error || !data) return null;
   return data as QuoteWithItemsRow;
-}
-
-async function generateQuotePdfBase64(
-  quote: QuoteWithItemsRow
-): Promise<string> {
-  const pdfData = buildQuotePDFDataFromRecord(quote);
-  const pdf = await generateQuotePDF(pdfData);
-  return pdf.output('datauristring').split(',')[1] || '';
 }
 
 export async function logQuoteSend(
@@ -85,11 +75,12 @@ export async function sendQuotePdfByEmail(
     return { ok: true, emailStatus: 'skipped' };
   }
 
-  let pdfBase64: string;
+  let downloadUrl: string;
   try {
-    pdfBase64 = await generateQuotePdfBase64(quote);
+    const token = createQuoteDownloadToken(quoteId);
+    downloadUrl = buildQuotePublicDownloadUrl(quoteId, token);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Error al generar PDF';
+    const message = err instanceof Error ? err.message : 'Error al generar enlace';
     return { ok: false, error: message };
   }
 
@@ -98,7 +89,7 @@ export async function sendQuotePdfByEmail(
     client_name: quote.client_name,
     quote_number: quote.quote_number,
     total_amount: quote.total_amount,
-    pdfBase64,
+    download_url: downloadUrl,
   });
 
   if (emailResult.ok) {
