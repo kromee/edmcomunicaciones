@@ -156,7 +156,6 @@ function CotizadorContent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [sourceContactId, setSourceContactId] = useState<string | null>(null);
   const [catalogOpen, setCatalogOpen] = useState(false);
-  const [createEmailPromptOpen, setCreateEmailPromptOpen] = useState(false);
 
   const [formData, setFormData] = useState<QuoteFormData>({
     client_name: '',
@@ -563,10 +562,10 @@ function CotizadorContent() {
     created_at: dateInputToISO(formData.quote_date || getTodayDateString()),
   });
 
-  const persistQuote = async (sendEmailOnCreate: boolean) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
-    setCreateEmailPromptOpen(false);
 
     try {
       const clientIdForSave =
@@ -624,7 +623,6 @@ function CotizadorContent() {
             body: JSON.stringify({
               ...payload,
               contact_id: sourceContactId,
-              send_email: sendEmailOnCreate,
             }),
           });
 
@@ -650,15 +648,6 @@ function CotizadorContent() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isEditMode) {
-      setCreateEmailPromptOpen(true);
-      return;
-    }
-    void persistQuote(false);
   };
 
   const handleLogout = async () => {
@@ -1644,51 +1633,6 @@ function CotizadorContent() {
           </form>
         </div>
       </main>
-
-      {createEmailPromptOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setCreateEmailPromptOpen(false)}
-            aria-hidden
-          />
-          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Enviar cotización por correo?</h3>
-            <p className="text-sm text-gray-600 mb-1">
-              La cotización se guardará en el sistema. Elige si deseas enviar el PDF al cliente ahora.
-            </p>
-            {formData.client_email.trim() ? (
-              <p className="text-sm text-brand font-medium mb-6 break-all">{formData.client_email.trim()}</p>
-            ) : (
-              <p className="text-sm text-amber-700 mb-6">No hay correo del cliente; solo podrás guardar sin enviar.</p>
-            )}
-            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => setCreateEmailPromptOpen(false)}
-              >
-                Volver
-              </button>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => void persistQuote(false)}
-              >
-                Solo guardar
-              </button>
-              <button
-                type="button"
-                className="btn-accent disabled:opacity-50"
-                disabled={!formData.client_email.trim()}
-                onClick={() => void persistQuote(true)}
-              >
-                Guardar y enviar correo
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <PdfPreviewModal
         isOpen={pdfPreviewOpen}
