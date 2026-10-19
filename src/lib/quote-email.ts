@@ -14,9 +14,18 @@ function getEmailJsPrivateKey(): string {
   return process.env.EMAILJS_PRIVATE_KEY?.trim() || '';
 }
 
+/** Plantilla EmailJS para cotizaciones (ID real tipo template_xxxx). */
+export function getQuoteEmailTemplateId(): string {
+  const quoteSpecific = process.env.NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID?.trim();
+  if (quoteSpecific) return quoteSpecific;
+  return config.emailjs.templateId?.trim() || '';
+}
+
 export function isQuoteEmailConfigured(): boolean {
   const { serviceId, publicKey } = config.emailjs;
-  return Boolean(serviceId && publicKey && getEmailJsPrivateKey());
+  return Boolean(
+    serviceId && publicKey && getEmailJsPrivateKey() && getQuoteEmailTemplateId()
+  );
 }
 
 export async function sendQuoteEmail(
@@ -24,6 +33,7 @@ export async function sendQuoteEmail(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const { serviceId, publicKey } = config.emailjs;
   const privateKey = getEmailJsPrivateKey();
+  const templateId = getQuoteEmailTemplateId();
 
   if (!serviceId || !publicKey) {
     return { ok: false, error: 'EmailJS no está configurado (service id / public key)' };
@@ -37,8 +47,13 @@ export async function sendQuoteEmail(
     };
   }
 
-  const templateId =
-    process.env.NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID || 'template_cotizacion';
+  if (!templateId) {
+    return {
+      ok: false,
+      error:
+        'Falta plantilla de cotización. En Vercel define NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID (ID de EmailJS → Templates) o usa NEXT_PUBLIC_EMAILJS_TEMPLATE_ID si es la misma plantilla.',
+    };
+  }
 
   const templateParams = {
     to_email: input.to_email,
