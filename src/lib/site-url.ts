@@ -4,6 +4,10 @@ export function getPublicSiteUrl(): string {
   if (explicit) {
     return explicit.replace(/\/$/, '');
   }
+  const production = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  if (production) {
+    return `https://${production.replace(/\/$/, '')}`;
+  }
   const vercel = process.env.VERCEL_URL?.trim();
   if (vercel) {
     return `https://${vercel.replace(/\/$/, '')}`;
