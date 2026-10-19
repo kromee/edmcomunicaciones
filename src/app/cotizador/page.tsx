@@ -156,6 +156,8 @@ function CotizadorContent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [sourceContactId, setSourceContactId] = useState<string | null>(null);
   const [catalogOpen, setCatalogOpen] = useState(false);
+  /** Solo al crear: enviar correo al cliente al guardar (opcional). */
+  const [sendEmailOnCreate, setSendEmailOnCreate] = useState(false);
 
   const [formData, setFormData] = useState<QuoteFormData>({
     client_name: '',
@@ -623,6 +625,7 @@ function CotizadorContent() {
             body: JSON.stringify({
               ...payload,
               contact_id: sourceContactId,
+              send_email: sendEmailOnCreate,
             }),
           });
 
@@ -679,7 +682,7 @@ function CotizadorContent() {
     { number: 1, title: 'Cliente', description: 'Seleccionar o crear' },
     { number: 2, title: 'Servicio', description: 'Detalles del proyecto' },
     { number: 3, title: 'Items', description: 'Productos y precios' },
-    { number: 4, title: 'Resumen', description: 'Confirmar y enviar' },
+    { number: 4, title: 'Resumen', description: 'Confirmar y guardar' },
   ];
 
   return (
@@ -1580,6 +1583,23 @@ function CotizadorContent() {
                     </table>
                   </div>
                 </div>
+
+                {!isEditMode && (
+                  <label className="flex items-start gap-3 p-4 mb-4 rounded-md border border-gray-200 bg-surface-secondary cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sendEmailOnCreate}
+                      onChange={(e) => setSendEmailOnCreate(e.target.checked)}
+                      className="mt-1 rounded border-gray-300 text-brand focus:ring-brand"
+                    />
+                    <span className="text-sm text-gray-700">
+                      <span className="font-medium text-gray-900">Enviar cotización por correo al guardar</span>
+                      <span className="block text-muted mt-0.5">
+                        Desmarcado: solo se guarda. Puedes enviarla después desde el detalle con «Enviar por correo».
+                      </span>
+                    </span>
+                  </label>
+                )}
 
                 {/* Navigation */}
                 <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-6 border-t border-gray-100">

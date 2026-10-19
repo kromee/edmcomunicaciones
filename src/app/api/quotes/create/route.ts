@@ -39,7 +39,10 @@ export async function POST(request: NextRequest) {
       total_amount,
       client_id: bodyClientId,
       contact_id: contactId,
+      send_email: sendEmailOnCreate,
     } = body;
+
+    const shouldSendEmail = sendEmailOnCreate === true;
 
     const supabase = await createClient();
 
@@ -179,22 +182,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    try {
-      const sendResult = await sendQuotePdfByEmail(
-        supabase,
-        quote.id,
-        session.id,
-        client_email
-      );
-      if (!sendResult.ok) {
-        console.error(
-          'Error envío al crear cotización:',
-          sendResult.error,
-          quoteSendLogsTableHint(sendResult.error || '')
+    let emailStatus: 'sent' | 'failed' | 'skipped' | undefined;
+    if (shouldSendEmail) {
+      try {
+        const sendResult = await sendQuotePdfByEmail(
+          supabase,
+          quote.id,
+          session.id,
+          client_email
         );
+        emailStatus = sendResult.emailStatus;
+        if (!sendResult.ok) {
+          console.error(
+            'Error envío al crear cotización:',
+            sendResult.error,
+            quoteSendLogsTableHint(sendResult.error || '')
+          );
+        }
+      } catch (sendError) {
+        console.error('Error en envío al crear cotización:', sendError);
+        emailStatus = 'failed';
       }
-    } catch (sendError) {
-      console.error('Error en envío al crear cotización:', sendError);
     }
 
     return NextResponse.json({
@@ -202,7 +210,8 @@ export async function POST(request: NextRequest) {
       quote: {
         id: quote.id,
         quote_number: quote.quote_number
-      }
+      },
+      emailStatus: shouldSendEmail ? emailStatus : undefined,
     });
   } catch (error) {
     console.error('Error in create quote:', error);
