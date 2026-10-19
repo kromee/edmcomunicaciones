@@ -1,4 +1,8 @@
 import { config } from '@/lib/config';
+import {
+  buildQuoteEmailHtml,
+  buildQuoteEmailPlainText,
+} from '@/lib/quote-email-html';
 
 export type SendQuoteEmailInput = {
   to_email: string;
@@ -10,6 +14,25 @@ export type SendQuoteEmailInput = {
 };
 
 const EMAILJS_SEND_URL = 'https://api.emailjs.com/api/v1.0/email/send';
+
+function formatEmailJsError(text: string, status: number): string {
+  const base = text || `EmailJS respondió ${status}`;
+  const lower = base.toLowerCase();
+
+  if (lower.includes('recipient') && lower.includes('empty')) {
+    return `${base}. En EmailJS → plantilla de cotización → "To Email": {{email}} o {{to_email}}.`;
+  }
+
+  if (lower.includes('invalid grant') || lower.includes('reconnect')) {
+    return `${base}. En EmailJS → Email Services → tu Outlook → Reconnect / volver a autorizar la cuenta Microsoft.`;
+  }
+
+  if (lower.includes('insufficient authentication scopes')) {
+    return `${base}. Reconecta el servicio de correo en EmailJS y acepta todos los permisos de envío.`;
+  }
+
+  return base;
+}
 
 function getEmailJsPrivateKey(): string {
   return process.env.EMAILJS_PRIVATE_KEY?.trim() || '';
@@ -68,18 +91,32 @@ export async function sendQuoteEmail(
     return { ok: false, error: 'Falta el correo del destinatario' };
   }
 
+  const totalFormatted = `$${input.total_amount.toLocaleString('es-MX', {
+    minimumFractionDigits: 2,
+  })}`;
+  const htmlInput = {
+    client_name: input.client_name,
+    quote_number: input.quote_number,
+    total_formatted: totalFormatted,
+    download_url: input.download_url,
+  };
+  const htmlBody = buildQuoteEmailHtml(htmlInput);
+  const plainMessage = buildQuoteEmailPlainText(htmlInput);
+
   const templateParams = {
-    // Destinatario: la plantilla en EmailJS debe tener "To Email" = {{to_email}} (o {{email}} / {{user_email}})
+    // Destinatario: "To Email" = {{email}}
     to_email: to,
     email: to,
     user_email: to,
     client_name: input.client_name,
     quote_number: input.quote_number,
-    total_amount: `$${input.total_amount.toLocaleString('es-MX', {
-      minimumFractionDigits: 2,
-    })}`,
+    total_amount: totalFormatted,
     download_url: input.download_url,
     pdf_link: input.download_url,
+    // Plantilla EmailJS: cuerpo = {{{html_body}}} (tres llaves, sin escapar HTML)
+    html_body: htmlBody,
+    html_message: htmlBody,
+    message: plainMessage,
   };
 
   try {
@@ -96,12 +133,8 @@ export async function sendQuoteEmail(
     });
 
     if (!response.ok) {
-      const text = await response.text().catch(() => '');
-      const emptyRecipient =
-        text.toLowerCase().includes('recipient') && text.toLowerCase().includes('empty');
-      const error = emptyRecipient
-        ? `${text.trim()}. En EmailJS → plantilla de cotización → campo "To Email" pon exactamente {{to_email}} (o {{email}}) y guarda.`
-        : text || `EmailJS respondió ${response.status}`;
+      const text = (await response.text().catch(() => '')).trim();
+      const error = formatEmailJsError(text, response.status);
       return { ok: false, error };
     }
 
