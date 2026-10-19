@@ -169,20 +169,21 @@ CREATE TRIGGER update_contacts_updated_at
 CREATE OR REPLACE FUNCTION generate_quote_number()
 RETURNS TEXT AS $$
 DECLARE
-  year_month TEXT;
+  day_part TEXT;
   sequence_num INTEGER;
   quote_num TEXT;
 BEGIN
-  year_month := TO_CHAR(NOW(), 'YYYYMM');
-  
+  -- COT-YYMMDD-0001 (fecha México; consecutivo reinicia cada día)
+  day_part := TO_CHAR(NOW() AT TIME ZONE 'America/Mexico_City', 'YYMMDD');
+
   SELECT COALESCE(MAX(
-    CAST(SUBSTRING(quote_number FROM 'COT-' || year_month || '-(\d+)') AS INTEGER)
+    CAST(SUBSTRING(quote_number FROM 'COT-' || day_part || '-(\d+)') AS INTEGER)
   ), 0) + 1 INTO sequence_num
   FROM quotes
-  WHERE quote_number LIKE 'COT-' || year_month || '-%';
-  
-  quote_num := 'COT-' || year_month || '-' || LPAD(sequence_num::TEXT, 4, '0');
-  
+  WHERE quote_number LIKE 'COT-' || day_part || '-%';
+
+  quote_num := 'COT-' || day_part || '-' || LPAD(sequence_num::TEXT, 4, '0');
+
   RETURN quote_num;
 END;
 $$ LANGUAGE plpgsql;
