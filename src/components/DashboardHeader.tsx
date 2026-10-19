@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SessionUser } from '@/types/session';
+import { APP_VERSION } from '@/lib/app-version';
 
 interface Notification {
   id: string;
@@ -145,6 +146,12 @@ export function DashboardHeader({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
+            <span
+              className="text-[11px] font-semibold text-muted bg-surface-secondary border border-gray-200/80 px-2 py-1 rounded-md"
+              title="Versión desplegada"
+            >
+              v{APP_VERSION}
+            </span>
             {/* Notifications */}
             <div ref={notificationsRef} className="relative">
               <button
