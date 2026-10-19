@@ -10,19 +10,33 @@ export type SendQuoteEmailInput = {
 
 const EMAILJS_SEND_URL = 'https://api.emailjs.com/api/v1.0/email/send';
 
+function getEmailJsPrivateKey(): string {
+  return process.env.EMAILJS_PRIVATE_KEY?.trim() || '';
+}
+
 export function isQuoteEmailConfigured(): boolean {
   const { serviceId, publicKey } = config.emailjs;
-  return Boolean(serviceId && publicKey);
+  return Boolean(serviceId && publicKey && getEmailJsPrivateKey());
 }
 
 export async function sendQuoteEmail(
   input: SendQuoteEmailInput
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  if (!isQuoteEmailConfigured()) {
-    return { ok: false, error: 'EmailJS no está configurado' };
+  const { serviceId, publicKey } = config.emailjs;
+  const privateKey = getEmailJsPrivateKey();
+
+  if (!serviceId || !publicKey) {
+    return { ok: false, error: 'EmailJS no está configurado (service id / public key)' };
   }
 
-  const { serviceId, publicKey } = config.emailjs;
+  if (!privateKey) {
+    return {
+      ok: false,
+      error:
+        'Falta EMAILJS_PRIVATE_KEY en Vercel. EmailJS → Account → API keys → Private Key (modo strict).',
+    };
+  }
+
   const templateId =
     process.env.NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID || 'template_cotizacion';
 
@@ -44,6 +58,7 @@ export async function sendQuoteEmail(
         service_id: serviceId,
         template_id: templateId,
         user_id: publicKey,
+        accessToken: privateKey,
         template_params: templateParams,
       }),
     });
