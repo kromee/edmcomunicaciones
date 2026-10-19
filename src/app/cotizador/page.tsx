@@ -31,6 +31,7 @@ import {
   inferServiceTypeFromContact,
 } from '@/lib/contact-to-quote';
 import { CatalogPickerModal, type CatalogItemRecord } from '@/components/CatalogPickerModal';
+import { NumericInput } from '@/components/NumericInput';
 import { computeQuoteLineTotal } from '@/lib/catalog-item-totals';
 
 type QuoteItem = {
@@ -1314,12 +1315,12 @@ function CotizadorContent() {
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div>
                             <label className="block text-xs font-medium text-gray-500 mb-1.5">Cantidad</label>
-                            <input
-                              type="number"
+                            <NumericInput
                               value={item.quantity}
-                              onChange={(e) => handleItemChange(item.id, 'quantity', parseInt(e.target.value) || 0)}
-                              min="1"
-                              className="input bg-white text-center"
+                              min={1}
+                              onChange={(n) => handleItemChange(item.id, 'quantity', Math.round(n))}
+                              className="input bg-white"
+                              center
                             />
                           </div>
                           <div>
@@ -1339,12 +1340,12 @@ function CotizadorContent() {
                           <div>
                             <label className="block text-xs font-medium text-gray-500 mb-1.5">% Ajuste</label>
                             <div className="relative">
-                              <input
-                                type="number"
+                              <NumericInput
                                 value={item.percentage}
-                                onChange={(e) => handleItemChange(item.id, 'percentage', parseFloat(e.target.value) || 0)}
                                 step="0.01"
-                                className="input bg-white pr-8 text-center"
+                                onChange={(n) => handleItemChange(item.id, 'percentage', n)}
+                                className="input bg-white pr-8"
+                                center
                               />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-light text-sm">%</span>
                             </div>
@@ -1353,11 +1354,11 @@ function CotizadorContent() {
                             <label className="block text-xs font-medium text-gray-500 mb-1.5">Precio Unit.</label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-light text-sm">$</span>
-                              <input
-                                type="number"
+                              <NumericInput
                                 value={item.unit_price}
-                                onChange={(e) => handleItemChange(item.id, 'unit_price', parseFloat(e.target.value) || 0)}
                                 step="0.01"
+                                min={0}
+                                onChange={(n) => handleItemChange(item.id, 'unit_price', n)}
                                 className="input bg-white pl-7"
                               />
                             </div>
