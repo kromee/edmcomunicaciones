@@ -14,7 +14,9 @@ import {
   getTodayDateString,
   getDefaultValidUntil,
   dateInputToISO,
+  isoToDateInput,
 } from '@/lib/quote-dates';
+import { normalizeQuoteStatus } from '@/lib/quote-status';
 import {
   DEFAULT_COMMERCIAL_TERMS,
   commercialTermsFromString,
@@ -77,12 +79,16 @@ type QuoteFormData = {
 type QuoteTemplate = {
   id: string;
   quote_number: string;
+  client_id?: string | null;
   client_name: string;
   client_email: string;
   client_phone: string | null;
   client_company: string | null;
+  status?: string;
+  created_at?: string;
   service_type: string;
   description: string | null;
+  valid_until: string | null;
   notes: string | null;
   custom_commercial_terms: string | null;
   show_valid_until: boolean | null;
@@ -107,6 +113,35 @@ const serviceTypes = [
   { value: 'mixto', label: 'Proyecto Integral', icon: '🏗️' },
   { value: 'otro', label: 'Otro', icon: '📦' },
 ];
+
+const quoteStatusOptions = [
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'sent', label: 'Enviada' },
+  { value: 'approved', label: 'Aprobada' },
+  { value: 'rejected', label: 'Rechazada' },
+  { value: 'paid', label: 'Pagada' },
+];
+
+function mapApiItemsToFormItems(
+  quoteItems: QuoteTemplate['quote_items'],
+  preserveIds: boolean
+): QuoteItem[] {
+  return (quoteItems || []).map((item, index) => {
+    const quantity = Number(item.quantity) || 1;
+    const unitPrice = Number(item.unit_price) || 0;
+    const percentage = Number(item.percentage) || 0;
+    const priceWithPercentage = unitPrice * (1 + percentage / 100);
+    return {
+      id: preserveIds ? item.id : `${Date.now()}-${index}`,
+      description: item.description || '',
+      quantity,
+      unit: normalizeQuoteItemUnit(item.unit),
+      unit_price: unitPrice,
+      percentage,
+      total: Number(item.total) || quantity * priceWithPercentage,
+    };
+  });
+}
 
 function CotizadorContent() {
   const router = useRouter();
@@ -157,8 +192,15 @@ function CotizadorContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [duplicateSource, setDuplicateSource] = useState<string | null>(null);
+  const [editQuoteId, setEditQuoteId] = useState<string | null>(null);
+  const [editQuoteNumber, setEditQuoteNumber] = useState<string | null>(null);
+  const [quoteStatus, setQuoteStatus] = useState('pending');
+  const [linkedClientId, setLinkedClientId] = useState<string | null>(null);
+  const [editLoadError, setEditLoadError] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+
+  const isEditMode = Boolean(editQuoteId);
 
   const [user] = useState<SessionUser>({
     id: '1',
@@ -228,8 +270,80 @@ function CotizadorContent() {
   }, [searchParams]);
 
   useEffect(() => {
+    const quoteId = searchParams.get('quoteId');
+    if (!quoteId) return;
+
+    const loadQuoteToEdit = async () => {
+      setEditLoadError(null);
+      try {
+        const response = await fetch(`/api/quotes/get?id=${quoteId}`);
+        const data = await response.json();
+        if (!data.success || !data.quote) {
+          setEditLoadError(data.error || 'No se pudo cargar la cotización');
+          return;
+        }
+
+        const quote: QuoteTemplate = data.quote;
+        setEditQuoteId(quote.id);
+        setEditQuoteNumber(quote.quote_number);
+        setQuoteStatus(normalizeQuoteStatus(quote.status || 'pending'));
+        setLinkedClientId(quote.client_id ?? null);
+        setDuplicateSource(null);
+
+        setFormData({
+          client_name: quote.client_name || '',
+          client_email: quote.client_email || '',
+          client_phone: quote.client_phone || '',
+          client_company: quote.client_company || '',
+          service_type: quote.service_type || '',
+          description: quote.description || '',
+          quote_date: quote.created_at
+            ? isoToDateInput(quote.created_at)
+            : getTodayDateString(),
+          valid_until: quote.valid_until || getDefaultValidUntil(),
+          notes: quote.notes || '',
+          custom_commercial_terms: quote.custom_commercial_terms || '',
+          show_valid_until: quote.show_valid_until ?? true,
+        });
+
+        setCommercialTerms(commercialTermsFromString(quote.custom_commercial_terms));
+
+        const formItems = mapApiItemsToFormItems(quote.quote_items, true);
+        if (formItems.length > 0) {
+          setItems(formItems);
+        }
+
+        setSelectedClient({
+          id: quote.client_id || `quote-${quote.id}`,
+          name: quote.client_name || '',
+          email: quote.client_email || '',
+          phone: quote.client_phone || null,
+          company: quote.client_company || null,
+          address: null,
+          city: null,
+          state: null,
+          postal_code: null,
+          country: 'México',
+          tax_id: null,
+          notes: null,
+          status: 'active',
+          created_by: null,
+          created_at: quote.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        setCurrentStep(1);
+      } catch (error) {
+        console.error('Error loading quote for edit:', error);
+        setEditLoadError('Error al cargar la cotización');
+      }
+    };
+
+    loadQuoteToEdit();
+  }, [searchParams]);
+
+  useEffect(() => {
     const duplicateQuoteId = searchParams.get('duplicateQuoteId');
-    if (!duplicateQuoteId) return;
+    if (!duplicateQuoteId || searchParams.get('quoteId')) return;
 
     const loadQuoteToDuplicate = async () => {
       try {
@@ -259,25 +373,12 @@ function CotizadorContent() {
           commercialTermsFromString(quote.custom_commercial_terms)
         );
 
-        const templateItems = (quote.quote_items || []).map((item, index) => {
-          const quantity = Number(item.quantity) || 1;
-          const unitPrice = Number(item.unit_price) || 0;
-          const percentage = Number(item.percentage) || 0;
-          const priceWithPercentage = unitPrice * (1 + percentage / 100);
-          return {
-            id: `${Date.now()}-${index}`,
-            description: item.description || '',
-            quantity,
-            unit: normalizeQuoteItemUnit(item.unit),
-            unit_price: unitPrice,
-            percentage,
-            total: quantity * priceWithPercentage,
-          };
-        });
-
+        const templateItems = mapApiItemsToFormItems(quote.quote_items, false);
         if (templateItems.length > 0) {
           setItems(templateItems);
         }
+        setEditQuoteId(null);
+        setEditQuoteNumber(null);
 
         setSelectedClient({
           id: 'duplicated',
@@ -326,6 +427,7 @@ function CotizadorContent() {
 
   const selectClient = (client: Client) => {
     setSelectedClient(client);
+    setLinkedClientId(client.id);
     setFormData({
       ...formData,
       client_name: client.name,
@@ -340,6 +442,7 @@ function CotizadorContent() {
 
   const clearClient = () => {
     setSelectedClient(null);
+    setLinkedClientId(null);
     setFormData({
       ...formData,
       client_name: '',
@@ -433,7 +536,7 @@ function CotizadorContent() {
   };
 
   const buildPreviewQuoteData = (): QuotePDFData => ({
-    quote_number: 'VISTA-PREVIA',
+    quote_number: editQuoteNumber || 'VISTA-PREVIA',
     client_name: formData.client_name || selectedClient?.name || 'Cliente',
     client_email: formData.client_email || selectedClient?.email || '',
     client_phone: formData.client_phone || selectedClient?.phone || '',
@@ -464,35 +567,80 @@ function CotizadorContent() {
     setSubmitStatus('idle');
 
     try {
-      const response = await fetch('/api/quotes/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
-          items,
-          subtotal,
-          tax,
-          total_amount: total,
-          client_id: selectedClient?.id ?? null,
-          contact_id: sourceContactId,
-        }),
-      });
+      const clientIdForSave =
+        linkedClientId ||
+        (selectedClient?.id && !String(selectedClient.id).startsWith('quote-') &&
+        selectedClient.id !== 'duplicated'
+          ? selectedClient.id
+          : null);
+
+      const payload = {
+        ...formData,
+        custom_commercial_terms: commercialTermsToString(commercialTerms) || null,
+        items,
+        subtotal,
+        tax,
+        total_amount: total,
+        client_id: clientIdForSave,
+      };
+
+      const response = isEditMode
+        ? await fetch('/api/quotes/update', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              quoteId: editQuoteId,
+              client_name: formData.client_name.trim(),
+              client_email: formData.client_email.trim(),
+              client_phone: formData.client_phone.trim() || null,
+              client_company: formData.client_company.trim() || null,
+              service_type: formData.service_type,
+              description: formData.description,
+              valid_until: formData.valid_until,
+              quote_date: formData.quote_date,
+              notes: formData.notes,
+              show_valid_until: formData.show_valid_until,
+              status: normalizeQuoteStatus(quoteStatus),
+              client_id: clientIdForSave,
+              custom_commercial_terms: payload.custom_commercial_terms,
+              items: items.map((item) => ({
+                id: item.id,
+                item_name: item.description,
+                description: item.description,
+                quantity: item.quantity,
+                unit: item.unit,
+                unit_price: item.unit_price,
+                percentage: item.percentage,
+                total: item.total,
+              })),
+              total_amount: total,
+            }),
+          })
+        : await fetch('/api/quotes/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...payload,
+              contact_id: sourceContactId,
+            }),
+          });
 
       const data = await response.json();
 
       if (data.success) {
         setSubmitStatus('success');
         setTimeout(() => {
-          router.push('/dashboard/cotizaciones');
+          router.push(
+            isEditMode && editQuoteId
+              ? `/dashboard/cotizaciones/detalles/${editQuoteId}`
+              : '/dashboard/cotizaciones'
+          );
         }, 2000);
       } else {
         setSubmitStatus('error');
       }
     } catch (error) {
-      console.error('Error creating quote:', error);
+      console.error('Error saving quote:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -549,13 +697,25 @@ function CotizadorContent() {
                 </svg>
               </a>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Nueva Cotización</h1>
-                <p className="text-muted">Crea una cotización profesional para tu cliente</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  {isEditMode ? `Editar ${editQuoteNumber || 'cotización'}` : 'Nueva Cotización'}
+                </h1>
+                <p className="text-muted">
+                  {isEditMode
+                    ? 'Mismo flujo del cotizador: ajusta datos y guarda los cambios'
+                    : 'Crea una cotización profesional para tu cliente'}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Success/Error Alerts */}
+          {editLoadError && (
+            <div className="mb-6 p-4 bg-danger/10 border border-danger/20 rounded-2xl animate-slide-up">
+              <p className="font-semibold text-danger-dark">{editLoadError}</p>
+            </div>
+          )}
+
           {duplicateSource && (
             <div className="mb-6 p-4 bg-accent/10 border border-accent/20 rounded-2xl flex items-center justify-between gap-3 animate-slide-up">
               <div>
@@ -575,8 +735,10 @@ function CotizadorContent() {
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-success-dark">¡Cotización creada exitosamente!</p>
-                <p className="text-sm text-success/80">Redirigiendo a cotizaciones...</p>
+                <p className="font-semibold text-success-dark">
+                  {isEditMode ? '¡Cambios guardados!' : '¡Cotización creada exitosamente!'}
+                </p>
+                <p className="text-sm text-success/80">Redirigiendo...</p>
               </div>
             </div>
           )}
@@ -589,7 +751,9 @@ function CotizadorContent() {
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-danger-dark">Error al crear la cotización</p>
+                <p className="font-semibold text-danger-dark">
+                  {isEditMode ? 'Error al guardar la cotización' : 'Error al crear la cotización'}
+                </p>
                 <p className="text-sm text-danger/80">Intenta nuevamente o contacta a soporte</p>
               </div>
             </div>
@@ -965,6 +1129,23 @@ function CotizadorContent() {
                   />
                 </div>
 
+                {isEditMode && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>
+                    <select
+                      value={quoteStatus}
+                      onChange={(e) => setQuoteStatus(e.target.value)}
+                      className="input max-w-xs"
+                    >
+                      {quoteStatusOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {/* Navigation */}
                 <div className="flex justify-between pt-4 border-t border-gray-100">
                   <button
@@ -1303,7 +1484,11 @@ function CotizadorContent() {
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-white">Resumen de la Cotización</h2>
-                    <p className="text-sm text-white/70">Revisa los datos antes de crear la cotización</p>
+                    <p className="text-sm text-white/70">
+                      {isEditMode
+                        ? 'Revisa los datos antes de guardar'
+                        : 'Revisa los datos antes de crear la cotización'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1427,14 +1612,14 @@ function CotizadorContent() {
                       {isSubmitting ? (
                         <>
                           <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Creando...
+                          {isEditMode ? 'Guardando...' : 'Creando...'}
                         </>
                       ) : (
                         <>
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          Crear Cotización
+                          {isEditMode ? 'Guardar cambios' : 'Crear Cotización'}
                         </>
                       )}
                     </button>
