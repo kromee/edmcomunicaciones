@@ -156,8 +156,7 @@ function CotizadorContent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [sourceContactId, setSourceContactId] = useState<string | null>(null);
   const [catalogOpen, setCatalogOpen] = useState(false);
-  /** Solo al crear: enviar correo al cliente al guardar (opcional). */
-  const [sendEmailOnCreate, setSendEmailOnCreate] = useState(false);
+  const [createEmailPromptOpen, setCreateEmailPromptOpen] = useState(false);
 
   const [formData, setFormData] = useState<QuoteFormData>({
     client_name: '',
@@ -564,10 +563,10 @@ function CotizadorContent() {
     created_at: dateInputToISO(formData.quote_date || getTodayDateString()),
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const persistQuote = async (sendEmailOnCreate: boolean) => {
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setCreateEmailPromptOpen(false);
 
     try {
       const clientIdForSave =
@@ -637,9 +636,11 @@ function CotizadorContent() {
           router.push(
             isEditMode && editQuoteId
               ? `/dashboard/cotizaciones/detalles/${editQuoteId}`
-              : '/dashboard/cotizaciones'
+              : data.quote?.id
+                ? `/dashboard/cotizaciones/detalles/${data.quote.id}`
+                : '/dashboard/cotizaciones'
           );
-        }, 2000);
+        }, 1500);
       } else {
         setSubmitStatus('error');
       }
@@ -649,6 +650,15 @@ function CotizadorContent() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isEditMode) {
+      setCreateEmailPromptOpen(true);
+      return;
+    }
+    void persistQuote(false);
   };
 
   const handleLogout = async () => {
@@ -1584,23 +1594,6 @@ function CotizadorContent() {
                   </div>
                 </div>
 
-                {!isEditMode && (
-                  <label className="flex items-start gap-3 p-4 mb-4 rounded-md border border-gray-200 bg-surface-secondary cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={sendEmailOnCreate}
-                      onChange={(e) => setSendEmailOnCreate(e.target.checked)}
-                      className="mt-1 rounded border-gray-300 text-brand focus:ring-brand"
-                    />
-                    <span className="text-sm text-gray-700">
-                      <span className="font-medium text-gray-900">Enviar cotización por correo al guardar</span>
-                      <span className="block text-muted mt-0.5">
-                        Desmarcado: solo se guarda. Puedes enviarla después desde el detalle con «Enviar por correo».
-                      </span>
-                    </span>
-                  </label>
-                )}
-
                 {/* Navigation */}
                 <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-6 border-t border-gray-100">
                   <button
@@ -1651,6 +1644,51 @@ function CotizadorContent() {
           </form>
         </div>
       </main>
+
+      {createEmailPromptOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setCreateEmailPromptOpen(false)}
+            aria-hidden
+          />
+          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Enviar cotización por correo?</h3>
+            <p className="text-sm text-gray-600 mb-1">
+              La cotización se guardará en el sistema. Elige si deseas enviar el PDF al cliente ahora.
+            </p>
+            {formData.client_email.trim() ? (
+              <p className="text-sm text-brand font-medium mb-6 break-all">{formData.client_email.trim()}</p>
+            ) : (
+              <p className="text-sm text-amber-700 mb-6">No hay correo del cliente; solo podrás guardar sin enviar.</p>
+            )}
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setCreateEmailPromptOpen(false)}
+              >
+                Volver
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => void persistQuote(false)}
+              >
+                Solo guardar
+              </button>
+              <button
+                type="button"
+                className="btn-accent disabled:opacity-50"
+                disabled={!formData.client_email.trim()}
+                onClick={() => void persistQuote(true)}
+              >
+                Guardar y enviar correo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <PdfPreviewModal
         isOpen={pdfPreviewOpen}
