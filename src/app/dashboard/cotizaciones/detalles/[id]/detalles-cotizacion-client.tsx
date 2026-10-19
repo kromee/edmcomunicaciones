@@ -578,7 +578,6 @@ export default function DetallesCotizacionClient({
               </div>
             </div>
 
-            {/* Historial de envíos (sin guardar PDF en disco) */}
             <div className="bg-white rounded-2xl shadow-card overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -587,14 +586,11 @@ export default function DetallesCotizacionClient({
                   </svg>
                   Historial de envíos
                 </h3>
-                <p className="text-xs text-muted mt-1">
-                  El PDF se genera al enviar o al descargar; no se almacena en Supabase Storage.
-                </p>
               </div>
 
               <div className="p-6">
                 {sendLogs.length === 0 ? (
-                  <p className="text-sm text-muted">Sin registros. Usa Enviar por correo al crear o desde aquí.</p>
+                  <p className="text-sm text-muted">Aún no hay envíos por correo.</p>
                 ) : (
                   <ul className="space-y-3">
                     {sendLogs.map((log) => {
