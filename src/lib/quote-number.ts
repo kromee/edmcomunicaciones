@@ -11,7 +11,7 @@ export async function allocateQuoteNumber(
     if (msg.toLowerCase().includes('generate_quote_number')) {
       return {
         error:
-          'Falta la función generate_quote_number en Supabase. Ejecuta scripts/quote-number-yymmdd.sql',
+          'Falta generate_quote_number en Supabase. Ejecuta scripts/quote-number-atomic.sql',
       };
     }
     return { error: msg };

@@ -165,28 +165,36 @@ CREATE TRIGGER update_contacts_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- Función para generar número de cotización automático
+-- Contador atómico de folios diarios (COT-YYMMDD-0001)
+CREATE TABLE IF NOT EXISTS quote_daily_counters (
+  day_key TEXT PRIMARY KEY,
+  last_seq INTEGER NOT NULL DEFAULT 0 CHECK (last_seq >= 0),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE OR REPLACE FUNCTION generate_quote_number()
-RETURNS TEXT AS $$
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
   day_part TEXT;
-  sequence_num INTEGER;
-  quote_num TEXT;
+  next_seq INTEGER;
 BEGIN
-  -- COT-YYMMDD-0001 (fecha México; consecutivo reinicia cada día)
   day_part := TO_CHAR(NOW() AT TIME ZONE 'America/Mexico_City', 'YYMMDD');
 
-  SELECT COALESCE(MAX(
-    CAST(SUBSTRING(quote_number FROM 'COT-' || day_part || '-(\d+)') AS INTEGER)
-  ), 0) + 1 INTO sequence_num
-  FROM quotes
-  WHERE quote_number LIKE 'COT-' || day_part || '-%';
+  INSERT INTO quote_daily_counters (day_key, last_seq)
+  VALUES (day_part, 1)
+  ON CONFLICT (day_key) DO UPDATE
+  SET
+    last_seq = quote_daily_counters.last_seq + 1,
+    updated_at = NOW()
+  RETURNING last_seq INTO next_seq;
 
-  quote_num := 'COT-' || day_part || '-' || LPAD(sequence_num::TEXT, 4, '0');
-
-  RETURN quote_num;
+  RETURN 'COT-' || day_part || '-' || LPAD(next_seq::TEXT, 4, '0');
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- =====================================================
 -- Row Level Security (RLS)
