@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { getPublicSiteUrl } from '@/lib/site-url';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.ejemplo-edm.com';
+  const baseUrl = getPublicSiteUrl();
   return [
     '',
     '/servicios',

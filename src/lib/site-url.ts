@@ -1,4 +1,7 @@
-/** URL pública del sitio (emails, enlaces de descarga). */
+/**
+ * URL pública del sitio (correos con enlace PDF, sitemap, Open Graph).
+ * En producción define NEXT_PUBLIC_SITE_URL en Vercel (dominio principal, sin / final).
+ */
 export function getPublicSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (explicit) {
