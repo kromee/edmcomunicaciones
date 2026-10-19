@@ -15,9 +15,17 @@ function getEmailJsPrivateKey(): string {
   return process.env.EMAILJS_PRIVATE_KEY?.trim() || '';
 }
 
+/** Solo servidor — no uses NEXT_PUBLIC_ (el envío de cotización es vía API). */
 export function getQuoteEmailTemplateId(): string {
-  const quoteSpecific = process.env.NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID?.trim();
-  if (quoteSpecific) return quoteSpecific;
+  const quoteTemplate = process.env.EMAILJS_QUOTE_TEMPLATE_ID?.trim();
+  if (quoteTemplate) return quoteTemplate;
+
+  const legacyPublic = process.env.NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID?.trim();
+  if (legacyPublic) return legacyPublic;
+
+  const serverGeneral = process.env.EMAILJS_TEMPLATE_ID?.trim();
+  if (serverGeneral) return serverGeneral;
+
   return config.emailjs.templateId?.trim() || '';
 }
 
@@ -51,7 +59,7 @@ export async function sendQuoteEmail(
     return {
       ok: false,
       error:
-        'Falta plantilla de cotización. Define NEXT_PUBLIC_EMAILJS_QUOTE_TEMPLATE_ID en Vercel.',
+        'Falta plantilla de cotización. Define EMAILJS_QUOTE_TEMPLATE_ID en Vercel (solo servidor).',
     };
   }
 
