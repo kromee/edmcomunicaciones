@@ -65,6 +65,7 @@ export default function ContactoPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitErrorMessage, setSubmitErrorMessage] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,8 +75,24 @@ export default function ContactoPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setSubmitErrorMessage('');
 
     try {
+      const saveResponse = await fetch('/api/contacts/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const saveData = await saveResponse.json().catch(() => ({}));
+
+      if (!saveResponse.ok) {
+        const msg =
+          typeof saveData.error === 'string'
+            ? saveData.error
+            : 'No se pudo enviar el mensaje. Inténtalo más tarde.';
+        throw new Error(msg);
+      }
+
       const { serviceId, templateId, publicKey } = config.emailjs;
 
       if (!serviceId || !templateId || !publicKey) {
@@ -100,16 +117,6 @@ export default function ContactoPage() {
       );
 
       if (result.status === 200) {
-        try {
-          await fetch('/api/contacts/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData),
-          });
-        } catch (dbError) {
-          console.error('Error saving to database:', dbError);
-        }
-
         setSubmitStatus('success');
         setFormData({
           name: '',
@@ -121,7 +128,10 @@ export default function ContactoPage() {
         });
       }
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('Error sending contact:', error);
+      setSubmitErrorMessage(
+        error instanceof Error ? error.message : 'Por favor, intenta nuevamente o contáctanos directamente.'
+      );
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -189,7 +199,9 @@ export default function ContactoPage() {
                           </svg>
                           <div>
                             <p className="text-red-800 font-semibold">Error al enviar el mensaje</p>
-                            <p className="text-red-700 text-sm">Por favor, intenta nuevamente o contáctanos directamente.</p>
+                            <p className="text-red-700 text-sm">
+                              {submitErrorMessage || 'Por favor, intenta nuevamente o contáctanos directamente.'}
+                            </p>
                           </div>
                         </div>
                       </div>
