@@ -42,13 +42,37 @@ type Quote = {
 
 type StatusFilter = 'all' | 'pending' | 'sent' | 'approved' | 'rejected' | 'paid';
 
-const statusConfig: Record<StatusFilter, { label: string }> = {
-  all: { label: 'Todas' },
-  pending: { label: 'Pendientes' },
-  sent: { label: 'Enviadas' },
-  approved: { label: 'Aprobadas' },
-  rejected: { label: 'Rechazadas' },
-  paid: { label: 'Pagadas' },
+const statusConfig: Record<StatusFilter, { label: string; dot: string; badge: string }> = {
+  all: {
+    label: 'Todas',
+    dot: 'bg-slate-400',
+    badge: 'bg-slate-100 text-slate-600 ring-slate-200',
+  },
+  pending: {
+    label: 'Pendiente',
+    dot: 'bg-amber-400',
+    badge: 'bg-amber-50 text-amber-700 ring-amber-200/70',
+  },
+  sent: {
+    label: 'Enviada',
+    dot: 'bg-sky-400',
+    badge: 'bg-sky-50 text-sky-700 ring-sky-200/70',
+  },
+  approved: {
+    label: 'Aprobada',
+    dot: 'bg-emerald-400',
+    badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200/70',
+  },
+  rejected: {
+    label: 'Rechazada',
+    dot: 'bg-rose-400',
+    badge: 'bg-rose-50 text-rose-700 ring-rose-200/70',
+  },
+  paid: {
+    label: 'Pagada',
+    dot: 'bg-violet-400',
+    badge: 'bg-violet-50 text-violet-700 ring-violet-200/70',
+  },
 };
 
 /** Intro fija del cotizador. En el listado solo se muestra lo que sigue. */
@@ -75,16 +99,26 @@ function totalSearchText(amount: number): string {
   return [String(value), fixed, grouped, currency].join(' ');
 }
 
-const serviceIcons: Record<string, React.ReactNode> = {
-  cctv: '📹',
-  cableado: '🔌',
-  mantenimiento: '🔧',
-  instalacion: '⚡',
-  software: '💻',
-  consultoria: '📋',
-  mixto: '🏗️',
-  otro: '📦',
+const serviceMarks: Record<string, string> = {
+  cctv: 'CV',
+  cableado: 'CE',
+  mantenimiento: 'MT',
+  instalacion: 'IN',
+  software: 'SW',
+  consultoria: 'CO',
+  mixto: 'MX',
+  otro: 'ED',
 };
+
+function StatusBadge({ status }: { status: Quote['status'] }) {
+  const config = statusConfig[status];
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-semibold ring-1 ring-inset ${config.badge}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {config.label}
+    </span>
+  );
+}
 
 function QuoteRowMenu({
   quoteId,
@@ -259,6 +293,8 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedQuotes = filteredQuotes.slice(startIndex, endIndex);
+  const quoteCountByStatus = (status: StatusFilter) =>
+    status === 'all' ? quotes.length : quotes.filter((quote) => quote.status === status).length;
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -372,41 +408,65 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
           {/* Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div>
+          <div className="relative mb-5 overflow-hidden rounded-2xl border border-white/80 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_rgba(15,30,72,0.06)] sm:px-5">
+            <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
+            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <a href="/dashboard" className="p-2 rounded-md hover:bg-white/50 transition-colors">
+                <a href="/dashboard" className="group flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-white transition-all hover:-translate-x-0.5 hover:border-accent/30 hover:shadow-sm">
                   <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
                 </a>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cotizaciones</h1>
+                <h1 className="text-2xl font-semibold tracking-tight text-slate-950">Cotizaciones</h1>
               </div>
+              <a
+                href="/cotizador"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-brand px-4 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(15,30,72,0.18)] transition-all hover:-translate-y-0.5 hover:bg-brand-dark hover:shadow-[0_10px_24px_rgba(15,30,72,0.24)]"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+                </svg>
+                Nueva cotización
+              </a>
             </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <label className="sr-only" htmlFor="quote-status-filter">Estado</label>
+
+            <div className="relative mt-4 hidden items-center gap-1 border-t border-slate-100 pt-3 sm:flex">
+              {(Object.keys(statusConfig) as StatusFilter[]).map((status) => {
+                const active = statusFilter === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setStatusFilter(status)}
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                      active
+                        ? 'bg-brand text-white shadow-sm'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-white' : statusConfig[status].dot}`} />
+                    {statusConfig[status].label}
+                    <span className={active ? 'text-white/65' : 'text-slate-400'}>{quoteCountByStatus(status)}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <label className="relative mt-3 block sm:hidden" htmlFor="quote-status-filter">
+              <span className="sr-only">Estado</span>
               <select
                 id="quote-status-filter"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="h-8 flex-1 sm:flex-none bg-white border border-gray-200 rounded-md px-2.5 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
+                className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20"
               >
                 {(Object.keys(statusConfig) as StatusFilter[]).map((status) => (
                   <option key={status} value={status}>
-                    {statusConfig[status].label}
+                    {statusConfig[status].label} ({quoteCountByStatus(status)})
                   </option>
                 ))}
               </select>
-              <a
-                href="/cotizador"
-                className="btn-primary h-8 px-3 py-0 text-sm"
-              >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-                Nueva Cotización
-              </a>
-            </div>
+            </label>
           </div>
 
           {/* Quotes Grid */}
@@ -448,15 +508,16 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
             </div>
           ) : (
             <>
-              <div className="hidden md:block overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+              <div className="hidden md:block overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03),0_10px_28px_rgba(15,30,72,0.045)]">
                 <table className="w-full table-fixed text-sm">
-                  <thead className="border-b border-gray-100 bg-surface-secondary/60 text-[11px] uppercase tracking-wider text-muted">
+                  <thead className="border-b border-slate-100 bg-slate-50/70 text-[10px] uppercase tracking-[0.14em] text-slate-400">
                     <tr>
-                      <th className="text-left font-semibold px-4 py-2 w-[16%]">Cotización</th>
-                      <th className="text-left font-semibold px-3 py-2 w-[16%]">Cliente</th>
+                      <th className="text-left font-semibold px-5 py-3 w-[17%]">Cotización</th>
+                      <th className="text-left font-semibold px-3 py-3 w-[17%]">Cliente</th>
                       <th className="text-left font-semibold px-3 py-2">Proyecto</th>
-                      <th className="text-left font-semibold px-3 py-2 w-[9%]">Fecha</th>
-                      <th className="text-right font-semibold px-3 py-2 w-[11%]">Total</th>
+                      <th className="text-left font-semibold px-3 py-3 w-[10%]">Estado</th>
+                      <th className="text-left font-semibold px-3 py-3 w-[9%]">Fecha</th>
+                      <th className="text-right font-semibold px-3 py-3 w-[12%]">Total</th>
                       <th className="px-2 py-2 w-[4%]"><span className="sr-only">Acciones</span></th>
                     </tr>
                   </thead>
@@ -467,34 +528,40 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                         <tr
                           key={quote.id}
                           onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
-                          className="cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors hover:bg-accent/[0.04]"
+                          className="group cursor-pointer border-b border-slate-100 last:border-b-0 transition-all hover:bg-sky-50/40"
                         >
-                          <td className="px-4 py-3 align-top">
-                            <div className="flex items-start gap-2.5 min-w-0">
-                              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-base" aria-hidden>
-                                {serviceIcons[quote.service_type] || '📦'}
+                          <td className="px-5 py-3.5 align-top">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold tracking-wider text-brand ring-1 ring-inset ring-slate-200/70 transition-colors group-hover:bg-brand group-hover:text-white" aria-hidden>
+                                {serviceMarks[quote.service_type] || 'ED'}
                               </span>
-                              <span className="font-semibold text-brand leading-snug break-all">{quote.quote_number}</span>
+                              <div className="min-w-0">
+                                <span className="font-mono text-xs font-semibold text-brand leading-snug break-all">{quote.quote_number}</span>
+                                <p className="mt-1 text-[10px] capitalize text-slate-400">{quote.service_type}</p>
+                              </div>
                             </div>
                           </td>
-                          <td className="px-3 py-3 overflow-hidden align-top">
-                            <p className="font-semibold text-gray-900 truncate uppercase tracking-wide">{quote.client_name}</p>
+                          <td className="px-3 py-3.5 overflow-hidden align-top">
+                            <p className="font-medium text-slate-900 truncate">{quote.client_name}</p>
                             {quote.client_company ? (
-                              <p className="mt-0.5 text-xs text-muted truncate">{quote.client_company}</p>
+                              <p className="mt-1 text-xs text-slate-400 truncate">{quote.client_company}</p>
                             ) : null}
                           </td>
-                          <td className="px-3 py-3 align-top">
-                            <p className="text-gray-700 whitespace-pre-wrap break-words leading-snug">
+                          <td className="px-3 py-3.5 align-top">
+                            <p className="line-clamp-2 text-[13px] uppercase leading-relaxed text-slate-600">
                               {project || '—'}
                             </p>
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap text-sm text-muted align-top">{formatDate(quote.created_at)}</td>
-                          <td className="px-3 py-3 text-right align-top">
-                            <span className="inline-flex rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold text-white whitespace-nowrap">
+                          <td className="px-3 py-3.5 align-top">
+                            <StatusBadge status={quote.status} />
+                          </td>
+                          <td className="px-3 py-3.5 whitespace-nowrap text-xs text-slate-400 align-top">{formatDate(quote.created_at)}</td>
+                          <td className="px-3 py-3.5 text-right align-top">
+                            <span className="inline-flex whitespace-nowrap rounded-lg bg-brand px-2.5 py-1.5 text-xs font-semibold tabular-nums text-white">
                               {formatCurrency(quote.total_amount)}
                             </span>
                           </td>
-                          <td className="px-2 py-3 align-top">
+                          <td className="px-2 py-3.5 align-top">
                             <QuoteRowMenu
                               quoteId={quote.id}
                               open={actionsOpen === quote.id}
@@ -511,35 +578,36 @@ export default function CotizacionesClient({ quotes, user }: { quotes: Quote[]; 
                 </table>
               </div>
 
-              <div className="md:hidden overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm divide-y divide-gray-100">
+              <div className="md:hidden overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm divide-y divide-slate-100">
                 {paginatedQuotes.map((quote, index) => {
                   const project = projectListText(quote.description);
                   return (
                     <div
                       key={quote.id}
                       onClick={() => router.push(`/dashboard/cotizaciones/detalles/${quote.id}`)}
-                      className="flex cursor-pointer items-start gap-3 px-3 py-3 transition-colors active:bg-accent/[0.04]"
+                      className="flex cursor-pointer items-start gap-3 px-4 py-4 transition-colors active:bg-sky-50/60"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-sm" aria-hidden>
-                            {serviceIcons[quote.service_type] || '📦'}
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold tracking-wider text-brand ring-1 ring-inset ring-slate-200/70" aria-hidden>
+                            {serviceMarks[quote.service_type] || 'ED'}
                           </span>
-                          <span className="text-sm font-semibold text-brand truncate">{quote.quote_number}</span>
-                          <span className="ml-auto inline-flex rounded-lg bg-brand px-2 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
+                          <span className="font-mono text-xs font-semibold text-brand truncate">{quote.quote_number}</span>
+                          <span className="ml-auto inline-flex whitespace-nowrap rounded-lg bg-brand px-2 py-1 text-[11px] font-semibold tabular-nums text-white">
                             {formatCurrency(quote.total_amount)}
                           </span>
                         </div>
-                        <p className="mt-1.5 text-sm font-semibold text-gray-900 truncate uppercase tracking-wide">
+                        <p className="mt-2 text-sm font-medium text-slate-900 truncate">
                           {quote.client_name}
-                          {quote.client_company ? <span className="font-normal normal-case tracking-normal text-muted"> · {quote.client_company}</span> : null}
+                          {quote.client_company ? <span className="font-normal text-slate-400"> · {quote.client_company}</span> : null}
                         </p>
-                        <p className="mt-1 text-xs text-muted whitespace-pre-wrap break-words leading-snug">
+                        <p className="mt-1 line-clamp-2 text-xs uppercase leading-relaxed text-slate-500">
                           {project || 'Sin descripción'}
                         </p>
-                        <p className="mt-1 text-[11px] text-muted">
-                          {formatDate(quote.created_at)}
-                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <StatusBadge status={quote.status} />
+                          <span className="text-[10px] text-slate-400">{formatDate(quote.created_at)}</span>
+                        </div>
                       </div>
                       <QuoteRowMenu
                         quoteId={quote.id}

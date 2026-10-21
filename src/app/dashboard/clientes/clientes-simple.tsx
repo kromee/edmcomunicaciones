@@ -31,12 +31,42 @@ type Client = {
 
 type StatusFilter = 'all' | 'active' | 'inactive' | 'prospect';
 
-const statusConfig: Record<StatusFilter, { label: string }> = {
-  all: { label: 'Todos' },
-  active: { label: 'Activos' },
-  inactive: { label: 'Inactivos' },
-  prospect: { label: 'Prospectos' },
+const statusConfig: Record<StatusFilter, { label: string; badgeLabel: string; dot: string; badge: string }> = {
+  all: {
+    label: 'Todos',
+    badgeLabel: 'Todos',
+    dot: 'bg-slate-400',
+    badge: 'bg-slate-100 text-slate-600 ring-slate-200',
+  },
+  active: {
+    label: 'Activos',
+    badgeLabel: 'Activo',
+    dot: 'bg-emerald-400',
+    badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200/70',
+  },
+  inactive: {
+    label: 'Inactivos',
+    badgeLabel: 'Inactivo',
+    dot: 'bg-slate-400',
+    badge: 'bg-slate-100 text-slate-600 ring-slate-200',
+  },
+  prospect: {
+    label: 'Prospectos',
+    badgeLabel: 'Prospecto',
+    dot: 'bg-sky-400',
+    badge: 'bg-sky-50 text-sky-700 ring-sky-200/70',
+  },
 };
+
+function StatusBadge({ status }: { status: Client['status'] }) {
+  const config = statusConfig[status];
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-semibold ring-1 ring-inset ${config.badge}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {config.badgeLabel}
+    </span>
+  );
+}
 
 function ClientRowMenu({
   client,
@@ -201,6 +231,8 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedClients = filteredClients.slice(startIndex, endIndex);
+  const clientCountByStatus = (status: StatusFilter) =>
+    status === 'all' ? clients.length : clients.filter((client) => client.status === status).length;
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -336,42 +368,68 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
 
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3">
-              <a href="/dashboard" className="p-2 rounded-md hover:bg-white/50 transition-colors">
-                <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </a>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Clientes</h1>
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <label className="sr-only" htmlFor="client-status-filter">Estado</label>
-              <select
-                id="client-status-filter"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="h-8 flex-1 sm:flex-none bg-white border border-gray-200 rounded-md px-2.5 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
-              >
-                {(Object.keys(statusConfig) as StatusFilter[]).map((status) => (
-                  <option key={status} value={status}>
-                    {statusConfig[status].label}
-                  </option>
-                ))}
-              </select>
+          <div className="relative mb-5 overflow-hidden rounded-2xl border border-white/80 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_rgba(15,30,72,0.06)] sm:px-5">
+            <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl" />
+            <div className="relative flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <a href="/dashboard" className="group flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-white transition-all hover:-translate-x-0.5 hover:border-accent/30 hover:shadow-sm">
+                  <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                </a>
+                <h1 className="text-2xl font-semibold tracking-tight text-slate-950">Clientes</h1>
+              </div>
               <button
                 onClick={() => {
                   resetForm();
                   setShowCreateModal(true);
                 }}
-                className="btn-primary h-8 px-3 py-0 text-sm"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-brand px-4 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(15,30,72,0.18)] transition-all hover:-translate-y-0.5 hover:bg-brand-dark hover:shadow-[0_10px_24px_rgba(15,30,72,0.24)]"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Nuevo Cliente
+                Nuevo cliente
               </button>
             </div>
+
+            <div className="relative mt-4 hidden items-center gap-1 border-t border-slate-100 pt-3 sm:flex">
+              {(Object.keys(statusConfig) as StatusFilter[]).map((status) => {
+                const active = statusFilter === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setStatusFilter(status)}
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                      active
+                        ? 'bg-brand text-white shadow-sm'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-white' : statusConfig[status].dot}`} />
+                    {statusConfig[status].label}
+                    <span className={active ? 'text-white/65' : 'text-slate-400'}>{clientCountByStatus(status)}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <label className="relative mt-3 block sm:hidden" htmlFor="client-status-filter">
+              <span className="sr-only">Estado</span>
+              <select
+                id="client-status-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20"
+              >
+                {(Object.keys(statusConfig) as StatusFilter[]).map((status) => (
+                  <option key={status} value={status}>
+                    {statusConfig[status].label} ({clientCountByStatus(status)})
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           {filteredClients.length === 0 ? (
@@ -392,16 +450,16 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
             </div>
           ) : (
             <>
-              <div className="hidden md:block overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+              <div className="hidden md:block overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03),0_10px_28px_rgba(15,30,72,0.045)]">
                 <table className="w-full table-fixed text-sm">
-                  <thead className="border-b border-gray-100 bg-surface-secondary/60 text-[11px] uppercase tracking-wider text-muted">
+                  <thead className="border-b border-slate-100 bg-slate-50/70 text-[10px] uppercase tracking-[0.14em] text-slate-400">
                     <tr>
-                      <th className="text-left font-semibold px-4 py-2 w-[22%]">Cliente</th>
-                      <th className="text-left font-semibold px-3 py-2">Correo</th>
-                      <th className="text-left font-semibold px-3 py-2 w-[14%]">Teléfono</th>
-                      <th className="text-left font-semibold px-3 py-2 w-[14%]">Ciudad</th>
-                      <th className="text-left font-semibold px-3 py-2 w-[11%]">Registro</th>
-                      <th className="px-2 py-2 w-[4%]"><span className="sr-only">Acciones</span></th>
+                      <th className="text-left font-semibold px-5 py-3 w-[23%]">Cliente</th>
+                      <th className="text-left font-semibold px-3 py-3">Contacto</th>
+                      <th className="text-left font-semibold px-3 py-3 w-[14%]">Ubicación</th>
+                      <th className="text-left font-semibold px-3 py-3 w-[11%]">Estado</th>
+                      <th className="text-left font-semibold px-3 py-3 w-[11%]">Registro</th>
+                      <th className="px-2 py-3 w-[4%]"><span className="sr-only">Acciones</span></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -409,30 +467,35 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                       <tr
                         key={client.id}
                         onClick={() => router.push(`/dashboard/clientes/detalle/${client.id}`)}
-                        className="cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors hover:bg-accent/[0.04]"
+                        className="group cursor-pointer border-b border-slate-100 last:border-b-0 transition-all hover:bg-sky-50/40"
                       >
-                        <td className="px-4 py-3 align-top overflow-hidden">
+                        <td className="px-5 py-3.5 align-top overflow-hidden">
                           <div className="flex items-center gap-3 min-w-0">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-sm font-bold text-brand">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-brand ring-1 ring-inset ring-slate-200/70 transition-colors group-hover:bg-brand group-hover:text-white">
                               {client.name.charAt(0).toUpperCase()}
                             </span>
                             <div className="min-w-0">
-                              <p className="font-semibold text-gray-900 truncate uppercase tracking-wide">{client.name}</p>
+                              <p className="font-medium text-slate-900 truncate uppercase tracking-wide">{client.name}</p>
                               {client.company ? (
-                                <p className="mt-0.5 text-xs text-muted truncate">{client.company}</p>
+                                <p className="mt-1 text-xs text-slate-400 truncate">{client.company}</p>
                               ) : null}
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 py-3 align-top overflow-hidden">
-                          <p className="text-gray-700 truncate">{client.email}</p>
+                        <td className="px-3 py-3.5 align-top overflow-hidden">
+                          <p className="text-[13px] text-slate-700 truncate">{client.email}</p>
+                          <p className="mt-1 text-xs text-slate-400 truncate">{client.phone || 'Sin teléfono'}</p>
                         </td>
-                        <td className="px-3 py-3 align-top whitespace-nowrap text-gray-700">{client.phone || '—'}</td>
-                        <td className="px-3 py-3 align-top overflow-hidden">
-                          <p className="text-gray-700 truncate">{client.city || '—'}</p>
+                        <td className="px-3 py-3.5 align-top overflow-hidden">
+                          <p className="text-[13px] text-slate-600 truncate">
+                            {[client.city, client.state].filter(Boolean).join(', ') || '—'}
+                          </p>
                         </td>
-                        <td className="px-3 py-3 align-top whitespace-nowrap text-sm text-muted">{formatDate(client.created_at)}</td>
-                        <td className="px-2 py-3 align-top">
+                        <td className="px-3 py-3.5 align-top">
+                          <StatusBadge status={client.status} />
+                        </td>
+                        <td className="px-3 py-3.5 align-top whitespace-nowrap text-xs text-slate-400">{formatDate(client.created_at)}</td>
+                        <td className="px-2 py-3.5 align-top">
                           <ClientRowMenu
                             client={client}
                             open={actionsOpen === client.id}
@@ -448,21 +511,24 @@ export default function ClientesSimple({ clients, user }: { clients: Client[]; u
                 </table>
               </div>
 
-              <div className="md:hidden overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm divide-y divide-gray-100">
+              <div className="md:hidden overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm divide-y divide-slate-100">
                 {paginatedClients.map((client, index) => (
                   <div
                     key={client.id}
                     onClick={() => router.push(`/dashboard/clientes/detalle/${client.id}`)}
-                    className="flex cursor-pointer items-start gap-3 px-3 py-3 transition-colors active:bg-accent/[0.04]"
+                    className="flex cursor-pointer items-start gap-3 px-4 py-4 transition-colors active:bg-sky-50/60"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-sm font-bold text-brand">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-brand ring-1 ring-inset ring-slate-200/70">
                       {client.name.charAt(0).toUpperCase()}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate uppercase tracking-wide">{client.name}</p>
-                      {client.company ? <p className="text-xs text-muted truncate">{client.company}</p> : null}
-                      <p className="mt-1 text-xs text-gray-700 truncate">{client.email}</p>
-                      <p className="text-[11px] text-muted">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-slate-900 truncate uppercase tracking-wide">{client.name}</p>
+                        <StatusBadge status={client.status} />
+                      </div>
+                      {client.company ? <p className="text-xs text-slate-400 truncate">{client.company}</p> : null}
+                      <p className="mt-1.5 text-xs text-slate-600 truncate">{client.email}</p>
+                      <p className="mt-0.5 text-[11px] text-slate-400">
                         {[client.phone, client.city, formatDate(client.created_at)].filter(Boolean).join(' · ')}
                       </p>
                     </div>
