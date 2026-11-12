@@ -6,6 +6,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     '',
     '/servicios',
+    '/servicios/cctv',
+    '/servicios/redes-y-cableado',
+    '/servicios/desarrollo-software-a-medida',
     '/proyectos',
     '/blog',
     '/nosotros',

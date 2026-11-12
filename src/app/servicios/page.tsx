@@ -1,8 +1,14 @@
 import { getWhatsAppLink, getEmailLink } from '@/lib/config';
+import type { Metadata } from 'next';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Reveal } from '@/components/Reveal';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: 'Servicios de CCTV, redes y software a medida | EDM Comunicaciones',
+  description: 'Conoce los servicios de CCTV, redes y cableado, y desarrollo de software a medida de EDM Comunicaciones.',
+};
 
 function NetworkBackground() {
   return (
@@ -17,10 +23,10 @@ function NetworkBackground() {
   );
 }
 
-function ServiceCard({ icon, title, description, color, number, delay }: { icon: React.ReactNode; title: string; description: string; color: string; number: string; delay?: number }) {
+function ServiceCard({ icon, title, description, color, number, href, delay }: { icon: React.ReactNode; title: string; description: string; color: string; number: string; href: string; delay?: number }) {
   return (
     <Reveal delay={delay}>
-      <a href={`#${title.toLowerCase().replace(/\s+/g, '-').replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')}`} className="group block h-full">
+      <a href={href} className="group block h-full">
         <div className="relative h-full bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1">
           <div className={`h-1 w-full bg-gradient-to-r ${color}`} />
           <div className="p-7">
@@ -99,10 +105,10 @@ export default function ServiciosPage() {
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
                     <span className="text-gradient-brand">Tecnología que</span>
                     <br />
-                    <span className="text-brand">Funciona Para Ti</span>
+                    <span className="text-brand">Para Tu Necesidad</span>
                   </h1>
                   <p className="mt-8 text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                    Más de 12 años ayudando a empresas a crecer con tecnología simple, confiable y efectiva.
+                    CCTV, redes y cableado para comercios, empresas y hogares. Desarrollo de software a medida para procesos de negocio.
                   </p>
                 </div>
               </Reveal>
@@ -120,6 +126,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Videovigilancia"
+                  href="/servicios/cctv"
                   description="Protege lo que más te importa con cámaras modernas que puedes ver desde tu celular."
                   color="from-red-500 to-rose-600"
                   number="01"
@@ -133,6 +140,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Redes y Cableado"
+                  href="/servicios/redes-y-cableado"
                   description="Internet rápido y sin cortes. La base de cualquier negocio moderno."
                   color="from-blue-500 to-cyan-600"
                   number="02"
@@ -146,6 +154,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Mantenimiento"
+                  href="#mantenimiento"
                   description="Tu tecnología siempre funcionando. Prevén problemas antes de que ocurran."
                   color="from-amber-500 to-orange-600"
                   number="03"
@@ -158,6 +167,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Control de Acceso"
+                  href="#instalacion"
                   description="Saber quién entra y sale. Control de asistencia sin complicaciones."
                   color="from-purple-500 to-violet-600"
                   number="04"
@@ -169,7 +179,8 @@ export default function ServiciosPage() {
                       <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   }
-                  title="Software"
+                  title="Desarrollo de Software a Medida"
+                  href="/servicios/desarrollo-software-a-medida"
                   description="Sistemas que se adaptan a tu negocio, no al revés. Hechos a tu medida."
                   color="from-indigo-500 to-blue-600"
                   number="05"
