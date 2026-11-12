@@ -383,7 +383,7 @@ export default function ContactoPage() {
                           <h3 className="font-bold text-brand">WhatsApp</h3>
                           <p className="text-gray-600">{config.contact.whatsapp}</p>
                           <a 
-                            href="https://wa.me/525530358478?text=Hola%2C%20quisiera%20información%20sobre%20sus%20servicios%20de%20telecomunicaciones."
+                            href={getWhatsAppLink('Hola, quisiera información sobre sus servicios de telecomunicaciones.')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition-all hover:scale-105 relative z-20"
