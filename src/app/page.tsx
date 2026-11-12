@@ -1,3 +1,4 @@
+import { getWhatsAppLink, getEmailLink } from '@/lib/config';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import Image from 'next/image';
@@ -155,7 +156,7 @@ export default function HomePage() {
                   <Reveal delay={0.32}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
                       <a
-                        href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quisiera%20solicitar%20una%20cotizaci%C3%B3n%20para%20..."
+                        href={getWhatsAppLink('Hola EDM Comunicaciones, quisiera solicitar una cotización para ...')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-nexus-primary inline-flex items-center justify-center gap-3 group"
@@ -170,7 +171,7 @@ export default function HomePage() {
                         </svg>
                       </a>
                       <a
-                        href="mailto:edm_comunicaciones@hotmail.com?subject=Contacto&body=Hola%20EDM%20Comunicaciones,%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios."
+                        href={getEmailLink('Contacto', 'Hola EDM Comunicaciones, quisiera más información sobre sus servicios.')}
                         className="btn-nexus-secondary inline-flex items-center justify-center gap-3 group"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -393,7 +394,7 @@ export default function HomePage() {
               <Reveal delay={0.3}>
                 <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                   <a
-                    href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quisiera%20solicitar%20una%20cotizaci%C3%B3n%20para%20..."
+                    href={getWhatsAppLink('Hola EDM Comunicaciones, quisiera solicitar una cotización para ...')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-brand font-bold rounded-xl hover:bg-white/90 transition-all hover:scale-105 shadow-lg"
