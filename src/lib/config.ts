@@ -3,7 +3,7 @@ export const config = {
   contact: {
     email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'edm_comunicaciones@hotmail.com',
     phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || '+52 55 3035 8478',
-    whatsapp: process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '+52 55 3035 8478',
+    whatsapp: process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '+52 55 5031 7183',
     emailCC: process.env.NEXT_PUBLIC_CONTACT_EMAIL_CC || 'renixedu@gmail.com',
   },
   emailjs: {

@@ -1,7 +1,14 @@
+import { getWhatsAppLink, getEmailLink } from '@/lib/config';
+import type { Metadata } from 'next';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Reveal } from '@/components/Reveal';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: 'Servicios de CCTV, redes y software a medida | EDM Comunicaciones',
+  description: 'Conoce los servicios de CCTV, redes y cableado, y desarrollo de software a medida de EDM Comunicaciones.',
+};
 
 function NetworkBackground() {
   return (
@@ -16,10 +23,10 @@ function NetworkBackground() {
   );
 }
 
-function ServiceCard({ icon, title, description, color, number, delay }: { icon: React.ReactNode; title: string; description: string; color: string; number: string; delay?: number }) {
+function ServiceCard({ icon, title, description, color, number, href, delay }: { icon: React.ReactNode; title: string; description: string; color: string; number: string; href: string; delay?: number }) {
   return (
     <Reveal delay={delay}>
-      <a href={`#${title.toLowerCase().replace(/\s+/g, '-').replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')}`} className="group block h-full">
+      <a href={href} className="group block h-full">
         <div className="relative h-full bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1">
           <div className={`h-1 w-full bg-gradient-to-r ${color}`} />
           <div className="p-7">
@@ -98,10 +105,10 @@ export default function ServiciosPage() {
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
                     <span className="text-gradient-brand">Tecnología que</span>
                     <br />
-                    <span className="text-brand">Funciona Para Ti</span>
+                    <span className="text-brand">Para Tu Necesidad</span>
                   </h1>
                   <p className="mt-8 text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                    Más de 12 años ayudando a empresas a crecer con tecnología simple, confiable y efectiva.
+                    CCTV, redes y cableado para comercios, empresas y hogares. Desarrollo de software a medida para procesos de negocio.
                   </p>
                 </div>
               </Reveal>
@@ -119,6 +126,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Videovigilancia"
+                  href="/servicios/cctv"
                   description="Protege lo que más te importa con cámaras modernas que puedes ver desde tu celular."
                   color="from-red-500 to-rose-600"
                   number="01"
@@ -132,6 +140,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Redes y Cableado"
+                  href="/servicios/redes-y-cableado"
                   description="Internet rápido y sin cortes. La base de cualquier negocio moderno."
                   color="from-blue-500 to-cyan-600"
                   number="02"
@@ -145,6 +154,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Mantenimiento"
+                  href="#mantenimiento"
                   description="Tu tecnología siempre funcionando. Prevén problemas antes de que ocurran."
                   color="from-amber-500 to-orange-600"
                   number="03"
@@ -157,6 +167,7 @@ export default function ServiciosPage() {
                     </svg>
                   }
                   title="Control de Acceso"
+                  href="#instalacion"
                   description="Saber quién entra y sale. Control de asistencia sin complicaciones."
                   color="from-purple-500 to-violet-600"
                   number="04"
@@ -168,7 +179,8 @@ export default function ServiciosPage() {
                       <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   }
-                  title="Software"
+                  title="Desarrollo de Software a Medida"
+                  href="/servicios/desarrollo-software-a-medida"
                   description="Sistemas que se adaptan a tu negocio, no al revés. Hechos a tu medida."
                   color="from-indigo-500 to-blue-600"
                   number="05"
@@ -229,11 +241,11 @@ export default function ServiciosPage() {
                   </Reveal>
                   <Reveal delay={0.2}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                      <CTAButton href="https://wa.me/+525550317183?text=Hola,%20me%20interesa%20un%20sistema%20de%20cámaras%20para%20mi%20negocio">
+                      <CTAButton href={getWhatsAppLink('Hola, me interesa un sistema de cámaras para mi negocio')}>
                         <svg className="w-5 h-5" viewBox="0 0 32 32" fill="currentColor"><path d="M19.11 17.23c-.29-.15-1.7-.84-1.96-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.9 1.13-.17.19-.33.22-.62.07-.29-.15-1.22-.45-2.33-1.44-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.55-.88-2.12-.23-.55-.47-.48-.64-.48h-.55c-.19 0-.5.07-.76.36-.26.29-.99.97-.99 2.36s1.02 2.74 1.16 2.93c.15.19 2 3.06 4.86 4.29.68.29 1.21.46 1.62.58.68.22 1.31.19 1.8.11.55-.08 1.7-.7 1.94-1.38.24-.68.24-1.26.17-1.38-.08-.11-.26-.18-.55-.33z"/><path d="M26.68 5.32C23.9 2.54 20.2 1 16.3 1 8.46 1 2.1 7.37 2.1 15.2c0 2.61.68 5.16 1.98 7.41L2 31l8.55-2.24c2.19 1.2 4.67 1.84 7.2 1.84 7.84 0 14.2-6.37 14.2-14.2 0-3.9-1.54-7.6-4.32-10.38z"/></svg>
                         Solicitar Instalación
                       </CTAButton>
-                      <CTAButton href="mailto:edm_comunicaciones@hotmail.com?subject=Información%20sobre%20cámaras" primary={false}>
+                      <CTAButton href={getEmailLink('Información sobre cámaras', '')} primary={false}>
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         Solicitar Información
                       </CTAButton>
@@ -373,10 +385,10 @@ export default function ServiciosPage() {
                   </Reveal>
                   <Reveal delay={0.3}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                      <CTAButton href="https://wa.me/+525550317183?text=Hola,%20me%20interesa%20instalar%20cableado%20estructurado%20en%20mi%20negocio">
+                      <CTAButton href={getWhatsAppLink('Hola, me interesa instalar cableado estructurado en mi negocio')}>
                         Solicitar Instalación
                       </CTAButton>
-                      <CTAButton href="mailto:edm_comunicaciones@hotmail.com?subject=Información%20cableado%20estructurado" primary={false}>
+                      <CTAButton href={getEmailLink('Información cableado estructurado', '')} primary={false}>
                         Solicitar Información
                       </CTAButton>
                     </div>
@@ -516,10 +528,10 @@ export default function ServiciosPage() {
                   </Reveal>
                   <Reveal delay={0.3}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                      <CTAButton href="https://wa.me/+525550317183?text=Hola,%20me%20interesa%20soporte%20técnico%20para%20mi%20negocio">
+                      <CTAButton href={getWhatsAppLink('Hola, me interesa soporte técnico para mi negocio')}>
                         Solicitar Soporte
                       </CTAButton>
-                      <CTAButton href="mailto:edm_comunicaciones@hotmail.com?subject=Información%20soporte%20técnico" primary={false}>
+                      <CTAButton href={getEmailLink('Información soporte técnico', '')} primary={false}>
                         Solicitar Información
                       </CTAButton>
                     </div>
@@ -653,10 +665,10 @@ export default function ServiciosPage() {
                   </Reveal>
                   <Reveal delay={0.3}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                      <CTAButton href="https://wa.me/+525550317183?text=Hola,%20me%20interesa%20una%20cotización%20para%20equipamiento">
+                      <CTAButton href={getWhatsAppLink('Hola, me interesa una cotización para equipamiento')}>
                         Solicitar Cotización
                       </CTAButton>
-                      <CTAButton href="mailto:edm_comunicaciones@hotmail.com?subject=Información%20equipamiento" primary={false}>
+                      <CTAButton href={getEmailLink('Información equipamiento', '')} primary={false}>
                         Solicitar Información
                       </CTAButton>
                     </div>
@@ -790,10 +802,10 @@ export default function ServiciosPage() {
                     <div className="mt-10">
                       <p className="text-lg font-semibold text-brand mb-4">Lleva tu negocio al siguiente nivel</p>
                       <div className="flex flex-col sm:flex-row gap-4">
-                        <CTAButton href="https://wa.me/+525550317183?text=Hola,%20me%20interesa%20desarrollar%20un%20sistema%20para%20mi%20negocio">
+                        <CTAButton href={getWhatsAppLink('Hola, me interesa desarrollar un sistema para mi negocio')}>
                           Solicitar Desarrollo
                         </CTAButton>
-                        <CTAButton href="mailto:edm_comunicaciones@hotmail.com?subject=Información%20desarrollo%20de%20software" primary={false}>
+                        <CTAButton href={getEmailLink('Información desarrollo de software', '')} primary={false}>
                           Solicitar Información
                         </CTAButton>
                       </div>
@@ -846,7 +858,7 @@ export default function ServiciosPage() {
               <Reveal delay={0.2}>
                 <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                   <a
-                    href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20me%20gustaría%20hablar%20de%20un%20proyecto"
+                    href={getWhatsAppLink('Hola EDM Comunicaciones, me gustaría hablar de un proyecto')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-brand font-bold rounded-xl hover:bg-white/90 transition-all hover:scale-105 shadow-lg"
@@ -858,7 +870,7 @@ export default function ServiciosPage() {
                     Chatear por WhatsApp
                   </a>
                   <a
-                    href="mailto:edm_comunicaciones@hotmail.com?subject=Hablemos%20de%20mi%20proyecto"
+                    href={getEmailLink('Hablemos de mi proyecto', '')}
                     className="inline-flex items-center justify-center gap-3 px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:bg-white/10 transition-all hover:scale-105"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

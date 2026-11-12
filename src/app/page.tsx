@@ -1,7 +1,9 @@
+import { getWhatsAppLink, getEmailLink } from '@/lib/config';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import Image from 'next/image';
 import { Reveal } from '@/components/Reveal';
+import Link from 'next/link';
 
 function NetworkBackground() {
   return (
@@ -121,41 +123,38 @@ export default function HomePage() {
                   <Reveal>
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
                       <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                      <span className="text-sm font-medium text-accent">Soluciones Tecnológicas Integrales</span>
+                      <span className="text-sm font-medium text-accent">Instalaciones en CDMX, Estado de México, Puebla y Veracruz</span>
                     </div>
                   </Reveal>
                   
                   <Reveal delay={0.08}>
                     <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
-                      <span className="text-gradient-brand">Conectando</span>
+                      <span className="text-gradient-brand">CCTV y redes</span>
                       <br />
-                      <span className="text-brand">Futuros,</span>
+                      <span className="text-brand">para tu espacio</span>
                       <br />
-                      <span className="text-gradient-accent">Protegiendo</span>
+                      <span className="text-gradient-accent">Software</span>
                       <br />
-                      <span className="text-brand">Negocios</span>
+                      <span className="text-brand">a medida</span>
                     </h1>
                   </Reveal>
                   
                   <Reveal delay={0.16}>
                     <p className="mt-8 text-xl text-gray-600 leading-relaxed max-w-xl">
-                      Infraestructura tecnológica de clase empresarial: 
-                      <span className="text-brand font-semibold"> cableado estructurado, videovigilancia, 
-                      control biométrico y desarrollo de software</span> que impulsa tu negocio hacia el futuro.
+                      Instalamos cámaras de seguridad y redes para comercios, empresas y hogares. También desarrollamos software a medida para resolver procesos de negocio.
                     </p>
                   </Reveal>
                   
                   <Reveal delay={0.24}>
                     <p className="mt-4 text-lg text-gray-500 max-w-xl">
-                      Más de una década transformando la manera en que las empresas se comunican, 
-                      se protegen y operan con tecnología de vanguardia.
+                      Cuéntanos qué necesitas proteger, conectar o mejorar. Te ayudamos a definir una solución para tu espacio o proceso.
                     </p>
                   </Reveal>
                   
                   <Reveal delay={0.32}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
                       <a
-                        href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quisiera%20solicitar%20una%20cotizaci%C3%B3n%20para%20..."
+                        href={getWhatsAppLink('Hola EDM Comunicaciones, quisiera solicitar una cotización para ...')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-nexus-primary inline-flex items-center justify-center gap-3 group"
@@ -170,7 +169,7 @@ export default function HomePage() {
                         </svg>
                       </a>
                       <a
-                        href="mailto:edm_comunicaciones@hotmail.com?subject=Contacto&body=Hola%20EDM%20Comunicaciones,%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios."
+                        href={getEmailLink('Contacto', 'Hola EDM Comunicaciones, quisiera más información sobre sus servicios.')}
                         className="btn-nexus-secondary inline-flex items-center justify-center gap-3 group"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -266,22 +265,21 @@ export default function HomePage() {
                     <span className="text-brand">transforman</span>
                   </h2>
                   <p className="mt-6 text-xl text-gray-600">
-                    Ofrecemos un ecosistema completo de servicios tecnológicos diseñados 
-                    para impulsar la productividad y seguridad de tu empresa.
+                    Conoce nuestros servicios principales y encuentra el que responde a tu necesidad.
                   </p>
                 </div>
               </Reveal>
 
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 <Reveal>
-                  <div className="card-nexus rounded-2xl p-8 group cursor-pointer">
+                  <Link href="/servicios/redes-y-cableado" className="card-nexus block rounded-2xl p-8 group">
                     <div className="relative mb-6">
                       <div className="absolute inset-0 bg-accent/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-blue-600 flex items-center justify-center shadow-lg shadow-accent/20">
                         <CableIcon className="w-8 h-8 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-brand mb-3">Cableado Estructurado</h3>
+                    <h3 className="text-xl font-bold text-brand mb-3">Redes y Cableado Estructurado</h3>
                     <p className="text-gray-600 mb-4">
                       Diseño e instalación de redes de cableado categoría 5e, 6 y 6A con certificación profesional.
                     </p>
@@ -291,11 +289,11 @@ export default function HomePage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </div>
-                  </div>
+                  </Link>
                 </Reveal>
 
                 <Reveal delay={0.1}>
-                  <div className="card-nexus rounded-2xl p-8 group cursor-pointer">
+                  <Link href="/servicios/cctv" className="card-nexus block rounded-2xl p-8 group">
                     <div className="relative mb-6">
                       <div className="absolute inset-0 bg-accent/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-brand to-brand/80 flex items-center justify-center shadow-lg shadow-brand/20">
@@ -312,11 +310,11 @@ export default function HomePage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </div>
-                  </div>
+                  </Link>
                 </Reveal>
 
                 <Reveal delay={0.2}>
-                  <div className="card-nexus rounded-2xl p-8 group cursor-pointer">
+                  <Link href="/servicios#instalacion" className="card-nexus block rounded-2xl p-8 group">
                     <div className="relative mb-6">
                       <div className="absolute inset-0 bg-accent/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-accent/80 to-accent flex items-center justify-center shadow-lg shadow-accent/20">
@@ -337,18 +335,18 @@ export default function HomePage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </div>
-                  </div>
+                  </Link>
                 </Reveal>
 
                 <Reveal delay={0.3}>
-                  <div className="card-nexus rounded-2xl p-8 group cursor-pointer">
+                  <Link href="/servicios/desarrollo-software-a-medida" className="card-nexus block rounded-2xl p-8 group">
                     <div className="relative mb-6">
                       <div className="absolute inset-0 bg-accent/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-brand/90 to-brand flex items-center justify-center shadow-lg shadow-brand/20">
                         <SoftwareIcon className="w-8 h-8 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-brand mb-3">Desarrollo de Software</h3>
+                    <h3 className="text-xl font-bold text-brand mb-3">Desarrollo de Software a Medida</h3>
                     <p className="text-gray-600 mb-4">
                       Sistemas a medida, apps móviles, ERP/CRM personalizados que se adaptan a tu negocio.
                     </p>
@@ -358,7 +356,7 @@ export default function HomePage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </div>
-                  </div>
+                  </Link>
                 </Reveal>
               </div>
             </div>
@@ -393,7 +391,7 @@ export default function HomePage() {
               <Reveal delay={0.3}>
                 <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                   <a
-                    href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quisiera%20solicitar%20una%20cotizaci%C3%B3n%20para%20..."
+                    href={getWhatsAppLink('Hola EDM Comunicaciones, quisiera solicitar una cotización para ...')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-brand font-bold rounded-xl hover:bg-white/90 transition-all hover:scale-105 shadow-lg"

@@ -1,5 +1,6 @@
 "use client";
 import { Navbar } from '@/components/Navbar';
+import { getWhatsAppLink, getEmailLink } from '@/lib/config';
 import { Footer } from '@/components/Footer';
 import { Reveal } from '@/components/Reveal';
 
@@ -314,7 +315,7 @@ export default function NosotrosPage() {
                   </p>
                   <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                     <a
-                      href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quisiera%20conocer%20m%C3%A1s%20sobre%20sus%20servicios"
+                      href={getWhatsAppLink('Hola EDM Comunicaciones, quisiera conocer más sobre sus servicios')}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-nexus-primary inline-flex items-center justify-center gap-3"
@@ -326,7 +327,7 @@ export default function NosotrosPage() {
                       Conoce más sobre nosotros
                     </a>
                     <a
-                      href="mailto:edm_comunicaciones@hotmail.com?subject=Informaci%C3%B3n%20sobre%20EDM%20Comunicaciones&body=Hola,%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20servicios."
+                      href={getEmailLink('Información sobre EDM Comunicaciones', 'Hola, me interesa conocer más sobre sus servicios.')}
                       className="btn-nexus-secondary inline-flex items-center justify-center gap-3"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

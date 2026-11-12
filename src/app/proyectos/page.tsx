@@ -1,5 +1,6 @@
 "use client";
 import { Navbar } from '@/components/Navbar';
+import { getWhatsAppLink, getEmailLink } from '@/lib/config';
 import { Footer } from '@/components/Footer';
 import { Reveal } from '@/components/Reveal';
 import Image from 'next/image';
@@ -571,7 +572,7 @@ export default function ProyectosPage() {
               <Reveal delay={0.3}>
                 <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                   <a
-                    href="https://wa.me/+525550317183?text=Hola%20EDM%20Comunicaciones,%20quiero%20hablar%20de%20un%20proyecto%20para%20mi%20negocio"
+                    href={getWhatsAppLink('Hola EDM Comunicaciones, quiero hablar de un proyecto para mi negocio')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-brand font-bold rounded-xl hover:bg-white/90 transition-all hover:scale-105 shadow-lg"
@@ -583,7 +584,7 @@ export default function ProyectosPage() {
                     Hablemos de Mi Proyecto
                   </a>
                   <a
-                    href="mailto:edm_comunicaciones@hotmail.com?subject=Hablemos%20de%20mi%20proyecto&body=Hola,%20me%20gustaría%20conocer%20más%20sobre%20cómo%20ustedes%20pueden%20ayudar%20a%20mi%20negocio."
+                    href={getEmailLink('Hablemos de mi proyecto', 'Hola, me gustaría conocer más sobre cómo ustedes pueden ayudar a mi negocio.')}
                     className="inline-flex items-center justify-center gap-3 px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:bg-white/10 transition-all hover:scale-105"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

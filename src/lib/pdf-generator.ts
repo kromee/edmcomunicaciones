@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { config } from '@/lib/config';
 import { normalizeQuoteItemUnit, type QuoteItemUnit } from '@/lib/quote-item-units';
 
 // Función para cargar el logo como base64 desde URL pública
@@ -127,7 +128,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   doc.setTextColor(...darkColor);
   doc.setFontSize(9);
   doc.text('edm_comunicaciones@hotmail.com', 20,35);
-  doc.text(process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '55 5031 7183', 20, 40);
+  doc.text(config.contact.whatsapp, 20, 40);
 
   // Información del cliente
   doc.setFontSize(11);
@@ -301,7 +302,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
   doc.setTextColor(...grayColor);
   doc.setFontSize(8);
   doc.text('EDM Comunicaciones - Soluciones Integrales en Telecomunicaciones', 105, footerTopY + 8, { align: 'center' });
-  doc.text(`edm_comunicaciones@hotmail.com | ${process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '55 5031 7183'}`, 105, footerTopY + 13, { align: 'center' });
+  doc.text(`${config.contact.email} | ${config.contact.whatsapp}`, 105, footerTopY + 13, { align: 'center' });
 
   return doc;
 }
