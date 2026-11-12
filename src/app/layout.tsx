@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: './',
   },
+  verification: {
+    google: 'IQBiT92H1rgtMIMtmhPIlkq7rB9plpPUWAZjpJTlcGo',
+  },
   openGraph: {
     title: 'EDM Comunicaciones',
     description: 'CCTV, redes y cableado, y desarrollo de software a medida.',
