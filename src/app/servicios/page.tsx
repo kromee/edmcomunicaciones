@@ -100,12 +100,12 @@ export default function ServiciosPage() {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    Soluciones para tu Negocio
+                    Soluciones para tu negocio
                   </span>
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
                     <span className="text-gradient-brand">Tecnología que</span>
                     <br />
-                    <span className="text-brand">Para Tu Necesidad</span>
+                    <span className="text-brand">funciona para tu necesidad</span>
                   </h1>
                   <p className="mt-8 text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                     CCTV, redes y cableado para comercios, empresas y hogares. Desarrollo de software a medida para procesos de negocio.
