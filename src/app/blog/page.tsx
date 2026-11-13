@@ -1,5 +1,13 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Blog de tecnología e infraestructura | EDM Comunicaciones',
+  description: 'Artículos y novedades sobre CCTV, redes, cableado estructurado y desarrollo de software a medida.',
+  alternates: { canonical: '/blog' },
+  openGraph: { title: 'Blog de tecnología | EDM Comunicaciones', description: 'Consejos y novedades sobre tecnología para negocios y empresas.', type: 'website' },
+};
 
 export default function BlogPage() {
   return (
