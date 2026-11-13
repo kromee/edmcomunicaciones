@@ -243,11 +243,11 @@ export default function ServiciosPage() {
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
                       <CTAButton href={getWhatsAppLink('Hola, me interesa un sistema de cámaras para mi negocio')}>
                         <svg className="w-5 h-5" viewBox="0 0 32 32" fill="currentColor"><path d="M19.11 17.23c-.29-.15-1.7-.84-1.96-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.9 1.13-.17.19-.33.22-.62.07-.29-.15-1.22-.45-2.33-1.44-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.33.43-.5.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.15-.64-1.55-.88-2.12-.23-.55-.47-.48-.64-.48h-.55c-.19 0-.5.07-.76.36-.26.29-.99.97-.99 2.36s1.02 2.74 1.16 2.93c.15.19 2 3.06 4.86 4.29.68.29 1.21.46 1.62.58.68.22 1.31.19 1.8.11.55-.08 1.7-.7 1.94-1.38.24-.68.24-1.26.17-1.38-.08-.11-.26-.18-.55-.33z"/><path d="M26.68 5.32C23.9 2.54 20.2 1 16.3 1 8.46 1 2.1 7.37 2.1 15.2c0 2.61.68 5.16 1.98 7.41L2 31l8.55-2.24c2.19 1.2 4.67 1.84 7.2 1.84 7.84 0 14.2-6.37 14.2-14.2 0-3.9-1.54-7.6-4.32-10.38z"/></svg>
-                        Solicitar Instalación
+                        Solicitar instalación
                       </CTAButton>
                       <CTAButton href={getEmailLink('Información sobre cámaras', '')} primary={false}>
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                        Solicitar Información
+                        Solicitar información
                       </CTAButton>
                     </div>
                   </Reveal>
@@ -303,7 +303,7 @@ export default function ServiciosPage() {
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
-                      Cableado Estructurado
+                      Cableado estructurado
                     </span>
                     <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
                       <span className="text-gradient-brand">Conexión rápida,</span>
@@ -386,10 +386,10 @@ export default function ServiciosPage() {
                   <Reveal delay={0.3}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
                       <CTAButton href={getWhatsAppLink('Hola, me interesa instalar cableado estructurado en mi negocio')}>
-                        Solicitar Instalación
+                        Solicitar instalación
                       </CTAButton>
                       <CTAButton href={getEmailLink('Información cableado estructurado', '')} primary={false}>
-                        Solicitar Información
+                        Solicitar información
                       </CTAButton>
                     </div>
                   </Reveal>
@@ -446,7 +446,7 @@ export default function ServiciosPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      Soporte Técnico
+                      Soporte técnico
                     </span>
                     <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
                       <span className="text-gradient-brand">Mantén tu negocio</span>
@@ -529,10 +529,10 @@ export default function ServiciosPage() {
                   <Reveal delay={0.3}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
                       <CTAButton href={getWhatsAppLink('Hola, me interesa soporte técnico para mi negocio')}>
-                        Solicitar Soporte
+                        Solicitar soporte
                       </CTAButton>
                       <CTAButton href={getEmailLink('Información soporte técnico', '')} primary={false}>
-                        Solicitar Información
+                        Solicitar información
                       </CTAButton>
                     </div>
                   </Reveal>
@@ -666,10 +666,10 @@ export default function ServiciosPage() {
                   <Reveal delay={0.3}>
                     <div className="mt-10 flex flex-col sm:flex-row gap-4">
                       <CTAButton href={getWhatsAppLink('Hola, me interesa una cotización para equipamiento')}>
-                        Solicitar Cotización
+                        Solicitar cotización
                       </CTAButton>
                       <CTAButton href={getEmailLink('Información equipamiento', '')} primary={false}>
-                        Solicitar Información
+                        Solicitar información
                       </CTAButton>
                     </div>
                   </Reveal>
@@ -803,10 +803,10 @@ export default function ServiciosPage() {
                       <p className="text-lg font-semibold text-brand mb-4">Lleva tu negocio al siguiente nivel</p>
                       <div className="flex flex-col sm:flex-row gap-4">
                         <CTAButton href={getWhatsAppLink('Hola, me interesa desarrollar un sistema para mi negocio')}>
-                          Solicitar Desarrollo
+                          Solicitar desarrollo
                         </CTAButton>
                         <CTAButton href={getEmailLink('Información desarrollo de software', '')} primary={false}>
-                          Solicitar Información
+                          Solicitar información
                         </CTAButton>
                       </div>
                     </div>
@@ -876,7 +876,7 @@ export default function ServiciosPage() {
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    Enviar Correo
+                    Enviar correo
                   </a>
                 </div>
               </Reveal>

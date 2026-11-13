@@ -257,7 +257,7 @@ export default function HomePage() {
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand/5 border border-brand/10 text-brand font-semibold text-sm mb-6">
                     <ConnectionIcon className="w-4 h-4" />
-                    Nuestras Capacidades
+                    Nuestras capacidades
                   </span>
                   <h2 className="text-4xl sm:text-5xl font-black tracking-tight">
                     <span className="text-gradient-brand">Soluciones</span> que{' '}
@@ -278,7 +278,7 @@ export default function HomePage() {
                         <CableIcon className="w-8 h-8 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-brand mb-3">Redes y Cableado Estructurado</h3>
+                    <h3 className="text-xl font-bold text-brand mb-3">Redes y cableado estructurado</h3>
                     <p className="text-gray-600 mb-4">
                       Diseño e instalación de redes de cableado categoría 5e, 6 y 6A con certificación profesional.
                     </p>
@@ -324,7 +324,7 @@ export default function HomePage() {
                         </svg>
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-brand mb-3">Control Biométrico</h3>
+                    <h3 className="text-xl font-bold text-brand mb-3">Control biométrico</h3>
                     <p className="text-gray-600 mb-4">
                       Checadores de asistencia con huella digital, facial y tarjeta para control eficiente.
                     </p>
