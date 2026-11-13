@@ -294,11 +294,11 @@ export default function ContactoPage() {
                         >
                           <option value="">Selecciona un servicio</option>
                           <option value="cctv">CCTV y Videovigilancia</option>
-                          <option value="cableado">Cableado Estructurado</option>
+                          <option value="cableado">Cableado estructurado</option>
                           <option value="mantenimiento">Mantenimiento de Equipos</option>
                           <option value="instalacion">Venta e Instalación</option>
                           <option value="software">Desarrollo de Software</option>
-                          <option value="consultoria">Consultoría Técnica</option>
+                          <option value="consultoria">Consultoría técnica</option>
                           <option value="otro">Otro</option>
                         </select>
                       </div>

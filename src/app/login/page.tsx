@@ -86,7 +86,7 @@ export default function LoginPage() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-brand to-accent mb-6 shadow-lg">
                 <ShieldIcon className="w-10 h-10 text-white" />
               </div>
-              <h1 className="text-3xl font-black text-brand">Acceso Seguro</h1>
+              <h1 className="text-3xl font-black text-brand">Acceso seguro</h1>
               <p className="text-gray-600 mt-2">Panel de Administración</p>
             </div>
 
@@ -189,7 +189,7 @@ export default function LoginPage() {
                 ) : (
                   <div className="flex items-center justify-center gap-2">
                     <LockIcon className="w-5 h-5" />
-                    Iniciar Sesión
+                    Iniciar sesión
                   </div>
                 )}
               </button>
