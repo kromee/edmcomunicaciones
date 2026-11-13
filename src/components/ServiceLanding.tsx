@@ -12,6 +12,9 @@ type ServiceLandingProps = {
   process: string[];
   project: { title: string; description: string };
   whatsappMessage: string;
+  cta: string;
+  quoteDetails: string[];
+  faqs: { question: string; answer: string }[];
   coverage?: boolean;
 };
 
@@ -24,6 +27,9 @@ export function ServiceLanding({
   process,
   project,
   whatsappMessage,
+  cta,
+  quoteDetails,
+  faqs,
   coverage = true,
 }: ServiceLandingProps) {
   return (
@@ -38,11 +44,28 @@ export function ServiceLanding({
             <p className="mt-4 max-w-3xl text-gray-600">{audience}</p>
             <div className="mt-9 flex flex-wrap gap-4">
               <a className="btn-nexus-primary inline-flex items-center justify-center" href={getWhatsAppLink(whatsappMessage)} target="_blank" rel="noopener noreferrer">
-                Cuéntanos tu proyecto
+                {cta}
               </a>
               <Link className="btn-nexus-secondary inline-flex items-center justify-center" href="/contacto">Ver otras formas de contacto</Link>
             </div>
             {coverage && <p className="mt-6 text-sm text-gray-600">Atención en CDMX, Estado de México, Puebla y Veracruz.</p>}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-black text-brand">¿Qué necesitamos para tu cotización?</h2>
+          <p className="mt-4 text-gray-600">Cuéntanos lo que sepas; podemos ayudarte a definir los detalles restantes.</p>
+          <ul className="mt-6 list-disc space-y-3 pl-6 text-gray-700">
+            {quoteDetails.map((detail) => <li key={detail}>{detail}</li>)}
+          </ul>
+          <h2 className="mt-16 text-3xl font-black text-brand">Preguntas frecuentes</h2>
+          <div className="mt-6 space-y-4">
+            {faqs.map((faq) => (
+              <details key={faq.question} className="rounded-xl border border-gray-200 bg-white p-5">
+                <summary className="cursor-pointer font-semibold text-brand">{faq.question}</summary>
+                <p className="mt-3 leading-relaxed text-gray-700">{faq.answer}</p>
+              </details>
+            ))}
           </div>
         </section>
 
@@ -82,7 +105,7 @@ export function ServiceLanding({
           <div className="mt-12 rounded-2xl bg-brand p-8 text-white sm:p-10">
             <h2 className="text-2xl font-bold">Hablemos de lo que necesitas</h2>
             <p className="mt-3 max-w-2xl text-white/85">Cuéntanos el espacio, los equipos o el proceso que quieres resolver. Te ayudaremos a definir el siguiente paso.</p>
-            <a className="mt-6 inline-flex rounded-xl bg-white px-6 py-3 font-bold text-brand" href={getWhatsAppLink(whatsappMessage)} target="_blank" rel="noopener noreferrer">Contactar a EDM</a>
+            <a className="mt-6 inline-flex rounded-xl bg-white px-6 py-3 font-bold text-brand" href={getWhatsAppLink(whatsappMessage)} target="_blank" rel="noopener noreferrer">{cta}</a>
           </div>
         </section>
       </main>

@@ -25,5 +25,12 @@ export default function RedesYCableadoPage() {
     ]}
     project={{ title: 'Red para un centro de capacitación', description: 'El portafolio de EDM muestra un proyecto de 30 puntos de red, cobertura Wi-Fi y organización del cableado para un centro de capacitación.' }}
     whatsappMessage="Hola EDM Comunicaciones, necesito una instalación de red o cableado. ¿Podemos hablar de mi proyecto?"
+    cta="Solicitar cotización de redes"
+    quoteDetails={['La ubicación y el tipo de espacio que quieres conectar.', 'El número aproximado de equipos o puntos de red que necesitas.', 'Si cuentas con red o equipos existentes y qué problema deseas resolver.']}
+    faqs={[
+      { question: '¿Pueden ampliar una red existente?', answer: 'Podemos revisar la instalación y los equipos actuales para proponer una ampliación compatible con tus necesidades.' },
+      { question: '¿Qué tipo de cableado necesito?', answer: 'Depende de las distancias, los dispositivos y el uso previsto. Definimos la opción y su alcance en la propuesta.' },
+      { question: '¿También pueden mejorar la cobertura Wi-Fi?', answer: 'Podemos revisar la distribución del espacio y proponer puntos de acceso según la cobertura necesaria.' },
+    ]}
   />;
 }
