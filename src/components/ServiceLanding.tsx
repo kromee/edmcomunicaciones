@@ -10,7 +10,7 @@ type ServiceLandingProps = {
   audience: string;
   benefits: { title: string; description: string }[];
   process: string[];
-  project: { title: string; description: string };
+  project: { title: string; description: string; href: string };
   whatsappMessage: string;
   cta: string;
   quoteDetails: string[];
@@ -100,7 +100,7 @@ export function ServiceLanding({
           <div className="mt-7 rounded-2xl border border-sky-100 bg-sky-50 p-8">
             <h3 className="text-xl font-bold text-brand">{project.title}</h3>
             <p className="mt-3 max-w-3xl leading-relaxed text-gray-700">{project.description}</p>
-            <Link className="mt-5 inline-block font-semibold text-accent underline underline-offset-4" href="/proyectos">Conoce nuestros proyectos</Link>
+            <a className="mt-5 inline-block font-semibold text-accent underline underline-offset-4" href={project.href}>Ver este proyecto</a>
           </div>
           <div className="mt-12 rounded-2xl bg-brand p-8 text-white sm:p-10">
             <h2 className="text-2xl font-bold">Hablemos de lo que necesitas</h2>

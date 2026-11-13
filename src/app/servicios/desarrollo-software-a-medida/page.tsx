@@ -23,7 +23,7 @@ export default function DesarrolloSoftwarePage() {
       'Definimos el alcance y las funciones necesarias antes de desarrollar.',
       'Construimos y revisamos la solución contigo para ponerla en operación.',
     ]}
-    project={{ title: 'Sistemas para operación empresarial', description: 'En el portafolio de EDM hay ejemplos de software para gestión hospitalaria y operaciones de negocio.' }}
+    project={{ title: 'Sistemas para operación empresarial', description: 'En el portafolio de EDM hay ejemplos de software para gestión hospitalaria y operaciones de negocio.', href: '/proyectos#cliniks' }}
     whatsappMessage="Hola EDM Comunicaciones, me interesa desarrollar software a medida. ¿Podemos hablar de mi proyecto?"
     cta="Solicitar cotización de software"
     quoteDetails={['El proceso o problema que quieres resolver y quiénes usarán el sistema.', 'Las funciones más importantes y las herramientas que utilizas actualmente.', 'Si tienes una fecha objetivo o requisitos de integración, compártelos.']}

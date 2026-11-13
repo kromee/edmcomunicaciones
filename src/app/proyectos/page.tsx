@@ -4,6 +4,7 @@ import { getWhatsAppLink, getEmailLink } from '@/lib/config';
 import { Footer } from '@/components/Footer';
 import { Reveal } from '@/components/Reveal';
 import Image from 'next/image';
+import Link from 'next/link';
 
 function NetworkBackground() {
   return (
@@ -328,6 +329,14 @@ const projects: Project[] = [
 ];
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const serviceHref = project.category === 'CCTV'
+    ? '/servicios/cctv'
+    : project.category === 'Cableado Estructurado'
+      ? '/servicios/redes-y-cableado'
+      : project.category === 'Software' || project.category === 'Desarrollo Móvil'
+        ? '/servicios/desarrollo-software-a-medida'
+        : '/servicios';
+
   return (
     <div className="group">
       <Reveal delay={index * 0.1}>
@@ -350,6 +359,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
                 </div>
                 
                 <p className="text-gray-600 leading-relaxed text-lg">{project.description}</p>
+                <div className="flex flex-wrap gap-4 text-sm font-semibold">
+                  <Link href={serviceHref} className="text-accent underline underline-offset-4">Conoce el servicio relacionado</Link>
+                  <Link href="/contacto" className="text-brand underline underline-offset-4">Solicita una cotización</Link>
+                </div>
                 
                 {project.challenge && project.challenge.length > 0 && (
                   <div className="space-y-4">
@@ -534,7 +547,7 @@ export default function ProyectosPage() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="space-y-0">
                 {projects.map((project, index) => (
-                  <div key={project.id}>
+                  <div key={project.id} id={project.id} className="scroll-mt-24">
                     <ProjectCard project={project} index={index} />
                     {index < projects.length - 1 && (
                       <div className="my-12 border-t border-dashed border-gray-200" />

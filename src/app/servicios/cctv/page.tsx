@@ -23,7 +23,7 @@ export default function CctvPage() {
       'Definimos equipos, ubicaciones y alcance de la instalación.',
       'Instalamos, configuramos y comprobamos el funcionamiento del sistema.',
     ]}
-    project={{ title: 'Videovigilancia para una empresa', description: 'Entre los proyectos presentados por EDM hay una instalación de 24 cámaras para supervisar áreas interiores y exteriores.' }}
+    project={{ title: 'Videovigilancia para una empresa', description: 'Entre los proyectos presentados por EDM hay una instalación de 24 cámaras para supervisar áreas interiores y exteriores.', href: '/proyectos#ballotini' }}
     whatsappMessage="Hola EDM Comunicaciones, me interesa una instalación de CCTV. ¿Podemos hablar de mi proyecto?"
     cta="Solicitar cotización de CCTV"
     quoteDetails={['El tipo de inmueble y la zona donde se encuentra.', 'Las áreas que deseas vigilar y, si lo sabes, el número aproximado de cámaras.', 'Si ya cuentas con cámaras o grabador y necesitas aprovecharlos.']}

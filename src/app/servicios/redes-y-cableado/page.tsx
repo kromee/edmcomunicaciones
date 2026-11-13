@@ -23,7 +23,7 @@ export default function RedesYCableadoPage() {
       'Proponemos el alcance de la red, los puntos y el cableado requerido.',
       'Instalamos, identificamos y verificamos las conexiones.',
     ]}
-    project={{ title: 'Red para un centro de capacitación', description: 'El portafolio de EDM muestra un proyecto de 30 puntos de red, cobertura Wi-Fi y organización del cableado para un centro de capacitación.' }}
+    project={{ title: 'Red para un centro de capacitación', description: 'El portafolio de EDM muestra un proyecto de 30 puntos de red, cobertura Wi-Fi y organización del cableado para un centro de capacitación.', href: '/proyectos#kenworth' }}
     whatsappMessage="Hola EDM Comunicaciones, necesito una instalación de red o cableado. ¿Podemos hablar de mi proyecto?"
     cta="Solicitar cotización de redes"
     quoteDetails={['La ubicación y el tipo de espacio que quieres conectar.', 'El número aproximado de equipos o puntos de red que necesitas.', 'Si cuentas con red o equipos existentes y qué problema deseas resolver.']}
