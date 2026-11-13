@@ -275,7 +275,7 @@ export default function GaleriaPage() {
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
                     <span className="text-gradient-brand">Galería de</span>
                     <br />
-                    <span className="text-brand">Proyectos</span>
+                    <span className="text-brand">proyectos</span>
                   </h1>
                   <p className="mt-8 text-xl text-gray-600 max-w-2xl mx-auto">
                     Explora nuestro trabajo realizado en diferentes áreas de infraestructura tecnológica

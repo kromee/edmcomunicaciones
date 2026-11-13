@@ -162,7 +162,7 @@ export default function ContactoPage() {
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
                     <span className="text-gradient-brand">Hablemos de</span>
                     <br />
-                    <span className="text-brand">Tu Proyecto</span>
+                    <span className="text-brand">tu proyecto</span>
                   </h1>
                   <p className="mt-8 text-xl text-gray-600 max-w-2xl mx-auto">
                     Cuéntanos sobre tu proyecto y te ayudaremos a encontrar la solución tecnológica perfecta
