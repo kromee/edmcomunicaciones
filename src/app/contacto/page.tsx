@@ -117,6 +117,10 @@ export default function ContactoPage() {
       );
 
       if (result.status === 200) {
+        window.gtag?.('event', 'generate_lead', {
+          method: 'contact_form',
+          service: formData.service || 'consulta_general',
+        });
         setSubmitStatus('success');
         setFormData({
           name: '',
