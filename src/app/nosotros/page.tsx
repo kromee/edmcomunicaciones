@@ -151,9 +151,9 @@ export default function NosotrosPage() {
                 </Reveal>
                 <Reveal delay={0.16}>
                   <p className="mt-8 text-2xl sm:text-3xl font-semibold">
-                    <span className="text-gradient-accent">Su Empresa de Tecnología que</span>
+                    <span className="text-gradient-accent">Su empresa de tecnología que</span>
                     <br />
-                    <span className="text-brand">Sí Cumple</span>
+                    <span className="text-brand">sí cumple</span>
                   </p>
                 </Reveal>
                 <Reveal delay={0.24}>

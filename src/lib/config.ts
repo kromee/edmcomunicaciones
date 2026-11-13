@@ -13,7 +13,7 @@ export const config = {
   },
   company: {
     name: 'EDM Comunicaciones',
-    tagline: 'Su Empresa de Tecnología que Sí Cumple',
+    tagline: 'Su empresa de tecnología que sí cumple',
   }
 };
 

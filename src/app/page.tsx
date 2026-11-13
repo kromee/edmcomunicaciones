@@ -409,7 +409,7 @@ export default function HomePage() {
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    Formulario de Contacto
+                    Formulario de contacto
                   </a>
                 </div>
               </Reveal>
@@ -451,11 +451,21 @@ export default function HomePage() {
                   <div className="relative group">
                     <div className="absolute inset-0 bg-brand/5 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
                     <Image 
-                      src="/partners/silicatos.png" 
-                      alt="Silicatos" 
-                      width={140} 
+                      src="/partners/ballotini-panamericana.png" 
+                      alt="Ballotini Panamericana (Potters)" 
+                      width={180} 
                       height={48} 
-                      className="relative h-12 w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 grayscale hover:grayscale-0" 
+                      className="relative h-12 w-auto max-w-44 object-contain opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 grayscale hover:grayscale-0" 
+                    />
+                  </div>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-brand/5 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Image 
+                      src="/partners/silicatos.png" 
+                      alt="Silicatos y Derivados S.A. de C.V." 
+                      width={220} 
+                      height={48} 
+                      className="relative h-12 w-auto max-w-56 object-contain opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 grayscale hover:grayscale-0" 
                     />
                   </div>
                   <div className="relative group">
