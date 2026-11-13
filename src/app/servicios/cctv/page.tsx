@@ -25,5 +25,13 @@ export default function CctvPage() {
     ]}
     project={{ title: 'Videovigilancia para una empresa', description: 'Entre los proyectos presentados por EDM hay una instalación de 24 cámaras para supervisar áreas interiores y exteriores.' }}
     whatsappMessage="Hola EDM Comunicaciones, me interesa una instalación de CCTV. ¿Podemos hablar de mi proyecto?"
+    cta="Solicitar cotización de CCTV"
+    quoteDetails={['El tipo de inmueble y la zona donde se encuentra.', 'Las áreas que deseas vigilar y, si lo sabes, el número aproximado de cámaras.', 'Si ya cuentas con cámaras o grabador y necesitas aprovecharlos.']}
+    faqs={[
+      { question: '¿Qué incluye la instalación?', answer: 'Revisamos el espacio y definimos contigo los equipos, las ubicaciones y el alcance. La instalación, configuración y puesta en marcha se detallan en la propuesta.' },
+      { question: '¿Puedo consultar las cámaras desde mi celular?', answer: 'Depende del sistema y de la conexión disponible. Podemos revisar las opciones compatibles con el equipo que se instale o que ya tengas.' },
+      { question: '¿Cuánto tiempo se guardan las grabaciones?', answer: 'Depende de la capacidad de almacenamiento, la cantidad de cámaras y la configuración de grabación. Lo definimos según tus necesidades.' },
+      { question: '¿Puedo conservar equipos que ya tengo?', answer: 'Podemos revisar su estado y compatibilidad antes de recomendar qué conservar o sustituir.' },
+    ]}
   />;
 }
