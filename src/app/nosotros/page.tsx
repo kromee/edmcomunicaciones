@@ -307,7 +307,7 @@ export default function NosotrosPage() {
                   <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-6">
                     <span className="text-gradient-brand">No hablamos</span>
                     <br />
-                    <span className="text-brand">en Códigos</span>
+                    <span className="text-brand">en códigos</span>
                   </h2>
                   <p className="text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
                     Le ofrecemos un servicio cercano, claro y confiable. Queremos que la tecnología no le cause dolores de cabeza, sino que sea{' '}
