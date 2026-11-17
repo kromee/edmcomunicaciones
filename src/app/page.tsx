@@ -105,8 +105,9 @@ export default function HomePage() {
                 </Reveal>
                 <Reveal delay={0.2}>
                   <div className="text-center">
-                    <div className="stat-number">20</div>
-                    <p className="mt-2 text-gray-600 font-medium">Clientes satisfechos</p>
+                    <div className="stat-number">+20</div>
+                    <p className="mt-2 text-gray-600 font-medium">Clientes frecuentes</p>
+                    <p className="mt-2 mx-auto max-w-xs text-sm text-gray-600">Y muchos más que nos contactan cuando necesitan apoyo.</p>
                   </div>
                 </Reveal>
                 <Reveal delay={0.3}>
@@ -290,7 +291,7 @@ export default function HomePage() {
               <Reveal>
                 <div className="text-center mb-12">
                   <h3 className="text-2xl font-bold text-brand">Empresas que confían en nosotros</h3>
-                  <p className="mt-2 text-gray-600">20 organizaciones nos respaldan</p>
+                  <p className="mt-2 text-gray-600">Más de 20 clientes frecuentes y muchos más que nos contactan cuando necesitan apoyo.</p>
                 </div>
               </Reveal>
               
