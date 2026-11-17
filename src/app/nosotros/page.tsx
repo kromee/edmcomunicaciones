@@ -277,7 +277,7 @@ export default function NosotrosPage() {
                     </Reveal>
                     <Reveal delay={0.2}>
                       <div className="text-center">
-                        <div className="text-5xl lg:text-6xl font-black text-white mb-2">50+</div>
+                        <div className="text-5xl lg:text-6xl font-black text-white mb-2">20</div>
                         <p className="text-white/70 font-medium">Clientes satisfechos</p>
                       </div>
                     </Reveal>
