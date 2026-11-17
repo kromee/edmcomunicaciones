@@ -158,8 +158,8 @@ export default function NosotrosPage() {
                 </Reveal>
                 <Reveal delay={0.24}>
                   <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                    Somos una empresa joven, sí, pero estamos respaldados por más de{' '}
-                    <span className="font-bold text-brand">12 años de experiencia</span> resolviendo problemas de tecnología y telecomunicaciones.
+                    Estamos respaldados por{' '}
+                    <span className="font-bold text-brand">10 años de experiencia</span> resolviendo problemas de tecnología y telecomunicaciones.
                   </p>
                 </Reveal>
               </div>
@@ -265,7 +265,7 @@ export default function NosotrosPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                     <Reveal>
                       <div className="text-center">
-                        <div className="text-5xl lg:text-6xl font-black text-white mb-2">12+</div>
+                        <div className="text-5xl lg:text-6xl font-black text-white mb-2">10</div>
                         <p className="text-white/70 font-medium">Años de experiencia</p>
                       </div>
                     </Reveal>

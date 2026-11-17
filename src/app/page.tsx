@@ -99,7 +99,7 @@ export default function HomePage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                 <Reveal>
                   <div className="text-center">
-                    <div className="stat-number">12+</div>
+                    <div className="stat-number">10</div>
                     <p className="mt-2 text-gray-600 font-medium">Años de experiencia</p>
                   </div>
                 </Reveal>

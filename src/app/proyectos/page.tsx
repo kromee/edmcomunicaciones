@@ -525,7 +525,7 @@ export default function ProyectosPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
-                      <div className="text-3xl font-black text-brand">12+</div>
+                      <div className="text-3xl font-black text-brand">10</div>
                       <p className="mt-1 text-sm text-gray-600">años de experiencia</p>
                     </div>
                   </div>
