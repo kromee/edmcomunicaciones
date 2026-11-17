@@ -262,17 +262,11 @@ export default function NosotrosPage() {
               <div className="bg-gradient-to-br from-brand via-brand/95 to-brand/90 rounded-3xl p-10 lg:p-16 relative overflow-hidden">
                 <div className="absolute inset-0 hex-pattern opacity-10" />
                 <div className="relative">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                     <Reveal>
                       <div className="text-center">
                         <div className="text-5xl lg:text-6xl font-black text-white mb-2">12+</div>
                         <p className="text-white/70 font-medium">Años de experiencia</p>
-                      </div>
-                    </Reveal>
-                    <Reveal delay={0.1}>
-                      <div className="text-center">
-                        <div className="text-5xl lg:text-6xl font-black text-white mb-2">150+</div>
-                        <p className="text-white/70 font-medium">Proyectos completados</p>
                       </div>
                     </Reveal>
                     <Reveal delay={0.2}>

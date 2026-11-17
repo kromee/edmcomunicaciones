@@ -96,17 +96,11 @@ export default function HomePage() {
           {/* Stats Section */}
           <section className="relative py-16 border-y border-gray-100">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                 <Reveal>
                   <div className="text-center">
                     <div className="stat-number">12+</div>
                     <p className="mt-2 text-gray-600 font-medium">Años de experiencia</p>
-                  </div>
-                </Reveal>
-                <Reveal delay={0.1}>
-                  <div className="text-center">
-                    <div className="stat-number">150+</div>
-                    <p className="mt-2 text-gray-600 font-medium">Proyectos completados</p>
                   </div>
                 </Reveal>
                 <Reveal delay={0.2}>
