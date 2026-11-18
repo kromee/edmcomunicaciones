@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { requireAuthenticatedApi } from '@/lib/api-security';
+import { requireAdminApi } from '@/lib/api-security';
 import { catalogApiErrorMessage } from '@/lib/catalog-api-errors';
 
 export async function DELETE(request: NextRequest) {
-  const auth = await requireAuthenticatedApi();
+  const auth = await requireAdminApi();
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await request.json();

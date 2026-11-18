@@ -14,6 +14,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+    if (session.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Se requiere rol administrador' }, { status: 403 });
+    }
 
     const { contactId } = await request.json();
     if (!contactId) {

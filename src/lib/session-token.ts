@@ -4,7 +4,13 @@ const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-type SessionPayload = SessionUser & { exp: number };
+export type SignedSessionUser = SessionUser & { credentialVersion: string };
+type SessionPayload = SignedSessionUser & { exp: number };
+
+export async function getCredentialVersion(passwordHash: string): Promise<string> {
+  const digest = await getSubtleCrypto().digest('SHA-256', encoder.encode(passwordHash));
+  return toBase64Url(new Uint8Array(digest));
+}
 
 function getSessionSecret(): string {
   const secret = process.env.SESSION_SECRET?.trim();
@@ -81,17 +87,18 @@ function timingSafeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function parseSessionUser(data: unknown): SessionUser | null {
+function parseSessionUser(data: unknown): SignedSessionUser | null {
   if (!data || typeof data !== 'object') return null;
   const o = data as Record<string, unknown>;
   if (typeof o.id !== 'string' || typeof o.email !== 'string') return null;
   if (typeof o.name !== 'string') return null;
   if (o.role !== 'admin' && o.role !== 'viewer') return null;
-  return { id: o.id, email: o.email, name: o.name, role: o.role };
+  if (typeof o.credentialVersion !== 'string') return null;
+  return { id: o.id, email: o.email, name: o.name, role: o.role, credentialVersion: o.credentialVersion };
 }
 
 /** Cookie firmada: base64url(payload).base64url(hmac) */
-export async function encodeSessionCookie(user: SessionUser): Promise<string> {
+export async function encodeSessionCookie(user: SignedSessionUser): Promise<string> {
   const payload: SessionPayload = {
     ...user,
     exp: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE_SEC,
@@ -103,7 +110,7 @@ export async function encodeSessionCookie(user: SessionUser): Promise<string> {
 
 export async function decodeSessionCookie(
   cookieValue: string
-): Promise<SessionUser | null> {
+): Promise<SignedSessionUser | null> {
   if (!cookieValue) return null;
 
   const dot = cookieValue.indexOf('.');
