@@ -11,6 +11,9 @@ export async function PUT(request: NextRequest) {
         { status: 401 }
       );
     }
+    if (session.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Se requiere rol administrador' }, { status: 403 });
+    }
 
     const {
       id,

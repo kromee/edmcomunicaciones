@@ -3,22 +3,37 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import bcrypt from 'bcryptjs';
 import {
   encodeSessionCookie,
+  getCredentialVersion,
   sessionCookieMaxAge,
 } from '@/lib/session-token';
 import type { SessionUser } from '@/types/session';
+import { checkRateLimit, getClientIpFromHeaders } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Login attempt started');
-    
-    const { email, password } = await request.json();
-    console.log('Login attempt for email:', email);
-
-    if (!email || !password) {
-      console.log('Missing email or password');
+    const body = await request.json().catch(() => null);
+    const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body?.password === 'string' ? body.password : '';
+    if (!email || email.length > 254 || !password || password.length > 1024) {
       return NextResponse.json(
-        { success: false, error: 'Email y contraseña son requeridos' },
-        { status: 400 }
+        { success: false, error: 'Credenciales inválidas' },
+        { status: 401 }
+      );
+    }
+
+    // Esta protección por instancia limita intentos casuales. Debe complementarse
+    // con límites persistentes en la infraestructura para cubrir todas las instancias.
+    const ip = getClientIpFromHeaders(request.headers);
+    const ipLimit = checkRateLimit(`login:ip:${ip}`, 20, 15 * 60 * 1000);
+    const accountLimit = checkRateLimit(`login:account:${email}`, 8, 15 * 60 * 1000);
+    if (!ipLimit.allowed || !accountLimit.allowed) {
+      const retryAfter = Math.max(
+        ipLimit.allowed ? 0 : ipLimit.retryAfterSec,
+        accountLimit.allowed ? 0 : accountLimit.retryAfterSec
+      );
+      return NextResponse.json(
+        { success: false, error: 'Demasiados intentos. Intenta más tarde.' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
       );
     }
 
@@ -68,14 +83,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (!user) {
-      console.log('User not found for email:', emailNorm);
-      return NextResponse.json(
+        return NextResponse.json(
         { success: false, error: 'Credenciales inválidas' },
         { status: 401 }
       );
     }
 
-    console.log('User found:', user.email);
 
     // Verificar contraseña
     console.log('Verifying password...');
@@ -101,8 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isValidPassword) {
-      console.log('Invalid password for user:', email);
-      return NextResponse.json(
+        return NextResponse.json(
         { success: false, error: 'Credenciales inválidas' },
         { status: 401 }
       );
@@ -112,11 +124,12 @@ export async function POST(request: NextRequest) {
 
     // Crear sesión (guardar en cookie)
     console.log('Creating session...');
-    const sessionData: SessionUser = {
+    const sessionData: SessionUser & { credentialVersion: string } = {
       id: String(user.id),
       email: String(user.email),
       name: typeof user.name === 'string' && user.name.trim() ? user.name.trim() : String(user.email),
       role: user.role === 'admin' ? 'admin' : 'viewer',
+      credentialVersion: await getCredentialVersion(passwordHash),
     };
 
     let signedSession: string;
@@ -136,10 +149,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Login successful for user:', email);
     const response = NextResponse.json({
       success: true,
-      user: sessionData,
+      user: { id: sessionData.id, email: sessionData.email, name: sessionData.name, role: sessionData.role },
     });
 
     try {

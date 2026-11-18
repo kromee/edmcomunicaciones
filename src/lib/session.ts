@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { SessionUser } from '@/types/session';
-import { decodeSessionCookie } from '@/lib/session-token';
+import { decodeSessionCookie, getCredentialVersion } from '@/lib/session-token';
+import { createClient } from '@/lib/supabase/server';
 
 export type { SessionUser };
 
@@ -22,7 +23,17 @@ export async function getSession(): Promise<SessionUser | null> {
       return null;
     }
 
-    return await decodeSessionCookie(sessionCookie.value);
+    const session = await decodeSessionCookie(sessionCookie.value);
+    if (!session) return null;
+    const { data: user, error } = await createClient()
+      .from('users')
+      .select('password_hash, role')
+      .eq('id', session.id)
+      .maybeSingle();
+    if (error || !user || (user.role !== 'admin' && user.role !== 'viewer')) return null;
+    if (user.role !== session.role) return null;
+    if (await getCredentialVersion(user.password_hash || '') !== session.credentialVersion) return null;
+    return { id: session.id, email: session.email, name: session.name, role: session.role };
   } catch (error) {
     if (isDynamicServerUsageError(error)) {
       return null;

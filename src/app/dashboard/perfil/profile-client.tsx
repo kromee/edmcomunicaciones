@@ -50,8 +50,8 @@ export default function ProfileClient({ user }: { user: User }) {
 
     if (!passwords.new) {
       newErrors.new = 'La nueva contraseña es requerida';
-    } else if (passwords.new.length < 6) {
-      newErrors.new = 'La contraseña debe tener al menos 6 caracteres';
+    } else if (passwords.new.length < 12) {
+      newErrors.new = 'La contraseña debe tener al menos 12 caracteres';
     }
 
     if (!passwords.confirm) {
