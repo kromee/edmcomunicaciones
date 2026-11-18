@@ -91,6 +91,11 @@ export default function MfaSetup({ enabled }: { enabled: boolean }) {
               Microsoft Authenticator o Contraseñas del iPhone. Confirma tu contraseña
               para vincularla con tu cuenta de EDM.
             </p>
+            <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              Si varias personas usan esta misma cuenta, no actives todavía el segundo
+              factor. Sus sesiones actuales dejarán de funcionar y necesitarán un código
+              de tu app para volver a entrar. Primero conviene darles cuentas individuales.
+            </p>
             <form onSubmit={begin} className="space-y-3">
               <label htmlFor="mfa-password" className="block text-sm font-medium">Contraseña actual</label>
               <input
