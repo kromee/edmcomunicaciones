@@ -33,7 +33,8 @@ type QuoteData = {
   }>;
 };
 
-export default async function DetallesCotizacionPage({ params }: { params: { id: string } }) {
+export default async function DetallesCotizacionPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getSession();
   if (!session) {
     redirect('/login');
@@ -47,7 +48,7 @@ export default async function DetallesCotizacionPage({ params }: { params: { id:
       *,
       quote_items (*)
     `)
-    .eq('id', params.id)
+    .eq('id', id)
     .order('sort_order', { foreignTable: 'quote_items', ascending: true })
     .single();
 
@@ -77,7 +78,7 @@ export default async function DetallesCotizacionPage({ params }: { params: { id:
     .select(
       'id, recipient_email, channel, status, error_message, sent_at, sent_by'
     )
-    .eq('quote_id', params.id)
+    .eq('quote_id', id)
     .order('sent_at', { ascending: false });
 
   const senderIds = [

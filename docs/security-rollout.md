@@ -27,7 +27,9 @@ El middleware debe permanecer en `src/middleware.ts`, junto a `src/app`. En la r
 ## Pendientes para cierre completo
 
 - Añadir segundo factor para administradores.
-- Actualizar Next.js 14 (fuera de soporte) después de revisar compatibilidad y regresiones del cotizador.
+- Integrar y publicar la migración a Next.js 16, React 19 y Node.js 22 de la rama `feature/security-next16`. En local pasaron `npm ci`, `npm run build`, las rutas públicas, la redirección del panel sin sesión y el bloqueo de escritura desde otro origen. Antes de integrarla, comprobar en la vista previa de Vercel un inicio de sesión real, el listado y la edición de clientes, el flujo de cotización y la generación de PDF. Tras publicar, repetir esos flujos en producción.
+- Resolver las advertencias preexistentes del linter de forma gradual. La migración deja `npm run lint` ejecutable con 0 errores y 51 advertencias; las reglas nuevas que ya detectan código previo se mantienen como advertencias.
+- Revisar 3 avisos moderados en dependencias de desarrollo (`glob` y `minimatch` de Tailwind/Sucrase). `npm audit --omit=dev` no reporta avisos en dependencias de producción con esta migración.
 - Validar visualmente una cotización PDF real tras publicar la actualización de jsPDF 4.2.1; la generación con datos ficticios y la compilación ya se comprobaron en local.
 - Revisar la política de CSP y valorar un token CSRF adicional si se habilitan integraciones o nuevos dominios.
 - Definir monitoreo de intentos fallidos y plan de rotación de credenciales si el historial de accesos lo justifica.

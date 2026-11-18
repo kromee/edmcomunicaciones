@@ -33,7 +33,7 @@ function hasTrustedOrigin(request: NextRequest): boolean {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
@@ -94,8 +94,7 @@ export const config = {
     '/cotizador/:path*',
     '/login',
     /*
-     * No ejecutar middleware en login/logout: evita Edge + crypto en la ruta de auth
-     * y deja que el Route Handler fije la cookie con NextResponse.
+     * No ejecutar proxy en login/logout: el Route Handler fija la cookie de sesión.
      */
     '/api/((?!auth/login|auth/logout).*)',
   ],
