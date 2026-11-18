@@ -20,9 +20,13 @@ Antes de integrar el cambio del login, ejecutar `scripts/security-login-rate-lim
 
 Después del despliegue, comprobar un inicio de sesión correcto y uno con contraseña incorrecta. Más de 8 intentos con la misma cuenta o 30 desde la misma IP durante 15 minutos devuelven HTTP 429 con `Retry-After`; el contador incluye los intentos exitosos. El bloqueo también puede afectar temporalmente a un administrador si alguien intenta entrar repetidamente con su correo. Si la API devuelve HTTP 503, revisar la ejecución del script y los permisos de la función antes de volver a probar.
 
+Las operaciones de escritura del portal requieren el encabezado `Origin` del mismo origen que el sitio. Después de desplegar, verificar desde el navegador que se pueden crear y editar clientes y cotizaciones y cambiar la contraseña; una solicitud con `Origin` ajeno o ausente debe devolver HTTP 403. Los clientes de API externos, si se incorporan más adelante, necesitarán un mecanismo de autenticación distinto de la cookie del navegador.
+
+El middleware debe permanecer en `src/middleware.ts`, junto a `src/app`. En la raíz del proyecto Next.js no lo compilaba, por lo que las verificaciones de sesión anticipadas y el bloqueo de rutas de depuración no se ejecutaban. Los handlers privados ya validaban la sesión por su cuenta; tras este cambio, la protección adicional también opera en el borde.
+
 ## Pendientes para cierre completo
 
 - Añadir segundo factor para administradores.
 - Actualizar Next.js 14 (fuera de soporte) y jsPDF después de revisar compatibilidad y regresiones del cotizador/PDF.
-- Revisar políticas de CSP y protección CSRF de los formularios administrativos.
+- Revisar la política de CSP y valorar un token CSRF adicional si se habilitan integraciones o nuevos dominios.
 - Definir monitoreo de intentos fallidos y plan de rotación de credenciales si el historial de accesos lo justifica.

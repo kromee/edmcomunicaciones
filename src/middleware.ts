@@ -19,8 +19,36 @@ function isPublicApi(pathname: string): boolean {
   return PUBLIC_API_PREFIXES.some((route) => pathname.startsWith(route));
 }
 
+function hasTrustedOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get('origin');
+  const host = request.headers.get('host');
+  if (!origin || !host) return false;
+
+  try {
+    const originUrl = new URL(origin);
+    return originUrl.host === host.toLowerCase() &&
+      originUrl.protocol === request.nextUrl.protocol;
+  } catch {
+    return false;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (
+    pathname.startsWith('/api/') &&
+    !isPublicApi(pathname) &&
+    !['GET', 'HEAD', 'OPTIONS'].includes(request.method)
+  ) {
+    if (!hasTrustedOrigin(request)) {
+      return NextResponse.json(
+        { success: false, error: 'Origen no permitido' },
+        { status: 403 }
+      );
+    }
+  }
+
   const sessionValue = request.cookies.get('session')?.value;
   let session = null;
   if (sessionValue) {
