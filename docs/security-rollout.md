@@ -27,6 +27,7 @@ El middleware debe permanecer en `src/middleware.ts`, junto a `src/app`. En la r
 ## Pendientes para cierre completo
 
 - Añadir segundo factor para administradores.
-- Actualizar Next.js 14 (fuera de soporte) y jsPDF después de revisar compatibilidad y regresiones del cotizador/PDF.
+- Actualizar Next.js 14 (fuera de soporte) después de revisar compatibilidad y regresiones del cotizador.
+- Validar visualmente una cotización PDF real tras publicar la actualización de jsPDF 4.2.1; la generación con datos ficticios y la compilación ya se comprobaron en local.
 - Revisar la política de CSP y valorar un token CSRF adicional si se habilitan integraciones o nuevos dominios.
 - Definir monitoreo de intentos fallidos y plan de rotación de credenciales si el historial de accesos lo justifica.
