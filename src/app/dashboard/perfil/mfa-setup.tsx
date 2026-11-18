@@ -87,7 +87,9 @@ export default function MfaSetup({ enabled }: { enabled: boolean }) {
         ) : step === 'idle' ? (
           <>
             <p className="text-sm text-gray-700">
-              Protege tu cuenta con una app autenticadora. Confirma tu contraseña para empezar.
+              Necesitas una app de códigos en tu celular, como Google Authenticator,
+              Microsoft Authenticator o Contraseñas del iPhone. Confirma tu contraseña
+              para vincularla con tu cuenta de EDM.
             </p>
             <form onSubmit={begin} className="space-y-3">
               <label htmlFor="mfa-password" className="block text-sm font-medium">Contraseña actual</label>
@@ -104,13 +106,18 @@ export default function MfaSetup({ enabled }: { enabled: boolean }) {
         ) : step === 'scan' ? (
           <>
             <p className="text-sm text-gray-700">
-              Escanea este QR con tu app autenticadora y escribe el código de seis dígitos.
-              La configuración vence en 10 minutos.
+              En tu celular, abre la app de códigos, elige «Agregar cuenta» y luego
+              «Escanear código QR». Apunta la cámara al QR de esta pantalla. La app
+              mostrará EDM Comunicaciones y un código de seis dígitos: escríbelo abajo.
+              Tienes 10 minutos para completar este paso.
             </p>
             {/* El QR contiene un secreto local; next/image no optimiza data URLs. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={qrDataUrl} alt="QR para configurar la app autenticadora" width={220} height={220} />
-            <p className="text-xs text-gray-600">Si no puedes escanearlo, agrega esta clave manualmente:</p>
+            <p className="text-xs text-gray-600">
+              Si ves esta página en el mismo celular o no puedes escanear el QR,
+              elige «Ingresar clave manualmente» en la app y usa esta clave privada:
+            </p>
             <code className="block break-all rounded bg-gray-100 p-3 text-sm select-all">{secret}</code>
             <form onSubmit={confirm} className="space-y-3">
               <label htmlFor="mfa-code" className="block text-sm font-medium">Código de la app</label>
