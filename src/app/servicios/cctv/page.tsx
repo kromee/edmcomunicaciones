@@ -3,8 +3,8 @@ import { ServiceLanding } from '@/components/ServiceLanding';
 
 export const metadata: Metadata = {
   title: 'Instalación de CCTV y cámaras de seguridad | EDM Comunicaciones',
-  description: 'Instalación de cámaras de seguridad y videovigilancia para comercios, empresas y hogares en CDMX, Estado de México, Puebla y Veracruz.',
-  openGraph: { title: 'Instalación de CCTV y cámaras de seguridad | EDM Comunicaciones', description: 'Videovigilancia para comercios, empresas y hogares en CDMX, Estado de México, Puebla y Veracruz.' },
+  description: 'Instalación de cámaras de seguridad y videovigilancia para comercios, empresas y hogares en toda la República Mexicana.',
+  openGraph: { title: 'Instalación de CCTV y cámaras de seguridad | EDM Comunicaciones', description: 'Videovigilancia para comercios, empresas y hogares en toda la República Mexicana.' },
 };
 
 export default function CctvPage() {

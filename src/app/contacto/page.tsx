@@ -355,6 +355,9 @@ export default function ContactoPage() {
                       <p className="text-gray-600">
                         Estamos aquí para ayudarte. Contáctanos por cualquiera de estos medios.
                       </p>
+                      <p className="mt-3 text-gray-600">
+                        Atendemos proyectos en toda la República Mexicana. Actualmente, nuestros principales clientes se encuentran en CDMX, Estado de México, Puebla y Veracruz.
+                      </p>
                     </div>
 
                     <div className="card-nexus rounded-3xl p-8 hover:shadow-nexus transition-all duration-500 space-y-6 relative z-10">
@@ -366,7 +369,6 @@ export default function ContactoPage() {
                         </div>
                         <div className="relative z-10">
                           <h3 className="font-bold text-brand">Teléfono</h3>
-                          <p className="text-gray-600">{config.contact.phone}</p>
                           <a 
                             href={getPhoneLink()}
                             className="inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-accent hover:bg-accent/90 transition-all hover:scale-105 relative z-20"
@@ -385,7 +387,6 @@ export default function ContactoPage() {
                         </div>
                         <div className="relative z-10">
                           <h3 className="font-bold text-brand">WhatsApp</h3>
-                          <p className="text-gray-600">{config.contact.whatsapp}</p>
                           <a 
                             href={getWhatsAppLink('Hola, quisiera información sobre sus servicios de telecomunicaciones.')}
                             target="_blank"

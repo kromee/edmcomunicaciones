@@ -32,6 +32,5 @@ export default function DesarrolloSoftwarePage() {
       { question: '¿Pueden integrar herramientas que ya usamos?', answer: 'Evaluamos las opciones de integración según los sistemas, sus capacidades y el alcance del proyecto.' },
       { question: '¿Cuánto cuesta y tarda el desarrollo?', answer: 'El costo y el tiempo dependen de las funciones, integraciones y alcance acordados. Preparamos una propuesta después de revisar tus necesidades.' },
     ]}
-    coverage={false}
   />;
 }
