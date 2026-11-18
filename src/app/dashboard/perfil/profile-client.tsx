@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/DashboardSidebar';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { useModal } from '@/hooks/useModal';
 import { Modal } from '@/components/Modal';
+import MfaSetup from './mfa-setup';
 
 type User = {
   id: string;
@@ -12,6 +13,7 @@ type User = {
   name: string;
   role: 'admin' | 'viewer';
   created_at: string;
+  mfa_enabled: boolean;
 };
 
 export default function ProfileClient({ user }: { user: User }) {
@@ -282,6 +284,8 @@ export default function ProfileClient({ user }: { user: User }) {
                 )}
               </div>
             </div>
+
+            {user.role === 'admin' && <MfaSetup enabled={user.mfa_enabled} />}
 
             {/* Danger Zone */}
             <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-danger/20">

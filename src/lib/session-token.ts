@@ -4,7 +4,10 @@ const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-export type SignedSessionUser = SessionUser & { credentialVersion: string };
+export type SignedSessionUser = SessionUser & {
+  credentialVersion: string;
+  mfaVerified?: boolean;
+};
 type SessionPayload = SignedSessionUser & { exp: number };
 
 export async function getCredentialVersion(passwordHash: string): Promise<string> {
@@ -94,7 +97,14 @@ function parseSessionUser(data: unknown): SignedSessionUser | null {
   if (typeof o.name !== 'string') return null;
   if (o.role !== 'admin' && o.role !== 'viewer') return null;
   if (typeof o.credentialVersion !== 'string') return null;
-  return { id: o.id, email: o.email, name: o.name, role: o.role, credentialVersion: o.credentialVersion };
+  return {
+    id: o.id,
+    email: o.email,
+    name: o.name,
+    role: o.role,
+    credentialVersion: o.credentialVersion,
+    mfaVerified: o.mfaVerified === true,
+  };
 }
 
 /** Cookie firmada: base64url(payload).base64url(hmac) */

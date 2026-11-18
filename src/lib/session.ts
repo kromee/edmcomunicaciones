@@ -27,12 +27,13 @@ export async function getSession(): Promise<SessionUser | null> {
     if (!session) return null;
     const { data: user, error } = await createClient()
       .from('users')
-      .select('password_hash, role')
+      .select('password_hash, role, mfa_enabled')
       .eq('id', session.id)
       .maybeSingle();
     if (error || !user || (user.role !== 'admin' && user.role !== 'viewer')) return null;
     if (user.role !== session.role) return null;
     if (await getCredentialVersion(user.password_hash || '') !== session.credentialVersion) return null;
+    if (user.role === 'admin' && user.mfa_enabled && !session.mfaVerified) return null;
     return { id: session.id, email: session.email, name: session.name, role: session.role };
   } catch (error) {
     if (isDynamicServerUsageError(error)) {

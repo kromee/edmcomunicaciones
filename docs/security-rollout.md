@@ -26,10 +26,19 @@ El middleware debe permanecer en `src/middleware.ts`, junto a `src/app`. En la r
 
 ## Pendientes para cierre completo
 
-- Añadir segundo factor para administradores.
+- Activar el segundo factor para cada administrador según el procedimiento siguiente.
 - Integrar y publicar la migración a Next.js 16, React 19 y Node.js 22 de la rama `feature/security-next16`. En local pasaron `npm ci`, `npm run build`, las rutas públicas, la redirección del panel sin sesión y el bloqueo de escritura desde otro origen. Antes de integrarla, comprobar en la vista previa de Vercel un inicio de sesión real, el listado y la edición de clientes, el flujo de cotización y la generación de PDF. Tras publicar, repetir esos flujos en producción.
 - Resolver las advertencias preexistentes del linter de forma gradual. La migración deja `npm run lint` ejecutable con 0 errores y 51 advertencias; las reglas nuevas que ya detectan código previo se mantienen como advertencias.
 - Revisar 3 avisos moderados en dependencias de desarrollo (`glob` y `minimatch` de Tailwind/Sucrase). `npm audit --omit=dev` no reporta avisos en dependencias de producción con esta migración.
 - Validar visualmente una cotización PDF real tras publicar la actualización de jsPDF 4.2.1; la generación con datos ficticios y la compilación ya se comprobaron en local.
 - Revisar la política de CSP y valorar un token CSRF adicional si se habilitan integraciones o nuevos dominios.
 - Definir monitoreo de intentos fallidos y plan de rotación de credenciales si el historial de accesos lo justifica.
+
+## Activación del segundo factor
+
+1. Antes de desplegar la rama `feature/security-mfa`, ejecutar `scripts/security-mfa.sql` en el SQL Editor de Supabase. Este paso añade columnas a `users`; si se omite, las consultas de sesión del portal fallarán.
+2. Generar una clave aleatoria de 32 bytes con `openssl rand -base64 32`. Crear `MFA_ENCRYPTION_KEY` en Vercel como **Secret**, sin prefijo `NEXT_PUBLIC_`, para Production y Preview. Guardar una copia en un gestor seguro de secretos: perderla impide descifrar las claves TOTP ya inscritas. No pegarla en Git, PR, chat ni registros.
+3. Desplegar la rama. Cada administrador entra con su contraseña, abre **Mi perfil → Segundo factor de acceso**, confirma su contraseña, escanea el QR en una app autenticadora y escribe el código. Después guarda los ocho códigos de recuperación fuera de la cuenta; se muestran una sola vez. Al activarlo, la sesión actual queda invalidada y debe iniciar sesión con contraseña y código.
+4. Confirmar que cada cuenta administradora tiene el segundo factor activo. Un administrador que todavía no se inscribe seguirá pudiendo entrar con contraseña; el cierre completo requiere que todos lo activen. Probar un código TOTP correcto, uno incorrecto, la reutilización del mismo código y un código de recuperación, que debe funcionar solo una vez. Evitar consumir todos los códigos durante la prueba.
+
+Si se pierde el dispositivo y todos los códigos de recuperación, el propietario de Supabase deberá verificar la identidad y restablecer MFA manualmente en la base. No hay un enlace de restablecimiento público. La función SQL que consume códigos de recuperación solo admite `service_role`; los secretos TOTP se guardan cifrados y los códigos de recuperación como hashes.

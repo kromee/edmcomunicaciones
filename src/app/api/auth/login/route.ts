@@ -5,16 +5,19 @@ import {
   encodeSessionCookie,
   getCredentialVersion,
   sessionCookieMaxAge,
+  type SignedSessionUser,
 } from '@/lib/session-token';
-import type { SessionUser } from '@/types/session';
 import { getClientIpFromHeaders } from '@/lib/rate-limit';
 import { createHmac } from 'crypto';
+import { verify } from 'otplib';
+import { decryptMfaSecret, hashRecoveryCode } from '@/lib/mfa';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null);
     const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
     const password = typeof body?.password === 'string' ? body.password : '';
+    const mfaCode = typeof body?.mfaCode === 'string' ? body.mfaCode.trim() : '';
     if (!email || email.length > 254 || !password || password.length > 1024) {
       return NextResponse.json(
         { success: false, error: 'Credenciales inválidas' },
@@ -130,13 +133,100 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const mfaEnabled = user.role === 'admin' && user.mfa_enabled === true;
+    if (mfaEnabled) {
+      if (!mfaCode) {
+        return NextResponse.json(
+          { success: false, mfaRequired: true, error: 'Ingresa el código de tu app autenticadora o uno de recuperación.' },
+          { status: 401 }
+        );
+      }
+      if (mfaCode.length > 50 || !user.mfa_secret_encrypted) {
+        return NextResponse.json(
+          { success: false, mfaRequired: true, error: 'Código inválido' },
+          { status: 401 }
+        );
+      }
+
+      if (/^\d{6}$/.test(mfaCode)) {
+        let result;
+        try {
+          result = await verify({
+            secret: decryptMfaSecret(user.mfa_secret_encrypted),
+            token: mfaCode,
+            epochTolerance: 30,
+            afterTimeStep: Number(user.mfa_last_step ?? -1),
+          });
+        } catch {
+          console.error('MFA verification unavailable');
+          return NextResponse.json(
+            { success: false, error: 'Acceso temporalmente no disponible' },
+            { status: 503 }
+          );
+        }
+        if (!result.valid || !('timeStep' in result) ||
+            typeof result.timeStep !== 'number') {
+          return NextResponse.json(
+            { success: false, mfaRequired: true, error: 'Código inválido o ya utilizado' },
+            { status: 401 }
+          );
+        }
+        const { data: consumed, error: consumeError } = await supabase
+          .from('users')
+          .update({ mfa_last_step: result.timeStep })
+          .eq('id', user.id)
+          .lt('mfa_last_step', result.timeStep)
+          .select('id')
+          .maybeSingle();
+        if (consumeError) {
+          console.error('MFA step update failed');
+          return NextResponse.json(
+            { success: false, error: 'Acceso temporalmente no disponible' },
+            { status: 503 }
+          );
+        }
+        if (!consumed) {
+          return NextResponse.json(
+            { success: false, mfaRequired: true, error: 'Código ya utilizado' },
+            { status: 401 }
+          );
+        }
+      } else {
+        const codeHash = hashRecoveryCode(mfaCode);
+        if (!codeHash) {
+          return NextResponse.json(
+            { success: false, mfaRequired: true, error: 'Código inválido' },
+            { status: 401 }
+          );
+        }
+        const { data: consumed, error: consumeError } = await supabase.rpc(
+          'consume_mfa_recovery_code',
+          { p_user_id: String(user.id), p_code_hash: codeHash }
+        );
+        if (consumeError) {
+          console.error('MFA recovery code unavailable');
+          return NextResponse.json(
+            { success: false, error: 'Acceso temporalmente no disponible' },
+            { status: 503 }
+          );
+        }
+        if (consumed !== true) {
+          return NextResponse.json(
+            { success: false, mfaRequired: true, error: 'Código inválido o ya utilizado' },
+            { status: 401 }
+          );
+        }
+      }
+    }
+
     // Crear sesión (guardar en cookie)
-    const sessionData: SessionUser & { credentialVersion: string } = {
+    const sessionData: SignedSessionUser = {
       id: String(user.id),
       email: String(user.email),
       name: typeof user.name === 'string' && user.name.trim() ? user.name.trim() : String(user.email),
       role: user.role === 'admin' ? 'admin' : 'viewer',
       credentialVersion: await getCredentialVersion(passwordHash),
+      mfaVerified: mfaEnabled,
     };
 
     let signedSession: string;
