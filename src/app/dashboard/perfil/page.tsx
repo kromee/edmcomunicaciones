@@ -14,7 +14,7 @@ export default async function ProfilePage() {
     const supabase = createAdminClient();
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, name, role, created_at, mfa_enabled')
+      .select('id, email, name, role, created_at')
       .eq('id', session.id)
       .single();
 

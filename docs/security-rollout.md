@@ -22,23 +22,19 @@ Después del despliegue, comprobar un inicio de sesión correcto y uno con contr
 
 Las operaciones de escritura del portal requieren el encabezado `Origin` del mismo origen que el sitio. Después de desplegar, verificar desde el navegador que se pueden crear y editar clientes y cotizaciones y cambiar la contraseña; una solicitud con `Origin` ajeno o ausente debe devolver HTTP 403. Los clientes de API externos, si se incorporan más adelante, necesitarán un mecanismo de autenticación distinto de la cookie del navegador.
 
-El middleware debe permanecer en `src/middleware.ts`, junto a `src/app`. En la raíz del proyecto Next.js no lo compilaba, por lo que las verificaciones de sesión anticipadas y el bloqueo de rutas de depuración no se ejecutaban. Los handlers privados ya validaban la sesión por su cuenta; tras este cambio, la protección adicional también opera en el borde.
+El proxy de Next.js 16 debe permanecer en `src/proxy.ts`, junto a `src/app`. En la raíz del proyecto no se compilaba cuando la aplicación vivía en `src`; las verificaciones de sesión anticipadas y el bloqueo de rutas de depuración ya operan en el servidor.
+
+## Acceso con correo y contraseña
+
+El acceso al portal usa las dos cuentas administradoras existentes, cada una con su propio correo y contraseña. El segundo factor por app no forma parte del flujo de acceso. Los controles activos son el límite persistente de intentos, contraseñas verificadas con bcrypt, cookies de sesión firmadas y `httpOnly`, comprobación de sesión en las rutas privadas, RLS en Supabase y protección de origen para las operaciones de escritura. Cada persona debe usar su propia cuenta para poder distinguir y revocar accesos.
+
+Las columnas de MFA añadidas anteriormente en producción pueden permanecer sin uso; esta retirada no modifica ni elimina datos de la base. Ninguna cuenta administradora tenía MFA activado al preparar el cambio.
 
 ## Pendientes para cierre completo
 
-- Activar el segundo factor para cada administrador según el procedimiento siguiente.
-- Integrar y publicar la migración a Next.js 16, React 19 y Node.js 22 de la rama `feature/security-next16`. En local pasaron `npm ci`, `npm run build`, las rutas públicas, la redirección del panel sin sesión y el bloqueo de escritura desde otro origen. Antes de integrarla, comprobar en la vista previa de Vercel un inicio de sesión real, el listado y la edición de clientes, el flujo de cotización y la generación de PDF. Tras publicar, repetir esos flujos en producción.
+- Mantener Next.js, React y dependencias de producción al día. Next.js 16, React 19 y Node.js 22 ya están integrados.
 - Resolver las advertencias preexistentes del linter de forma gradual. La migración deja `npm run lint` ejecutable con 0 errores y 51 advertencias; las reglas nuevas que ya detectan código previo se mantienen como advertencias.
 - Revisar 3 avisos moderados en dependencias de desarrollo (`glob` y `minimatch` de Tailwind/Sucrase). `npm audit --omit=dev` no reporta avisos en dependencias de producción con esta migración.
 - Validar visualmente una cotización PDF real tras publicar la actualización de jsPDF 4.2.1; la generación con datos ficticios y la compilación ya se comprobaron en local.
 - Revisar la política de CSP y valorar un token CSRF adicional si se habilitan integraciones o nuevos dominios.
 - Definir monitoreo de intentos fallidos y plan de rotación de credenciales si el historial de accesos lo justifica.
-
-## Activación del segundo factor
-
-1. Antes de desplegar la rama `feature/security-mfa`, ejecutar `scripts/security-mfa.sql` en el SQL Editor de Supabase. Este paso añade columnas a `users`; si se omite, las consultas de sesión del portal fallarán.
-2. Generar una clave aleatoria de 32 bytes con `openssl rand -base64 32`. Crear `MFA_ENCRYPTION_KEY` en Vercel como **Secret**, sin prefijo `NEXT_PUBLIC_`, para Production y Preview. Guardar una copia en un gestor seguro de secretos: perderla impide descifrar las claves TOTP ya inscritas. No pegarla en Git, PR, chat ni registros.
-3. Desplegar la rama. Cada administrador entra con su contraseña, abre **Mi perfil → Segundo factor de acceso**, confirma su contraseña, escanea el QR en una app autenticadora y escribe el código. Después guarda los ocho códigos de recuperación fuera de la cuenta; se muestran una sola vez. Al activarlo, la sesión actual queda invalidada y debe iniciar sesión con contraseña y código.
-4. Confirmar que cada cuenta administradora tiene el segundo factor activo. Un administrador que todavía no se inscribe seguirá pudiendo entrar con contraseña; el cierre completo requiere que todos lo activen. Probar un código TOTP correcto, uno incorrecto, la reutilización del mismo código y un código de recuperación, que debe funcionar solo una vez. Evitar consumir todos los códigos durante la prueba.
-
-Si se pierde el dispositivo y todos los códigos de recuperación, el propietario de Supabase deberá verificar la identidad y restablecer MFA manualmente en la base. No hay un enlace de restablecimiento público. La función SQL que consume códigos de recuperación solo admite `service_role`; los secretos TOTP se guardan cifrados y los códigos de recuperación como hashes.
