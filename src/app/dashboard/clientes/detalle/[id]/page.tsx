@@ -3,7 +3,8 @@ import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import DetalleClienteClient from './detalle-cliente-client';
 
-export default async function DetalleClientePage({ params }: { params: { id: string } }) {
+export default async function DetalleClientePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getSession();
   
   if (!session) {
@@ -15,7 +16,7 @@ export default async function DetalleClientePage({ params }: { params: { id: str
   const { data: client, error } = await supabase
     .from('clients')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !client) {
