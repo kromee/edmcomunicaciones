@@ -16,6 +16,12 @@ export interface Database {
           name: string
           role: 'admin' | 'viewer'
           password_hash: string
+          mfa_enabled: boolean
+          mfa_secret_encrypted: string | null
+          mfa_pending_secret_encrypted: string | null
+          mfa_pending_until: string | null
+          mfa_last_step: number
+          mfa_recovery_hashes: string[]
           created_at: string
           updated_at: string
         }
@@ -25,6 +31,12 @@ export interface Database {
           name: string
           role?: 'admin' | 'viewer'
           password_hash: string
+          mfa_enabled?: boolean
+          mfa_secret_encrypted?: string | null
+          mfa_pending_secret_encrypted?: string | null
+          mfa_pending_until?: string | null
+          mfa_last_step?: number
+          mfa_recovery_hashes?: string[]
           created_at?: string
           updated_at?: string
         }
@@ -34,6 +46,12 @@ export interface Database {
           name?: string
           role?: 'admin' | 'viewer'
           password_hash?: string
+          mfa_enabled?: boolean
+          mfa_secret_encrypted?: string | null
+          mfa_pending_secret_encrypted?: string | null
+          mfa_pending_until?: string | null
+          mfa_last_step?: number
+          mfa_recovery_hashes?: string[]
           created_at?: string
           updated_at?: string
         }

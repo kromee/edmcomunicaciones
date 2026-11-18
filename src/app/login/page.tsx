@@ -45,6 +45,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaRequired, setMfaRequired] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +59,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, mfaCode }),
       });
 
       const data = await response.json();
@@ -66,6 +68,7 @@ export default function LoginPage() {
         router.push('/dashboard');
         router.refresh();
       } else {
+        if (data.mfaRequired) setMfaRequired(true);
         setError(data.error || 'Error al iniciar sesión');
       }
     } catch (error) {
@@ -159,6 +162,26 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+
+              {mfaRequired && (
+                <div>
+                  <label htmlFor="mfaCode" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Código de autenticación o recuperación
+                  </label>
+                  <input
+                    id="mfaCode"
+                    name="mfaCode"
+                    type="text"
+                    autoComplete="one-time-code"
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value)}
+                    maxLength={50}
+                    required
+                    className="w-full px-4 py-3.5 rounded-md border border-gray-200 bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                    placeholder="6 dígitos o código de recuperación"
+                  />
+                </div>
+              )}
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center cursor-pointer">
