@@ -48,7 +48,7 @@ export function ServiceLanding({
               </a>
               <Link className="btn-nexus-secondary inline-flex items-center justify-center" href="/contacto">Ver otras formas de contacto</Link>
             </div>
-            {coverage && <p className="mt-6 text-sm text-gray-600">Atención en CDMX, Estado de México, Puebla y Veracruz.</p>}
+            {coverage && <p className="mt-6 max-w-3xl text-sm text-gray-600">Atendemos proyectos en toda la República Mexicana. Actualmente, nuestros principales clientes se encuentran en CDMX, Estado de México, Puebla y Veracruz.</p>}
           </div>
         </section>
 

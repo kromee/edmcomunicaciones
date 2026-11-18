@@ -3,8 +3,8 @@ import { ServiceLanding } from '@/components/ServiceLanding';
 
 export const metadata: Metadata = {
   title: 'Redes y cableado estructurado | EDM Comunicaciones',
-  description: 'Diseño e instalación de redes y cableado estructurado para comercios, empresas y hogares en CDMX, Estado de México, Puebla y Veracruz.',
-  openGraph: { title: 'Redes y cableado estructurado | EDM Comunicaciones', description: 'Redes y cableado para comercios, empresas y hogares en CDMX, Estado de México, Puebla y Veracruz.' },
+  description: 'Diseño e instalación de redes y cableado estructurado para comercios, empresas y hogares en toda la República Mexicana.',
+  openGraph: { title: 'Redes y cableado estructurado | EDM Comunicaciones', description: 'Redes y cableado para comercios, empresas y hogares en toda la República Mexicana.' },
 };
 
 export default function RedesYCableadoPage() {

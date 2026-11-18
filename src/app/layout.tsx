@@ -7,7 +7,7 @@ import { AnalyticsEvents } from '@/components/AnalyticsEvents';
 
 export const metadata: Metadata = {
   title: 'EDM Comunicaciones | CCTV, redes y software a medida',
-  description: 'Instalación de CCTV, redes y cableado en CDMX, Estado de México, Puebla y Veracruz. Desarrollo de software a medida para comercios y empresas.',
+  description: 'CCTV, redes, cableado y desarrollo de software a medida en toda la República Mexicana. Soluciones para comercios, empresas y hogares.',
   metadataBase: new URL(getPublicSiteUrl()),
   alternates: {
     canonical: './',
@@ -33,7 +33,7 @@ const structuredData = {
       url: getPublicSiteUrl(),
       email: config.contact.email,
       telephone: config.contact.phone,
-      areaServed: ['Ciudad de México', 'Estado de México', 'Puebla', 'Veracruz'],
+      areaServed: { '@type': 'Country', name: 'México' },
       knowsAbout: ['CCTV', 'redes y cableado estructurado', 'desarrollo de software a medida']
     },
     {

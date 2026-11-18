@@ -355,6 +355,9 @@ export default function ContactoPage() {
                       <p className="text-gray-600">
                         Estamos aquí para ayudarte. Contáctanos por cualquiera de estos medios.
                       </p>
+                      <p className="mt-3 text-gray-600">
+                        Atendemos proyectos en toda la República Mexicana. Actualmente, nuestros principales clientes se encuentran en CDMX, Estado de México, Puebla y Veracruz.
+                      </p>
                     </div>
 
                     <div className="card-nexus rounded-3xl p-8 hover:shadow-nexus transition-all duration-500 space-y-6 relative z-10">

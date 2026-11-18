@@ -4,21 +4,29 @@ Estado: borrador para revisión. No publicado.
 
 ## Texto
 
-Quiero compartirles una parte de mi trabajo en EDM Comunicaciones.
+Muchos de ustedes me conocen por mi trabajo en desarrollo de software, pero hay otra parte de mi trayectoria que casi no he compartido por aquí.
 
-Ayudamos a comercios, empresas y clientes residenciales con tres necesidades concretas:
+Hace poco más de 10 años comenzamos un negocio que, con el tiempo, fue tomando el rumbo que hoy tiene **EDM Comunicaciones**. Además del desarrollo de sistemas empresariales y a medida, hemos trabajado en redes, cableado y cámaras de seguridad.
 
-- CCTV: instalación de cámaras de seguridad.
-- Redes y cableado: infraestructura para conectar sus espacios.
-- Desarrollo de software a medida: herramientas adaptadas a sus procesos de negocio.
+Han sido años de esfuerzo y aprendizaje. Conseguir un cliente lleva tiempo, y mantener su confianza implica cumplir, responder y estar ahí cuando vuelve a necesitarte. Varios nos siguen buscando y recomendando, y eso es algo que agradecemos mucho.
 
-Realizamos instalaciones en CDMX, Estado de México, Puebla y Veracruz.
+Ahora quiero darle un mayor impulso al negocio, seguir mejorando lo que hacemos y que más personas conozcan nuestro trabajo.
 
-En nuestro sitio pueden conocer los servicios y ver algunos de los proyectos en los que hemos trabajado:
+**Si tienes un comercio o participas en la operación de una empresa, podemos apoyarte con:**
+
+- Redes y cableado para conectar oficinas, locales y equipos.
+- Instalación, mantenimiento y ampliación de sistemas de cámaras de seguridad.
+- Software a medida para organizar información y facilitar los procesos de tu negocio.
+
+Atendemos proyectos en toda la República Mexicana. Actualmente, nuestros principales clientes se encuentran en CDMX, Estado de México, Puebla y Veracruz.
+
+Les comparto nuestro sitio, donde pueden conocer los servicios y algunos de los proyectos en los que hemos trabajado:
 
 https://edmcomunicaciones.vercel.app/?utm_source=linkedin&utm_medium=social&utm_campaign=presentacion_edm&utm_content=perfil_personal
 
-Si están planeando una instalación o necesitan software para un proceso específico, cuéntenme qué buscan resolver. Podemos revisar su necesidad y definir el alcance de una cotización.
+Si al leer esto pensaste en alguien que necesita apoyo en estas áreas, agradeceré que le compartas la publicación o nos pongas en contacto.
+
+A quienes ya han confiado en nosotros: gracias. Me da gusto empezar a compartir esta parte de mi trabajo también por aquí.
 
 ## Revisión antes de publicar
 

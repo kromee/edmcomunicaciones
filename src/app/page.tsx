@@ -75,7 +75,7 @@ export default function HomePage() {
                   </Link>
                 </div>
                 <p className="mt-6 text-sm leading-relaxed text-slate-600 max-w-md">
-                  Instalaciones en CDMX, Estado de México, Puebla y Veracruz.
+                  Atendemos proyectos en toda la República Mexicana. Actualmente, nuestros principales clientes se encuentran en CDMX, Estado de México, Puebla y Veracruz.
                 </p>
               </div>
               <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
