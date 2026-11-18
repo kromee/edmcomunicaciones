@@ -14,9 +14,14 @@ Tras el cambio de permisos, integrar la rama de seguridad y desplegar. Las cooki
 
 Comprobar desde una sesión de administrador las tareas habituales: consultar clientes, crear y actualizar una cotización, generar PDF y cerrar sesión. Sin sesión, el dashboard y las APIs privadas deben rechazar el acceso. Probar el rol de consulta antes de habilitar cuentas de ese tipo; ahora las operaciones de escritura requieren administrador.
 
+## Límite persistente del login
+
+Antes de integrar el cambio del login, ejecutar `scripts/security-login-rate-limit.sql` en el SQL Editor de Supabase. Crea un contador compartido entre las instancias de Vercel. La tabla solo es accesible mediante la función con privilegios de servicio; la API no acepta intentos de login si esa función falla o no existe. No requiere una nueva variable de entorno: utiliza `SESSION_SECRET`, que debe estar configurada en producción.
+
+Después del despliegue, comprobar un inicio de sesión correcto y uno con contraseña incorrecta. Más de 8 intentos con la misma cuenta o 30 desde la misma IP durante 15 minutos devuelven HTTP 429 con `Retry-After`; el contador incluye los intentos exitosos. El bloqueo también puede afectar temporalmente a un administrador si alguien intenta entrar repetidamente con su correo. Si la API devuelve HTTP 503, revisar la ejecución del script y los permisos de la función antes de volver a probar.
+
 ## Pendientes para cierre completo
 
-- Sustituir el límite de login en memoria por un límite persistente o protección de borde, válido en todas las instancias serverless.
 - Añadir segundo factor para administradores.
 - Actualizar Next.js 14 (fuera de soporte) y jsPDF después de revisar compatibilidad y regresiones del cotizador/PDF.
 - Revisar políticas de CSP y protección CSRF de los formularios administrativos.
