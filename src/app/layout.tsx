@@ -32,7 +32,6 @@ const structuredData = {
       name: config.company.name,
       url: getPublicSiteUrl(),
       email: config.contact.email,
-      telephone: config.contact.phone,
       areaServed: { '@type': 'Country', name: 'México' },
       knowsAbout: ['CCTV', 'redes y cableado estructurado', 'desarrollo de software a medida']
     },
