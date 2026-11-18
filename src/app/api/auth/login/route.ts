@@ -7,7 +7,8 @@ import {
   sessionCookieMaxAge,
 } from '@/lib/session-token';
 import type { SessionUser } from '@/types/session';
-import { checkRateLimit, getClientIpFromHeaders } from '@/lib/rate-limit';
+import { getClientIpFromHeaders } from '@/lib/rate-limit';
+import { createHmac } from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,32 +22,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Esta protección por instancia limita intentos casuales. Debe complementarse
-    // con límites persistentes en la infraestructura para cubrir todas las instancias.
-    const ip = getClientIpFromHeaders(request.headers);
-    const ipLimit = checkRateLimit(`login:ip:${ip}`, 20, 15 * 60 * 1000);
-    const accountLimit = checkRateLimit(`login:account:${email}`, 8, 15 * 60 * 1000);
-    if (!ipLimit.allowed || !accountLimit.allowed) {
-      const retryAfter = Math.max(
-        ipLimit.allowed ? 0 : ipLimit.retryAfterSec,
-        accountLimit.allowed ? 0 : accountLimit.retryAfterSec
-      );
-      return NextResponse.json(
-        { success: false, error: 'Demasiados intentos. Intenta más tarde.' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
-      );
-    }
-
-    if (
-      process.env.NODE_ENV === 'production' &&
-      !process.env.SESSION_SECRET?.trim()
-    ) {
-      console.error('SESSION_SECRET missing in production');
+    const sessionSecret = process.env.SESSION_SECRET?.trim();
+    if (!sessionSecret) {
+      console.error('SESSION_SECRET missing');
       return NextResponse.json(
         {
           success: false,
-          error:
-            'Falta SESSION_SECRET en Vercel (Settings → Environment Variables). Genera una clave larga aleatoria, guarda y redeploy.',
+          error: 'Configuración del servidor incorrecta',
         },
         { status: 500 }
       );
@@ -61,12 +43,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Creating Supabase admin client...');
     const supabase = createAdminClient();
-    console.log('Supabase admin client created successfully');
+
+    const rateKey = (value: string) => createHmac('sha256', sessionSecret)
+      .update(value).digest('hex');
+    const rateChecks = await Promise.all([
+      supabase.rpc('check_login_attempt', {
+        p_key_hash: rateKey(`account:${email}`), p_limit: 8, p_window_seconds: 900,
+      }),
+      supabase.rpc('check_login_attempt', {
+        p_key_hash: rateKey(`ip:${getClientIpFromHeaders(request.headers)}`),
+        p_limit: 30, p_window_seconds: 900,
+      }),
+    ]);
+    if (rateChecks.some(({ error, data }) =>
+      error || !Array.isArray(data) || data.length !== 1 ||
+      typeof data[0]?.allowed !== 'boolean' ||
+      typeof data[0]?.retry_after_seconds !== 'number'
+    )) {
+      console.error('Login rate limit unavailable');
+      return NextResponse.json(
+        { success: false, error: 'Acceso temporalmente no disponible' },
+        { status: 503 }
+      );
+    }
+    const retryAfter = Math.max(...rateChecks.map(({ data }) =>
+      data?.[0]?.allowed === false ? Number(data[0].retry_after_seconds) || 1 : 0
+    ));
+    if (retryAfter > 0) {
+      return NextResponse.json(
+        { success: false, error: 'Demasiados intentos. Intenta más tarde.' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
 
     // Buscar usuario por email (bypassing RLS with service role)
-    console.log('Searching for user in database...');
     const emailNorm = String(email).trim().toLowerCase();
     const { data: user, error } = await supabase
       .from('users')
@@ -91,13 +102,12 @@ export async function POST(request: NextRequest) {
 
 
     // Verificar contraseña
-    console.log('Verifying password...');
     const passwordHash =
       typeof user.password_hash === 'string' ? user.password_hash : '';
     if (!passwordHash) {
-      console.error('User has no password_hash:', user.email);
+      console.error('User has no password_hash');
       return NextResponse.json(
-        { success: false, error: 'Usuario mal configurado en BD', code: 'NO_PASSWORD_HASH' },
+        { success: false, error: 'Configuración del servidor incorrecta', code: 'NO_PASSWORD_HASH' },
         { status: 500 }
       );
     }
@@ -120,10 +130,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Password verified successfully');
-
     // Crear sesión (guardar en cookie)
-    console.log('Creating session...');
     const sessionData: SessionUser & { credentialVersion: string } = {
       id: String(user.id),
       email: String(user.email),
