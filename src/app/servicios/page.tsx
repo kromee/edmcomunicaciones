@@ -6,6 +6,7 @@ import { Reveal } from '@/components/Reveal';
 import Image from 'next/image';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/servicios' },
   title: 'Servicios de CCTV, redes y software a medida | EDM Comunicaciones',
   description: 'Conoce los servicios de CCTV, redes y cableado, y desarrollo de software a medida de EDM Comunicaciones.',
 };

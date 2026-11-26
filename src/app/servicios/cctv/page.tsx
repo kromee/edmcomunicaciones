@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ServiceLanding } from '@/components/ServiceLanding';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/servicios/cctv' },
   title: 'Instalación de CCTV y cámaras de seguridad | EDM Comunicaciones',
   description: 'Instalación de cámaras de seguridad y videovigilancia para comercios, empresas y hogares en toda la República Mexicana.',
   openGraph: { title: 'Instalación de CCTV y cámaras de seguridad | EDM Comunicaciones', description: 'Videovigilancia para comercios, empresas y hogares en toda la República Mexicana.' },

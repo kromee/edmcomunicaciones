@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: 'CCTV, redes, cableado y desarrollo de software a medida en toda la República Mexicana. Soluciones para comercios, empresas y hogares.',
   metadataBase: new URL(getPublicSiteUrl()),
   alternates: {
-    canonical: './',
+    canonical: '/',
   },
   verification: {
     google: 'IQBiT92H1rgtMIMtmhPIlkq7rB9plpPUWAZjpJTlcGo',
