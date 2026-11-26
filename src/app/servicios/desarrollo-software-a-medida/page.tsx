@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ServiceLanding } from '@/components/ServiceLanding';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/servicios/desarrollo-software-a-medida' },
   title: 'Desarrollo de software a medida | EDM Comunicaciones',
   description: 'Desarrollo de sistemas y aplicaciones a medida para procesos de comercios y empresas. Automatización, integración y control de información.',
   openGraph: { title: 'Desarrollo de software a medida | EDM Comunicaciones', description: 'Sistemas y aplicaciones adaptados a los procesos de comercios y empresas.' },

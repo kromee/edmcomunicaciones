@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ServiceLanding } from '@/components/ServiceLanding';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/servicios/redes-y-cableado' },
   title: 'Redes y cableado estructurado | EDM Comunicaciones',
   description: 'Diseño e instalación de redes y cableado estructurado para comercios, empresas y hogares en toda la República Mexicana.',
   openGraph: { title: 'Redes y cableado estructurado | EDM Comunicaciones', description: 'Redes y cableado para comercios, empresas y hogares en toda la República Mexicana.' },
