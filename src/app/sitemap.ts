@@ -14,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/nosotros',
     '/galeria',
     '/contacto'
-  ].map((path) => ({ url: `${baseUrl}${path}`, lastModified: new Date() }));
+  ].map((path) => ({ url: `${baseUrl}${path}` }));
 }
 
 
